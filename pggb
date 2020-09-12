@@ -14,6 +14,8 @@ max_block_weight=10000
 max_path_jump=5000
 min_subpath=0
 max_edge_jump=100
+do_viz=false
+do_layout=false
 threads=1
 
 if [ $# -eq 0 ];
@@ -22,7 +24,7 @@ then
 fi
 
 # read the options
-TEMP=`getopt -o i:p:a:n:s:K:k:w:j:W:e:t:h --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-len:,max-block-weight:,max-path-jump:,min-subpath:,max-edge-jump:,threads:,help -n 'pggbuild' -- "$@"`
+TEMP=`getopt -o i:p:a:n:s:K:k:w:j:W:e:t:vlh --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-len:,max-block-weight:,max-path-jump:,min-subpath:,max-edge-jump:,threads:,viz,layout,help -n 'pggbuild' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -40,6 +42,8 @@ while true ; do
         -W|--min-subpath) min_subpath=$2 ; shift 2 ;;
         -e|--max-edge-jump) max_edge_jump=$2 ; shift 2 ;;
         -t|--threads) threads=$2 ; shift 2 ;;
+        -v|--do-viz) do_viz=true ; shift ;;
+        -l|--do-layout) do_layout=true ; shift ;;
         -h|--help) show_help=true ; shift ;;
         #-d|--debug) debug=true ; shift ;;
         --) shift ; break ;;
@@ -55,11 +59,10 @@ if [[
     || $segment_length == false
    ]];
 then
-    #echo "'$input_fasta' '$map_pct_id' '$align_pct_id' '$n_secondary' '$segment_length'"
     show_help=true
 fi
 
-if [ $show_help == true ];
+if [ $show_help ];
 then
     echo "usage: $0 [options]"
     echo "options:"
@@ -88,9 +91,11 @@ then
     exit
 fi
 
-f=$input_fasta.edyeet-X-p$map_pct_id-a$align_pct_id-s$segment_length-n$n_secondary
+# todo name according to the things we set
+f=$input_fasta.pggb-X-p$map_pct_id-a$align_pct_id-s$segment_length-n$n_secondary-K$mash_kmer-w$max_block_weight
 
 timer="/usr/bin/time -vv"
+
 $timer edyeet -X \
      -s $segment_length \
      -p $map_pct_id \
@@ -120,16 +125,22 @@ $timer odgi viz -i $f.smooth.og \
 $timer odgi sort -i $f.smooth.og -o - -p Ygs -t $threads -P \
     | odgi chop -i - -c 100 -o $f.smooth.chop.og
 
-$timer odgi viz -i $f.smooth.chop.og \
-                -o $f.smooth.chop.og.viz.png \
-                -x 1000 -y 500 -P 5
+if [ $do_viz ];
+then
+    $timer odgi viz -i $f.smooth.chop.og \
+                    -o $f.smooth.chop.og.viz.png \
+                    -x 1500 -y 500 -P 5
+fi
 
-$timer odgi layout -i $f.smooth.chop.og \
-                   -o $f.smooth.chop.og.lay \
-                   -t $threads \
-                   -N -P
+if [ $do_viz ];
+then
+    $timer odgi layout -i $f.smooth.chop.og \
+                       -o $f.smooth.chop.og.lay \
+                       -t $threads \
+                       -N -P
 
-$timer odgi draw -i $f.smooth.chop.og \
-                 -l $f.smooth.chop.og.lay \
-                 -p $f.smooth.chop.og.lay.png \
-                 -w 0 -H 1000 -t $threads
+    $timer odgi draw -i $f.smooth.chop.og \
+                     -l $f.smooth.chop.og.lay \
+                     -p $f.smooth.chop.og.lay.png \
+                     -w 0 -H 1000 -t $threads
+fi
