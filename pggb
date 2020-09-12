@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -e
+
+input_fasta=false
+map_pct_id=false
+align_pct_id=false
+n_secondary=false
+segment_length=false
+mash_kmer=16
+min_match_len=8
+max_block_weight=10000
+max_path_jump=5000
+min_subpath=0
+max_edge_jump=100
+threads=1
+
+if [ $# -eq 0 ];
+then
+    show_help=true
+fi
+
+# read the options
+TEMP=`getopt -o i:p:a:n:s:K:k:w:j:W:e:t:h --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-len:,max-block-weight:,max-path-jump:,min-subpath:,max-edge-jump:,threads:,help -n 'pggbuild' -- "$@"`
+eval set -- "$TEMP"
+
+# extract options and their arguments into variables.
+while true ; do
+    case "$1" in
+        -i|--input-fasta) input_fasta=$2 ; shift 2 ;;
+        -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
+        -a|--align-pct-id) align_pct_id=$2 ; shift 2 ;;
+        -n|--n-secondary) n_secondary=$2 ; shift 2 ;;
+        -s|--segment-length) segment_length=$2 ; shift 2 ;;
+        -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
+        -k|--min-match-len) min_match_len=$2 ; shift 2 ;;
+        -w|--max-block-weight) max_block_weight=$2 ; shift 2 ;;
+        -j|--max-path-jump) max_path_jump=$2 ; shift 2 ;;
+        -W|--min-subpath) min_subpath=$2 ; shift 2 ;;
+        -e|--max-edge-jump) max_edge_jump=$2 ; shift 2 ;;
+        -t|--threads) threads=$2 ; shift 2 ;;
+        -h|--help) show_help=true ; shift ;;
+        #-d|--debug) debug=true ; shift ;;
+        --) shift ; break ;;
+        *) echo $2 "Internal error!" ; exit 1 ;;
+    esac
+done
+
+if [[
+       $input_fasta == false
+    || $map_pct_id == false
+    || $align_pct_id == false
+    || $n_secondary == false
+    || $segment_length == false
+   ]];
+then
+    #echo "'$input_fasta' '$map_pct_id' '$align_pct_id' '$n_secondary' '$segment_length'"
+    show_help=true
+fi
+
+if [ $show_help == true ];
+then
+    echo "usage: $0 [options]"
+    echo "options:"
+    echo "   [edyeet]"
+    echo "    -i, --input-fasta FILE    input FASTA/FASTQ file"
+    echo "    -s, --segment-length N    segment length for mapping"
+    echo "    -p, --map-pct-id PCT      percent identity in the edyeet mashmap step"
+    echo "    -a, --align-pct-id PCT    percent identity in the edyeet edlib alignment step"
+    echo "    -n, --n-secondary N       number of secondary mappings to retain in 'map' filter mode"
+    echo "    -K, --mash-kmer N         kmer size for mashmap [default: 16]"
+    echo "   [seqwish]"
+    echo "    -k, --min-match-len N     ignore exact matches below this length [default: 8]"
+    echo "   [smoothxg]"
+    echo "    -w, --max-block-weight N  maximum seed sequence in block [default: 10000]"
+    echo "    -j, --max-path-jump       maximum path jump to include in block [default: 5000]"
+    echo "    -W, --min-subpath N       minimum length of a subpath to include in partial order alignment [default: 0]"
+    echo "    -e, --max-edge-jump N     maximum edge jump before breaking [default: 100]"
+    echo "   [odgi]"
+    echo "    -v, --viz                 render a visualization of the graph in 1D"
+    echo "    -l, --layout              render a 2D layout of the graph"
+    echo "   [general]"
+    echo "    -t, --threads N           number of compute threads to use in parallel steps"
+    echo "    -h, --help                this text"
+    echo
+    echo "Use edyeet, smoothxg, and odgi to build and display a pangenome graph."
+    exit
+fi
+
+f=$input_fasta.edyeet-X-p$map_pct_id-a$align_pct_id-s$segment_length-n$n_secondary
+
+timer="/usr/bin/time -vv"
+$timer edyeet -X \
+     -s $segment_length \
+     -p $map_pct_id \
+     -n $n_secondary \
+     -a $align_pct_id \
+     -k $mash_kmer \
+     -t $threads \
+     $input_fasta $input_fasta \
+     >$f.paf 
+
+$timer seqwish -t $threads -s $input_fasta -p $f.paf -g $f.seqwish.gfa
+
+$timer smoothxg -t $threads \
+     -g $f.seqwish.gfa \
+     -w $max_block_weight \
+     -j $max_path_jump \
+     -k $min_subpath \
+     -e $max_edge_jump \
+     >$f.smooth.gfa
+
+$timer odgi build -g $f.smooth.gfa -o $f.smooth.og
+
+$timer odgi viz -i $f.smooth.og \
+                -o $f.smooth.og.viz.png \
+                -x 1000 -y 500 -P 5
+
+$timer odgi sort -i $f.smooth.og -o - -p Ygs -t $threads -P \
+    | odgi chop -i - -c 100 -o $f.smooth.chop.og
+
+$timer odgi viz -i $f.smooth.chop.og \
+                -o $f.smooth.chop.og.viz.png \
+                -x 1000 -y 500 -P 5
+
+$timer odgi layout -i $f.smooth.chop.og \
+                   -o $f.smooth.chop.og.lay \
+                   -t $threads \
+                   -N -P
+
+$timer odgi draw -i $f.smooth.chop.og \
+                 -l $f.smooth.chop.og.lay \
+                 -p $f.smooth.chop.og.lay.png \
+                 -w 0 -H 1000 -t $threads
