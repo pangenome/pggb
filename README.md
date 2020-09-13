@@ -118,8 +118,9 @@ The mashmap/edlib alignment algorithm in edyeet is a very fast way to generate a
 Crucially, it is robust to repetitive sequences (the initial mash mapping step is linear in the space of the genome irrespective of its sequence context), and it can be adjusted using probabilistic thresholds for segment alignment identity.
 This allows us to define the base graph structure using a few free parameters: we consider the best-n candidate alignments for each N-bp segment, where the alignments must have at least a given identity threshold.
 
-Although the edlib-based alignments can break down in the case of large indels, yielding ambiguous and difficult-to-interpret alignments, we do not use them directly in the graph construction.
-Preventing the graph to close through matches less than `-k, --min-match-len` bp prevents us from using these in the graph.
+The edlib-based alignments can break down in the case of large indels, yielding ambiguous and difficult-to-interpret alignments.
+But, we should not use such regions of the alignments directly in the graph construction, as this can increase graph complexity.
+We ignore such regions by preventing `seqwish` from closing the graph through matches less than `-k, --min-match-len` bp.
 In effect, this filter to the input to seqwish forces structural variations and regions of very low identity to be represented as bubbles.
 This reduces the local topological complexity of the graph at the cost of increasing its redundancy.
 
