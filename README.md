@@ -3,7 +3,8 @@
 ## the pangenome graph builder
 
 This pangenome graph construction pipeline renders a collection of sequences into a pangenome graph (in the variation graph model).
-Its goal is to build a graph that 
+Its goal is to build a graph that is locally directed and acyclic while preserving large-scale variation.
+Maintaining local linearity is important for the interpretation, visualization, and reuse of pangenome variation graphs.
 
 It uses three phases:
 
@@ -22,6 +23,8 @@ This normalizes their mutual alignment and remove artifacts of the edit-distance
 It ensures that the graph always has local partial order, which is essential for many applications and matches our prior expectations about small-scale variation in genomes.
 This step yields a rebuilt graph, a consensus subgraph, and a whole genome alignment in MAF format.
 
+Optional post-processing steps provide 1D and 2D diagnostic visualizations of the graph.
+
 ## usage
 
 `pggb` requires at least an input sequence `-i`, a segment length `-s`, a mapping identity minimum `-p`, and an alignment identity minimum `-a`.
@@ -36,6 +39,15 @@ pggb -i B-3106.fa.gz -s 1000 -K 11 -p 70 -a 70 -n 10 -t 16 -w 10000 -v -l
 This yields a variation graph in GFA format and several diagnostic images.
 By default, it is named according to the input file and the construction parameters.
 Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
+
+## configuration / extension
+
+The pipeline is provided as a single script with configurable command-line options.
+Users should consider taking this script as a starting point for their own pangenome project.
+For instance, you might consider swapping out `edyeet` with `minimap2` or another PAF-producing long-read aligner.
+If the graph is small, it might also be possible to use `spoa` to generate it directly.
+On the other hand, maybe you're starting with an assembly overlap graph which can be converted to blunt-ended GFA using gimbricate.
+You might have a validation process based on alignment of sequences to the graph, which should be added at the end of the process.
 
 ## downstream
 
