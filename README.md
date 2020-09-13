@@ -116,7 +116,7 @@ It's straightforward to generate a pangenome graph by the all-pairs alignment of
 This can scale poorly, but it has ideal sensitivity.
 The mashmap/edlib alignment algorithm in edyeet is a very fast way to generate alignments between the sequences.
 Crucially, it is robust to repetitive sequences (the initial mash mapping step is linear in the space of the genome irrespective of its sequence context), and it can be adjusted using probabilistic thresholds for segment alignment identity.
-This allows us to define the base graph structure using a few free parameters: we consider the best-n candidate alignments for each N-bp segment, where the alignmentss must have at least a given identity threshold.
+This allows us to define the base graph structure using a few free parameters: we consider the best-n candidate alignments for each N-bp segment, where the alignments must have at least a given identity threshold.
 
 Although the edlib-based alignments can break down in the case of large indels, yielding ambiguous and difficult-to-interpret alignments, we do not use them directly in the graph construction.
 Preventing the graph to close through matches less than `-k, --min-match-len` bp prevents us from using these in the graph.
