@@ -40,7 +40,56 @@ This yields a variation graph in GFA format and several diagnostic images.
 By default, it is named according to the input file and the construction parameters.
 Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
 
-## configuration / extension
+## considerations
+
+It is important to understand the key parameters of each phase and their affect on the resulting pangenome graph.
+Each pangenome is different.
+We may require different settings to obtain useful graphs for particular applications in different contexts.
+
+### edyeet
+
+Four parameters passed to `edyeet` are essential for establishing the basic structure of the pangenome:
+
+* `-s[N], --segment-length=[N]` is the length of the mapped and aligned segment
+* `-p[%], --map-pct-id=[%]` is the percentage identity minimum in the _mapping_ step
+* `-n[N], --n-secondary=[N]` is the maximum number of mappings (and alignments) to report for each segment
+* `-a[%], --align-pct-id=[%]` defines the minimum percentage identity allowed in the _alignment_ step
+
+Crucially, `--segment-length` provides a kind of minimum alignment length filter.
+The mashmap step in `edyeet` will only consider segments of this size, and require them to have an approximate pairwise identity of at least `--map-pct-id`.
+For small pangenome graphs, or where there are few repeats, `--segment-length` can be set low (such as 1000 in the example above).
+However, for larger contexts, with repeats, it can be very important to set this high (for instance 100000 in the case of human genomes).
+A long segment length ensures that we represent long collinear regions of the input sequences in the structure of the graph.
+Setting `--align-pct-id` near or below `--map-pct-id` ensures that we can derive a base-level alignment for the typical mapping.
+However, setting it very low with a long `--segment-length` may result in long runtimes due to the quadratic costs of alignment.
+
+### seqwish
+
+The `-k` or `--min-match-length` parameter given to `seqwish` will drop any short matches from consideration.
+In practice, these often occur in regions of low alignment quality, which are typical of areas with large indels and structural variation in the `edyeet` alignments.
+In effect, setting `-k` to N means that we can tolerate a local pairwise difference rate of no more than 1/N.
+Thus, indels which may be represented by complex series of edit operations will be opened into bubbles in the induced graph, and alignment regions with very low identity will be ignored.
+Using affine-gapped alignment (such as with `minimap2`) may reduce the impact of this step by representing large indels more precisely in the input alignments.
+However, it remains important due to local inconsistency in alignments in low-complexity sequence.
+
+### smoothxg
+
+The "chunked" POA process attempts to build an MSA for each collinear region in the sorted graph.
+This depends on a sorting pipeline implemented in `odgi`.
+`smoothxg` greedily extends candidate blocks until they contain `-w[N], --max-block-weight=[N]` bp of sequence in the embedded paths.
+The `--max-block-weight` parameter thus determines the average size of these blocks.
+We expect their length in graph space to be approximately `max-block-weight` / `average_path_depth`.
+Thus, it may be necessary to change this setting when the pangenome path depth (the number of genome sequences covering the average graph node) is higher or lower.
+In effect, setting `--max-block-weight` higher will make the size of the blocks given to `spoa` larger, and this will result in larger regions of the graph having guaranteed local partial order.
+Setting it higher can greatly increase runtime, beacuse `spoa` is quadratic in the length of the longest sequence and graph that it aligns, but it also tends to produce cleaner resulting graphs.
+
+Other parameters to `smoothxg` help to shape the scope and boundaries of the blocks.
+In particular, `-e[N], --max-edge-jump=[N]` breaks a growing block when an edge in the graph jumps more than the given distance `N` in the sort order of the graph.
+This is designed to encourage spoa blocks to stop near the boundaries of structural variation.
+When a path leaves and returns to a given block, we can pull in the sequence that lies outside the block if it is less than `-j[N], --max-path-jump=[N]`.
+Paths that only travers a given block for `-W[N], --min-subpath=[N]` bp are removed from the block.
+
+## extension
 
 The pipeline is provided as a single script with configurable command-line options.
 Users should consider taking this script as a starting point for their own pangenome project.
