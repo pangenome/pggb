@@ -33,12 +33,16 @@ Other parameters may help in specific instances to shape the alignment set.
 Using a test from the `data/HLA` directory in this repo:
 
 ```sh
-pggb -i B-3106.fa.gz -s 1000 -K 11 -p 70 -a 70 -n 10 -t 16 -w 10000 -v -l
+pggb -i DRB1-3123.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 16 -v -l
 ```
 
 This yields a variation graph in GFA format and several diagnostic images.
 By default, it is named according to the input file and the construction parameters.
 Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
+
+![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K11-k8-w10000-j5000-W0-e100.smooth.og.viz.png)
+
+![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K11-k8-w10000-j5000-W0-e100.smooth.chop.og.lay.png)
 
 ## considerations
 
