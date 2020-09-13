@@ -46,7 +46,7 @@ It is important to understand the key parameters of each phase and their affect 
 Each pangenome is different.
 We may require different settings to obtain useful graphs for particular applications in different contexts.
 
-### edyeet
+### defining the base alignment with edyeet
 
 Four parameters passed to `edyeet` are essential for establishing the basic structure of the pangenome:
 
@@ -63,7 +63,7 @@ A long segment length ensures that we represent long collinear regions of the in
 Setting `--align-pct-id` near or below `--map-pct-id` ensures that we can derive a base-level alignment for the typical mapping.
 However, setting it very low with a long `--segment-length` may result in long runtimes due to the quadratic costs of alignment.
 
-### seqwish
+### generating the initial graph with seqwish
 
 The `-k` or `--min-match-length` parameter given to `seqwish` will drop any short matches from consideration.
 In practice, these often occur in regions of low alignment quality, which are typical of areas with large indels and structural variation in the `edyeet` alignments.
@@ -72,7 +72,7 @@ Thus, indels which may be represented by complex series of edit operations will 
 Using affine-gapped alignment (such as with `minimap2`) may reduce the impact of this step by representing large indels more precisely in the input alignments.
 However, it remains important due to local inconsistency in alignments in low-complexity sequence.
 
-### smoothxg
+### homogenizing and ordering the graph with smoothxg
 
 The "chunked" POA process attempts to build an MSA for each collinear region in the sorted graph.
 This depends on a sorting pipeline implemented in `odgi`.
