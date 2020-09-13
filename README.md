@@ -81,6 +81,10 @@ Applying an MSA algorithm (in this case, spoa) to each of these chunks enforces 
 This smoothing step thus yields a graph that is locally as we expect: partially ordered, and linear as the base DNA molecules are, but globally can represent large structural variation.
 The homogenization also rectifies issues with the initial edit-distance-based alignment.
 
+## authors
+
+Erik Garrison
+
 ## license
 
 MIT
