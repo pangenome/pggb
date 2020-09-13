@@ -118,32 +118,26 @@ $timer smoothxg -t $threads \
 
 $timer odgi build -g $f.smooth.gfa -o $f.smooth.og
 
-if [[ $do_viz == true || $do_layout == true ]];
-then
-    $timer odgi sort -i $f.smooth.og -o - -p Ygs -t $threads -P \
-        | odgi chop -i - -c 100 -o $f.smooth.chop.og
-fi
-
 if [[ $do_viz == true ]];
 then
     $timer odgi viz -i $f.smooth.og \
                     -o $f.smooth.og.viz.png \
                     -x 1500 -y 500 -P 5
-
-    #$timer odgi viz -i $f.smooth.chop.og \
-    #                -o $f.smooth.chop.og.viz.png \
-    #                -x 1500 -y 500 -P 5
 fi
 
 if [[ $do_layout == true ]];
 then
+    # the 2D layout is "smoother" when we chop the nodes of the graph to a fixed maximum length
+    $timer odgi chop -i $f.smooth.og -c 100 -o $f.smooth.chop.og
+
+    # adding -N to this call can help when rendering large, complex graphs that aren't globally linear
     $timer odgi layout -i $f.smooth.chop.og \
                        -o $f.smooth.chop.og.lay \
-                       -t $threads \
-                       -N -P
+                       -t $threads -P
 
+    # this can be configured to draw the graph in different ways, based on the same layout
     $timer odgi draw -i $f.smooth.chop.og \
-                     -l $f.smooth.chop.og.lay \
+                     -c $f.smooth.chop.og.lay \
                      -p $f.smooth.chop.og.lay.png \
-                     -w 0 -H 1000 -t $threads
+                     -H 1000 -t $threads
 fi
