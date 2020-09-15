@@ -106,7 +106,7 @@ $timer edyeet -X \
      $input_fasta $input_fasta \
      >$f.paf 
 
-$timer seqwish -t $threads -s $input_fasta -p $f.paf -k $min_match_length -g $f.seqwish.gfa
+$timer seqwish -t $threads -s $input_fasta -p $f.paf -k $min_match_length -g $f.seqwish.gfa -P
 
 $timer smoothxg -t $threads \
      -g $f.seqwish.gfa \
