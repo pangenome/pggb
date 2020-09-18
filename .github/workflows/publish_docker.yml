@@ -1,0 +1,21 @@
+name: Publish container to github container registry
+
+# Documentation on the primary Action used here: https://github.com/marketplace/actions/publish-docker
+
+on:
+  push:
+      branches:
+        - master
+jobs:
+  publish_release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@master
+      with:
+        name: pangenome/pggb
+        username: subwaystation
+        password: ${{secrets.PGGB_DOCKER_TOKEN}}
+        registry: ghcr.io
+        tags: "latest"

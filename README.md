@@ -44,6 +44,20 @@ Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
 
 ![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K11-k8-w10000-j5000-W0-e100.smooth.chop.og.lay.png)
 
+### docker
+
+We can build a docker image locally using the `Dockerfile`:
+
+```sh
+docker build --target binary -t heumos/pggb:latest .
+```
+
+Then we can run the built container using our local HLA-zoo data:
+
+```sh
+docker run -it -v /home/heumos/git/HLA-zoo/seqs/:/data heumos/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
+```
+
 ## considerations
 
 It is important to understand the key parameters of each phase and their affect on the resulting pangenome graph.
