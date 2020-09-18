@@ -17,5 +17,4 @@ jobs:
         name: pangenome/pggb
         username: ${{ github.actor }}
         password: ${{ secrets.PGGB_DOCKER_TOKEN }}
-        registry: ghcr.io
         tags: "latest"
