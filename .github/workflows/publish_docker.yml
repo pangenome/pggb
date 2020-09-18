@@ -16,6 +16,6 @@ jobs:
       with:
         name: pangenome/pggb
         username: subwaystation
-        password: ${{secrets.PGGB_DOCKER_TOKEN}}
+        password: ${{ secrets.PGGB_DOCKER_TOKEN }}
         registry: ghcr.io
         tags: "latest"
