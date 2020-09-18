@@ -42,4 +42,14 @@ RUN cd smoothxg \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg
 
+RUN apt-get install -y time
+
+COPY pggb /usr/local/bin/pggb
+RUN chmod 777 /usr/local/bin/pggb
+
+LABEL base_image="debian:buster-slim"
+LABEL software="pggb"
+LABEL about.home="https://github.com/pangenome/pggb"
+LABEL about.license="SPDX:MIT"
+
 ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
