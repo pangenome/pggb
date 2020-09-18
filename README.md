@@ -58,7 +58,6 @@ Then we can run the built container using our local HLA-zoo data:
 docker run -it -v /home/heumos/git/HLA-zoo/seqs/:/data heumos/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
 ```
 
-
 ## considerations
 
 It is important to understand the key parameters of each phase and their affect on the resulting pangenome graph.
