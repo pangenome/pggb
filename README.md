@@ -1,5 +1,7 @@
 # pggb
 
+![Publish container to github container registry](https://github.com/pangenome/pggb/workflows/Publish%20container%20to%20github%20container%20registry/badge.svg)
+
 ## the pangenome graph builder
 
 This pangenome graph construction pipeline renders a collection of sequences into a pangenome graph (in the variation graph model).
