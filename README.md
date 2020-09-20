@@ -46,7 +46,17 @@ Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
 
 ### docker
 
-We can build a docker image locally using the `Dockerfile`:
+We have an automated GitHub action that pushes the current docker build to the GitHub registry! First pull the actual image:
+```sh
+docker pull ghcr.io/pangenome/pggb:latest
+```
+
+Then run the container using the example data:
+```sh
+docker run -it -v /home/heumos/git/pggb/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
+```
+
+Or if you want to experiment around, you can build a docker image locally using the `Dockerfile`:
 
 ```sh
 docker build --target binary -t heumos/pggb:latest .
