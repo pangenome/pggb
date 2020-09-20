@@ -15,7 +15,7 @@ jobs:
       uses: elgohr/Publish-Docker-Github-Action@master
       with:
         name: pangenome/pggb
-        username: ${{ github.actor }}
+        username: subwaystation
         password: ${{ secrets.PGGB_DOCKER_TOKEN }}
         registry: ghcr.io
         tags: "latest"
