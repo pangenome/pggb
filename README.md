@@ -1,5 +1,7 @@
 # pggb
 
+![Publish container to github container registry](https://github.com/pangenome/pggb/workflows/Publish%20container%20to%20github%20container%20registry/badge.svg)
+
 ## the pangenome graph builder
 
 This pangenome graph construction pipeline renders a collection of sequences into a pangenome graph (in the variation graph model).
@@ -47,14 +49,17 @@ Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
 ### docker
 
 We have an automated GitHub action that pushes the current docker build to the GitHub registry! First pull the actual image:
+
 ```sh
 docker pull ghcr.io/pangenome/pggb:latest
 ```
 
 Assuming, you are in the `pggb` directory, you can run the container using the example data:
+
 ```sh
 docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
 ```
+
 The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`. 
 
 Or if you want to experiment around, you can build a docker image locally using the `Dockerfile`:
