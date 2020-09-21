@@ -63,7 +63,7 @@ Or if you want to experiment around, you can build a docker image locally using 
 docker build --target binary -t ${USER}/pggb:latest .
 ```
 
-Assuming you are in the `HLA-zoo` direcotry, you can run the built container using our local HLA-zoo data:
+Assuming you are in the `HLA-zoo` directory, you can run the built container using our local HLA-zoo data:
 
 ```sh
 docker run -it -v ${PWD}/seqs/:/data ${USER}/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
