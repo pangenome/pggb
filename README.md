@@ -49,25 +49,29 @@ Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
 ### docker
 
 We have an automated GitHub action that pushes the current docker build to the GitHub registry! First pull the actual image:
+
 ```sh
 docker pull ghcr.io/pangenome/pggb:latest
 ```
 
-Then run the container using the example data:
+Assuming, you are in the `pggb` directory, you can run the container using the example data:
+
 ```sh
-docker run -it -v /home/heumos/git/pggb/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
 ```
+
+The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
 
 Or if you want to experiment around, you can build a docker image locally using the `Dockerfile`:
 
 ```sh
-docker build --target binary -t heumos/pggb:latest .
+docker build --target binary -t ${USER}/pggb:latest .
 ```
 
-Then we can run the built container using our local HLA-zoo data:
+Assuming you are in the `HLA-zoo` directory, you can run the built container using our local HLA-zoo data:
 
 ```sh
-docker run -it -v /home/heumos/git/HLA-zoo/seqs/:/data heumos/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
+docker run -it -v ${PWD}/seqs/:/data ${USER}/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
 ```
 
 ## considerations
