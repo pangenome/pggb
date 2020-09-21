@@ -60,7 +60,7 @@ Assuming, you are in the `pggb` directory, you can run the container using the e
 docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
 ```
 
-The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`. 
+The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
 
 Or if you want to experiment around, you can build a docker image locally using the `Dockerfile`:
 
