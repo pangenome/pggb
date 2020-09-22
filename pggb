@@ -87,7 +87,7 @@ then
     echo "    -t, --threads N           number of compute threads to use in parallel steps"
     echo "    -h, --help                this text"
     echo
-    echo "Use edyeet, smoothxg, and odgi to build and display a pangenome graph."
+    echo "Use edyeet, seqwish, smoothxg, and odgi to build and display a pangenome graph."
     exit
 fi
 
