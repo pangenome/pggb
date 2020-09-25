@@ -31,7 +31,7 @@ RUN apt-get install -y \
                         libgsl-dev \
                         zlib1g-dev
 RUN cd edyeet \
-    && git checkout d284564 \
+    && git checkout 0de3690 \
     && bash bootstrap.sh \
     && bash configure \
     && make \
