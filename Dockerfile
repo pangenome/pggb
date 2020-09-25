@@ -19,7 +19,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/vgteam/odgi.git
 RUN cd odgi \
     && git pull \
-    && git checkout 4636390 \
+    && git checkout 537a79c \
     && cmake -H. -Bbuild \
     && cmake --build build -- -j $(nproc) \
     && cd build \
