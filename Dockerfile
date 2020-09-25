@@ -18,7 +18,8 @@ RUN apt-get update \
                        libatomic-ops-dev
 RUN git clone --recursive https://github.com/vgteam/odgi.git
 RUN cd odgi \
-    && git checkout b658ff8 \
+    && git pull \
+    && git checkout 4636390 \
     && cmake -H. -Bbuild \
     && cmake --build build -- -j $(nproc) \
     && cd build \
@@ -31,7 +32,8 @@ RUN apt-get install -y \
                         libgsl-dev \
                         zlib1g-dev
 RUN cd edyeet \
-    && git checkout d284564 \
+    && git pull \
+    && git checkout 0de3690 \
     && bash bootstrap.sh \
     && bash configure \
     && make \
@@ -42,6 +44,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish
 RUN apt-get install -y \
                         build-essential
 RUN cd seqwish \
+    && git pull \
     && git checkout 9bbfa70 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish
@@ -49,6 +52,7 @@ RUN cd seqwish \
 RUN cd ../
 RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
+    && git pull \
     && git checkout 57a9d56 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg
