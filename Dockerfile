@@ -18,7 +18,7 @@ RUN apt-get update \
                        libatomic-ops-dev
 RUN git clone --recursive https://github.com/vgteam/odgi.git
 RUN cd odgi \
-    && git checkout b658ff8 \
+    && git checkout 4636390 \
     && cmake -H. -Bbuild \
     && cmake --build build -- -j $(nproc) \
     && cd build \
