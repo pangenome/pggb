@@ -54,7 +54,14 @@ We have an automated GitHub action that pushes the current docker build to the G
 docker pull ghcr.io/pangenome/pggb:latest
 ```
 
-Assuming you are in the `pggb` directory, you can run the container using the example data:
+Going in the `pggb` directory
+
+```sh
+git clone --recursive https://github.com/pangenome/pggb.git
+cd pggb
+```
+
+you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```sh
 docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
@@ -68,7 +75,8 @@ Or if you want to experiment around, you can build a docker image locally using 
 docker build --target binary -t ${USER}/pggb:latest .
 ```
 
-Assuming you are in the `HLA-zoo` directory, you can run the built container using our local HLA-zoo data:
+Assuming you are in the [`HLA-zoo`](https://github.com/ekg/HLA-zoo) directory, you can run the built container using your
+local HLA-zoo data:
 
 ```sh
 docker run -it -v ${PWD}/seqs/:/data ${USER}/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
