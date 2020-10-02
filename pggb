@@ -13,7 +13,8 @@ min_match_length=8
 max_block_weight=10000
 max_path_jump=5000
 min_subpath=16
-max_edge_jump=1000
+max_edge_jump=5000
+max_poa_length=10000
 do_viz=false
 do_layout=false
 threads=1
@@ -78,8 +79,9 @@ then
     echo "   [smoothxg]"
     echo "    -w, --max-block-weight N  maximum seed sequence in block [default: 10000]"
     echo "    -j, --max-path-jump       maximum path jump to include in block [default: 5000]"
-    echo "    -W, --min-subpath N       minimum length of a subpath to include in partial order alignment [default: 16]"
-    echo "    -e, --max-edge-jump N     maximum edge jump before breaking [default: 1000]"
+    echo "    -W, --min-subpath N       minimum length of a subpath to include in POA [default: 16]"
+    echo "    -e, --max-edge-jump N     maximum edge jump before breaking [default: 5000]"
+    echo "    -L, --max-poa-length N    maximum sequence length to put into POA [default: 10000]"
     echo "   [odgi]"
     echo "    -v, --viz                 render a visualization of the graph in 1D"
     echo "    -l, --layout              render a 2D layout of the graph"
@@ -114,6 +116,7 @@ $timer smoothxg -t $threads \
      -j $max_path_jump \
      -k $min_subpath \
      -e $max_edge_jump \
+     -l $max_poa_length \
      >$f.smooth.gfa
 
 $timer odgi build -g $f.smooth.gfa -o $f.smooth.og
