@@ -53,7 +53,7 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
-    && git checkout 57a9d56 \
+    && git checkout 5308db3 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg
 
