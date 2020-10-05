@@ -12,7 +12,7 @@ mash_kmer=16
 min_match_length=8
 max_block_weight=10000
 max_path_jump=5000
-min_subpath=16
+min_subpath=0
 max_edge_jump=5000
 max_poa_length=10000
 do_viz=false
@@ -79,7 +79,7 @@ then
     echo "   [smoothxg]"
     echo "    -w, --max-block-weight N  maximum seed sequence in block [default: 10000]"
     echo "    -j, --max-path-jump       maximum path jump to include in block [default: 5000]"
-    echo "    -W, --min-subpath N       minimum length of a subpath to include in POA [default: 16]"
+    echo "    -W, --min-subpath N       minimum length of a subpath to include in POA [default: 0 / no filter]"
     echo "    -e, --max-edge-jump N     maximum edge jump before breaking [default: 5000]"
     echo "    -L, --max-poa-length N    maximum sequence length to put into POA [default: 10000]"
     echo "   [odgi]"
