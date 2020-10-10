@@ -46,16 +46,21 @@ Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
 
 ![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K16-k8-w10000-j5000-e5000.smooth.chop.og.lay.png)
 
+### working with larger graphs
+
 Although it makes for a nice example, the settings for this small, highly-diverse gene in the human HLA are typically too sensitive for application to whole genomes.
+
 In practice, we usually need to set `-s` much higher, up to 50000 or 100000 depending on context, to ensure that the resulting graphs maintain a structure reflective of the underlying homology of large regions of the genome, and not spurious matches caused by small repeats.
+
 To ensure that we only get high-quality alignments, we might need to set `-p` and `-a` higher, near the expected pairwise diversity of the sequences we're using (including structural variants in the diversity metric).
 Setting `-n`
 In general, increasing `-s`, `-p`, and `-a` decreases runtime and memory usage.
 
 For instance, a good setting for 10-20 genomes from the same species, with diversity from 1-5% would be `-s 100000 -p 90 -a 90 -n 10`.
 However, if we wanted to include genomes from another species with higher divergence (say 20%), we might use `-s 100000 -p 70 -a 70 -n 10`.
+The exact configuration depends on the application, and testing must be used to determine what is appropriate for a given study.
 
-## theoretical considerations
+## parameter considerations
 
 It is important to understand the key parameters of each phase and their effect on the resulting pangenome graph.
 Each pangenome is different.
