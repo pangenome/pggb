@@ -46,7 +46,7 @@ Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
 
 ![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K16-k8-w10000-j5000-e5000.smooth.chop.og.lay.png)
 
-### working with larger graphs
+### suggestions for larger pangenomes
 
 Although it makes for a nice example, the settings for this small, highly-diverse gene in the human HLA are typically too sensitive for application to whole genomes.
 
