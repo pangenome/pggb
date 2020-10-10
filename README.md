@@ -72,7 +72,7 @@ Four parameters passed to `edyeet` are essential for establishing the basic stru
 
 Crucially, `--segment-length` provides a kind of minimum alignment length filter.
 The mashmap step in `edyeet` will only consider segments of this size, and require them to have an approximate pairwise identity of at least `--map-pct-id`.
-For small pangenome graphs, or where there are few repeats, `--segment-length` can be set low (such as 1000 in the example above).
+For small pangenome graphs, or where there are few repeats, `--segment-length` can be set low (such as 3000 in the example above).
 However, for larger contexts, with repeats, it can be very important to set this high (for instance 100000 in the case of human genomes).
 A long segment length ensures that we represent long collinear regions of the input sequences in the structure of the graph.
 Setting `--align-pct-id` near or below `--map-pct-id` ensures that we can derive a base-level alignment for the typical mapping.
