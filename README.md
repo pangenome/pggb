@@ -35,54 +35,27 @@ Other parameters may help in specific instances to shape the alignment set.
 Using a test from the `data/HLA` directory in this repo:
 
 ```sh
-pggb -i DRB1-3123.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 16 -v -l
+pggb -i DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 16 -v -l
 ```
 
 This yields a variation graph in GFA format and several diagnostic images.
 By default, it is named according to the input file and the construction parameters.
 Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
 
-![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K11-k8-w10000-j5000-W0-e100.smooth.og.viz.png)
+![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K16-k8-w10000-j5000-e5000.smooth.og.viz.png)
 
-![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K11-k8-w10000-j5000-W0-e100.smooth.chop.og.lay.png)
+![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K16-k8-w10000-j5000-e5000.smooth.chop.og.lay.png)
 
-### docker
+Although it makes for a nice example, the settings for this small, highly-diverse gene in the human HLA are typically too sensitive for application to whole genomes.
+In practice, we usually need to set `-s` much higher, up to 50000 or 100000 depending on context, to ensure that the resulting graphs maintain a structure reflective of the underlying homology of large regions of the genome, and not spurious matches caused by small repeats.
+To ensure that we only get high-quality alignments, we might need to set `-p` and `-a` higher, near the expected pairwise diversity of the sequences we're using (including structural variants in the diversity metric).
+Setting `-n`
+In general, increasing `-s`, `-p`, and `-a` decreases runtime and memory usage.
 
-We have an automated GitHub action that pushes the current docker build to the GitHub registry. First pull the actual image:
+For instance, a good setting for 10-20 genomes from the same species, with diversity from 1-5% would be `-s 100000 -p 90 -a 90 -n 10`.
+However, if we wanted to include genomes from another species with higher divergence (say 20%), we might use `-s 100000 -p 70 -a 70 -n 10`.
 
-```sh
-docker pull ghcr.io/pangenome/pggb:latest
-```
-
-Going in the `pggb` directory
-
-```sh
-git clone --recursive https://github.com/pangenome/pggb.git
-cd pggb
-```
-
-you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
-
-```sh
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
-```
-
-The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
-
-Or if you want to experiment around, you can build a docker image locally using the `Dockerfile`:
-
-```sh
-docker build --target binary -t ${USER}/pggb:latest .
-```
-
-Assuming you are in the [`HLA-zoo`](https://github.com/ekg/HLA-zoo) directory, you can run the built container using your
-local HLA-zoo data:
-
-```sh
-docker run -it -v ${PWD}/seqs/:/data ${USER}/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
-```
-
-## considerations
+## theoretical considerations
 
 It is important to understand the key parameters of each phase and their effect on the resulting pangenome graph.
 Each pangenome is different.
@@ -173,9 +146,49 @@ Applying an MSA algorithm (in this case, `spoa`) to each of these chunks enforce
 This smoothing step thus yields a graph that is locally as we expect: partially ordered, and linear as the base DNA molecules are, but globally can represent large structural variation.
 The homogenization also rectifies issues with the initial edit-distance-based alignment.
 
+## docker
+
+To simplify installation and versioning, we have an automated GitHub action that pushes the current docker build to the GitHub registry.
+To use it, first pull the actual image:
+
+```sh
+docker pull ghcr.io/pangenome/pggb:latest
+```
+
+Going in the `pggb` directory
+
+```sh
+git clone --recursive https://github.com/pangenome/pggb.git
+cd pggb
+```
+
+you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
+
+```sh
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
+```
+
+The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
+
+Or if you want to experiment around, you can build a docker image locally using the `Dockerfile`:
+
+```sh
+docker build --target binary -t ${USER}/pggb:latest .
+```
+
+Assuming you are in the [`HLA-zoo`](https://github.com/ekg/HLA-zoo) directory, you can run the built container using your
+local HLA-zoo data:
+
+```sh
+docker run -it -v ${PWD}/seqs/:/data ${USER}/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
+```
+
 ## authors
 
 Erik Garrison
+Simon Heumos
+Andrea Guarracino
+Yan Gao
 
 ## license
 
