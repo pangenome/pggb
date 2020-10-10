@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # exit when any command fails
-set -e
+set -euo pipefail
 
 input_fasta=false
 map_pct_id=false
