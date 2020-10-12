@@ -7,6 +7,7 @@ LABEL software="pggb"
 LABEL about.home="https://github.com/pangenome/pggb"
 LABEL about.license="SPDX:MIT"      
 
+# odgi's dependencies
 RUN apt-get update \
     && apt-get install -y \
                        git \
@@ -16,14 +17,6 @@ RUN apt-get update \
                        g++ \
                        python3-dev \
                        libatomic-ops-dev
-RUN git clone --recursive https://github.com/vgteam/odgi.git
-RUN cd odgi \
-    && git pull \
-    && git checkout 537a79c \
-    && cmake -H. -Bbuild \
-    && cmake --build build -- -j $(nproc) \
-    && cd build \
-    && cp ../bin/odgi /usr/local/bin/odgi 
 
 RUN cd ../../
 RUN git clone --recursive https://github.com/ekg/edyeet
@@ -33,7 +26,7 @@ RUN apt-get install -y \
                         zlib1g-dev
 RUN cd edyeet \
     && git pull \
-    && git checkout 0de3690 \
+    && git checkout 4d77e10 \
     && bash bootstrap.sh \
     && bash configure \
     && make \
@@ -53,9 +46,10 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
-    && git checkout 5308db3 \
+    && git checkout 04b587a \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
-    && cp bin/smoothxg /usr/local/bin/smoothxg
+    && cp bin/smoothxg /usr/local/bin/smoothxg \
+    && cp deps/odgi/bin/odgi /usr/local/bin/odgi
 
 RUN apt-get install -y time
 
