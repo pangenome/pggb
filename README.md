@@ -38,9 +38,10 @@ Using a test from the `data/HLA` directory in this repo:
 pggb -i DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 16 -v -l
 ```
 
-This yields a variation graph in GFA format and several diagnostic images.
-By default, it is named according to the input file and the construction parameters.
+This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, and several diagnostic images.
+By default, the outputs are named according to the input file and the construction parameters.
 Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
+(These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-l` can take a while.)
 
 ![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K16-k8-w10000-j5000-e5000.smooth.og.viz.png)
 

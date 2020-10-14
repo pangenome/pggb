@@ -108,7 +108,8 @@ fi
 # todo name according to the things we set
 f=$input_fasta.pggb-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer-k$min_match_length-w$max_block_weight-j$max_path_jump-e$max_edge_jump
 
-timer="/usr/bin/time -vv"
+fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
+timer=/usr/bin/time
 
 if [[ $merge_segments == true ]];
 then
@@ -118,7 +119,7 @@ fi
 
 if [[ "$mapper" == "edyeet" ]];
 then
-    $timer edyeet -X \
+    $timer -f "$fmt" edyeet -X \
            -s $segment_length \
            $merge_cmd \
            -p $map_pct_id \
@@ -131,7 +132,7 @@ then
 elif [[ "$mapper" == "wfmash" ]];
 then
     f=$f"-W-L"$wf_min"-D"$wf_diff
-    $timer wfmash -X \
+    $timer -f "$fmt" wfmash -X \
            -s $segment_length \
            $merge_cmd \
            -p $map_pct_id \
@@ -146,22 +147,30 @@ then
 fi
 
 
-$timer seqwish -t $threads -s $input_fasta -p $f.paf -k $min_match_length -g $f.seqwish.gfa -P
+$timer -f "$fmt" seqwish \
+       -t $threads \
+       -s $input_fasta \
+       -p $f.paf \
+       -k $min_match_length \
+       -g $f.seqwish.gfa \
+       -P
 
-$timer smoothxg -t $threads \
-     -g $f.seqwish.gfa \
-     -w $max_block_weight \
-     -j $max_path_jump \
-     -k $min_subpath \
-     -e $max_edge_jump \
-     -l $max_poa_length \
-     >$f.smooth.gfa
+$timer -f "$fmt" smoothxg \
+       -t $threads \
+       -g $f.seqwish.gfa \
+       -w $max_block_weight \
+       -j $max_path_jump \
+       -k $min_subpath \
+       -e $max_edge_jump \
+       -l $max_poa_length \
+       -m $f.smooth.maf \
+       >$f.smooth.gfa
 
-$timer odgi build -g $f.smooth.gfa -o $f.smooth.og
+$timer -f "$fmt" odgi build -g $f.smooth.gfa -o $f.smooth.og
 
 if [[ $do_viz == true ]];
 then
-    $timer odgi viz -i $f.smooth.og \
+    $timer -f "$fmt" odgi viz -i $f.smooth.og \
                     -o $f.smooth.og.viz.png \
                     -x 1500 -y 500 -P 5
 fi
@@ -169,16 +178,17 @@ fi
 if [[ $do_layout == true ]];
 then
     # the 2D layout is "smoother" when we chop the nodes of the graph to a fixed maximum length
-    $timer odgi chop -i $f.smooth.og -c 100 -o $f.smooth.chop.og
+    $timer -f "$fmt" odgi chop -i $f.smooth.og -c 100 -o $f.smooth.chop.og
 
     # adding -N to this call can help when rendering large, complex graphs that aren't globally linear
-    $timer odgi layout -i $f.smooth.chop.og \
+    $timer -f "$fmt" odgi layout -i $f.smooth.chop.og \
                        -o $f.smooth.chop.og.lay \
                        -t $threads -P
 
     # this can be configured to draw the graph in different ways, based on the same layout
-    $timer odgi draw -i $f.smooth.chop.og \
+    $timer -f "$fmt" odgi draw -i $f.smooth.chop.og \
                      -c $f.smooth.chop.og.lay \
                      -p $f.smooth.chop.og.lay.png \
-                     -H 1000 -t $threads
+                     -C -w 20 \
+                     -H 1500 -t $threads
 fi
