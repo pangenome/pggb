@@ -33,6 +33,16 @@ RUN cd edyeet \
     && cp edyeet /usr/local/bin/edyeet
 
 RUN cd ../
+RUN git clone --recursive https://github.com/ekg/wfmash
+RUN cd wfmash \
+    && git pull \
+    && git checkout d69a1c9 \
+    && bash bootstrap.sh \
+    && bash configure \
+    && make \
+    && cp wfmash /usr/local/bin/wfmash
+
+RUN cd ../
 RUN git clone --recursive https://github.com/ekg/seqwish
 RUN apt-get install -y \
                         build-essential
@@ -46,7 +56,7 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
-    && git checkout 04b587a \
+    && git checkout 1dc83d0 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi

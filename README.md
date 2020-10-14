@@ -10,7 +10,7 @@ Maintaining local linearity is important for the interpretation, visualization, 
 
 It uses three phases:
 
-1. _[edyeet](https://github.com/ekg/edyeet)_: (*alignment*) -- A probabilistic mash-map and edit-distance based mapper is used to scaffold the pangenome, using genome segments of a given length with a specified maximum level of sequence divergence.
+1. _[edyeet](https://github.com/ekg/edyeet) or [wfmash](https://github.com/ekg/wfmash)_: (*alignment*) -- They are probabilistic mash-map mappers: edyeet is an [edit-distance](https://github.com/Martinsos/edlib) based mapper, meanwhile wfmash uses the [wavefront alignment algorithm](https://github.com/smarco/WFA). These mappers are used to scaffold the pangenome, using genome segments of a given length with a specified maximum level of sequence divergence.
 All segments in the input are mapped to all others.
 This step yields alignments represented in the [PAF](https://github.com/lh3/miniasm/blob/master/PAF.md) output format, with cigars describing their base-exact alignment.
 
