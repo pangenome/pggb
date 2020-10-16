@@ -131,7 +131,7 @@ then
            -k $mash_kmer \
            -t $threads \
            $input_fasta $input_fasta \
-           >$f.paf 2> $f.edyeet.log #2> >(tee $f.eydeet.log) This does not work, maybe related to https://stackoverflow.com/questions/11337041/force-line-buffering-of-stdout-when-piping-to-tee
+           >$f.paf #2> $f.edyeet.log #2> >(tee $f.eydeet.log) This does not work, maybe related to https://stackoverflow.com/questions/11337041/force-line-buffering-of-stdout-when-piping-to-tee
 elif [[ "$mapper" == "wfmash" ]];
 then
     f=$f"-W-L"$wf_min"-D"$wf_diff
@@ -146,7 +146,7 @@ then
            -d $wf_diff \
            -t $threads \
            $input_fasta $input_fasta \
-           >$f.paf 2> $f.wfmash.log
+           >$f.paf #2> $f.wfmash.log
 fi
 
 
