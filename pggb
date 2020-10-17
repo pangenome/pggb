@@ -23,6 +23,7 @@ wf_min=100
 wf_diff=500
 merge_segments=false
 do_stats=false
+exclude_delim=false
 
 if [ $# -eq 0 ];
 then
@@ -30,7 +31,7 @@ then
 fi
 
 # read the options
-TEMP=`getopt -o i:p:a:n:s:K:k:w:j:P:e:t:vlhWD:L:M:S --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,max-block-weight:,max-path-jump:,min-subpath:,max-edge-jump:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments:,stats -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:p:a:n:s:K:k:w:j:P:e:t:vlhWD:L:M:SY: --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,max-block-weight:,max-path-jump:,min-subpath:,max-edge-jump:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments:,stats,exclude-delim: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -46,6 +47,7 @@ while true ; do
         -W|--wfmash) mapper=wfmash ; shift ;;
         -D|--wf-dist) wf_diff=$2 ; shift 2 ;;
         -L|--wf-min) wf_min=$2 ; shift 2 ;;
+        -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -w|--max-block-weight) max_block_weight=$2 ; shift 2 ;;
         -j|--max-path-jump) max_path_jump=$2 ; shift 2 ;;
@@ -88,6 +90,8 @@ then
     echo "    -W, --wfmash              use wfmash [default: edyeet]"
     echo "    -L, --wf-min N            reduce wavefronts when we have at least this many [default: 100]"
     echo "    -D, --wf-dist N           prune wavefronts more than N cells behind the max wavefront [default: 50]"
+    echo "    -Y, --exclude-delim C     skip mappings between sequences with the same name prefix before"
+    echo "                              the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
     echo "    -k, --min-match-len N     ignore exact matches below this length [default: 8]"
     echo "   [smoothxg]"
@@ -120,9 +124,18 @@ then
     f=$f"-M"
 fi
 
+if [[ $exclude_delim != false ]];
+then
+    exclude_cmd="-Y "$exclude_delim
+else
+    exclude_cmd=-X
+fi
+
+
 if [[ "$mapper" == "edyeet" ]];
 then
-    $timer -f "$fmt" edyeet -X \
+    $timer -f "$fmt" edyeet \
+           $exclude_cmd \
            -s $segment_length \
            $merge_cmd \
            -p $map_pct_id \
@@ -135,7 +148,8 @@ then
 elif [[ "$mapper" == "wfmash" ]];
 then
     f=$f"-W-L"$wf_min"-D"$wf_diff
-    $timer -f "$fmt" wfmash -X \
+    $timer -f "$fmt" wfmash \
+           $exclude_cmd \
            -s $segment_length \
            $merge_cmd \
            -p $map_pct_id \
