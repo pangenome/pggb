@@ -31,7 +31,7 @@ then
 fi
 
 # read the options
-TEMP=`getopt -o i:p:a:n:s:K:k:w:j:P:e:t:vlhWD:L:M:SY: --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,max-block-weight:,max-path-jump:,min-subpath:,max-edge-jump:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments:,stats,exclude-delim: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:p:a:n:s:K:k:w:j:P:e:t:vlhWD:L:M:SY:G: --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,max-block-weight:,max-path-jump:,min-subpath:,max-edge-jump:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments:,stats,exclude-delim:,max-poa-length: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -53,6 +53,7 @@ while true ; do
         -j|--max-path-jump) max_path_jump=$2 ; shift 2 ;;
         -P|--min-subpath) min_subpath=$2 ; shift 2 ;;
         -e|--max-edge-jump) max_edge_jump=$2 ; shift 2 ;;
+        -G|--max-poa-length) max_poa_length=$2 ; shift 2 ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -v|--do-viz) do_viz=true ; shift ;;
         -l|--do-layout) do_layout=true ; shift ;;
@@ -99,7 +100,7 @@ then
     echo "    -j, --max-path-jump       maximum path jump to include in block [default: 5000]"
     echo "    -P, --min-subpath N       minimum length of a subpath to include in POA [default: 0 / no filter]"
     echo "    -e, --max-edge-jump N     maximum edge jump before breaking [default: 5000]"
-    echo "    -L, --max-poa-length N    maximum sequence length to put into POA [default: 10000]"
+    echo "    -G, --max-poa-length N    maximum sequence length to put into POA [default: 10000]"
     echo "   [odgi]"
     echo "    -v, --viz                 render a visualization of the graph in 1D"
     echo "    -l, --layout              render a 2D layout of the graph"
