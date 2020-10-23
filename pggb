@@ -8,6 +8,7 @@ map_pct_id=false
 align_pct_id=false
 n_secondary=false
 segment_length=false
+output_dir=""
 mash_kmer=16
 min_match_length=8
 max_block_weight=10000
@@ -31,13 +32,14 @@ then
 fi
 
 # read the options
-TEMP=`getopt -o i:p:a:n:s:K:k:w:j:P:e:t:vlhWD:L:M:SY:G: --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,max-block-weight:,max-path-jump:,min-subpath:,max-edge-jump:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments:,stats,exclude-delim:,max-poa-length: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:K:k:w:j:P:e:t:vlhWD:L:M:SY:G: --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,max-block-weight:,max-path-jump:,min-subpath:,max-edge-jump:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments:,stats,exclude-delim:,max-poa-length: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
 while true ; do
     case "$1" in
         -i|--input-fasta) input_fasta=$2 ; shift 2 ;;
+        -o|--output-dir) output_dir=$2 ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
         -a|--align-pct-id) align_pct_id=$2 ; shift 2 ;;
         -n|--n-secondary) n_secondary=$2 ; shift 2 ;;
@@ -82,6 +84,7 @@ then
     echo "options:"
     echo "   [alignment]"
     echo "    -i, --input-fasta FILE    input FASTA/FASTQ file"
+    echo "    -o, --output-dir PATH     output directory"
     echo "    -s, --segment-length N    segment length for mapping"
     echo "    -M, --merge-segments      attempt to merge successive segments to make longer mappings"
     echo "    -p, --map-pct-id PCT      percent identity in the edyeet mashmap step"
@@ -119,6 +122,13 @@ f=$input_fasta.pggb-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
 timer=/usr/bin/time
 
+if [[ $output_dir != "" ]]; then
+	if [ ! -e $output_dir ]; then
+		mkdir $output_dir
+	fi
+	f=$output_dir/$(basename "$f")
+fi
+
 if [[ $merge_segments == true ]];
 then
     merge_cmd=-M
@@ -135,56 +145,65 @@ fi
 
 if [[ "$mapper" == "edyeet" ]];
 then
-    $timer -f "$fmt" edyeet \
-           $exclude_cmd \
-           -s $segment_length \
-           $merge_cmd \
-           -p $map_pct_id \
-           -n $n_secondary \
-           -a $align_pct_id \
-           -k $mash_kmer \
-           -t $threads \
-           $input_fasta $input_fasta \
-           >$f.paf
+	if [ ! -s $f.paf ]; then
+	    $timer -f "$fmt" edyeet \
+	           $exclude_cmd \
+	           -s $segment_length \
+	           $merge_cmd \
+	           -p $map_pct_id \
+	           -n $n_secondary \
+	           -a $align_pct_id \
+	           -k $mash_kmer \
+	           -t $threads \
+	           $input_fasta $input_fasta \
+	           >$f.paf
+	fi
 elif [[ "$mapper" == "wfmash" ]];
 then
-    f=$f"-W-L"$wf_min"-D"$wf_diff
-    $timer -f "$fmt" wfmash \
-           $exclude_cmd \
-           -s $segment_length \
-           $merge_cmd \
-           -p $map_pct_id \
-           -n $n_secondary \
-           -a $align_pct_id \
-           -k $mash_kmer \
-           -l $wf_min \
-           -d $wf_diff \
-           -t $threads \
-           $input_fasta $input_fasta \
-           >$f.paf
+	f=$f"-W-L"$wf_min"-D"$wf_diff
+	if [ ! -s $f.paf ]; then
+	    $timer -f "$fmt" wfmash \
+	           $exclude_cmd \
+	           -s $segment_length \
+	           $merge_cmd \
+	           -p $map_pct_id \
+	           -n $n_secondary \
+	           -a $align_pct_id \
+	           -k $mash_kmer \
+	           -l $wf_min \
+	           -d $wf_diff \
+	           -t $threads \
+	           $input_fasta $input_fasta \
+	           >$f.paf
+	fi
 fi
 
+if [ ! -s $f.seqwish.gfa ]; then
+	$timer -f "$fmt" seqwish \
+	       -t $threads \
+	       -s $input_fasta \
+	       -p $f.paf \
+	       -k $min_match_length \
+	       -g $f.seqwish.gfa \
+	       -P
+fi
 
-$timer -f "$fmt" seqwish \
-       -t $threads \
-       -s $input_fasta \
-       -p $f.paf \
-       -k $min_match_length \
-       -g $f.seqwish.gfa \
-       -P \
+if [ ! -s $f.smooth.gfa ]; then
+	$timer -f "$fmt" smoothxg \
+	       -t $threads \
+	       -g $f.seqwish.gfa \
+	       -w $max_block_weight \
+	       -j $max_path_jump \
+	       -k $min_subpath \
+	       -e $max_edge_jump \
+	       -l $max_poa_length \
+	       -m $f.smooth.maf \
+	       >$f.smooth.gfa
+fi
 
-$timer -f "$fmt" smoothxg \
-       -t $threads \
-       -g $f.seqwish.gfa \
-       -w $max_block_weight \
-       -j $max_path_jump \
-       -k $min_subpath \
-       -e $max_edge_jump \
-       -l $max_poa_length \
-       -m $f.smooth.maf \
-       >$f.smooth.gfa
-
-$timer -f "$fmt" odgi build -g $f.smooth.gfa -o $f.smooth.og
+if [ ! -s $f.smooth.og ]; then
+	$timer -f "$fmt" odgi build -g $f.smooth.gfa -o $f.smooth.og
+fi
 
 if [[ $do_stats == true ]];
 then
