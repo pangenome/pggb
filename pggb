@@ -201,10 +201,12 @@ fi
 
 if [[ $do_viz == true ]];
 then
-    
+    # big problem: this assumes that there is no "Consensus_" in the input sequences
+    odgi paths -i $f.smooth.og -L | grep -v Consensus_ >$f.smooth.original_paths.txt
     $timer -f "$fmt" odgi viz -i $f.smooth.og \
                     -o $f.smooth.og.viz.png \
-                    -x 1500 -y 500 -P 10
+                    -x 1500 -y 500 -P 10 -p $f.smooth.original_paths.txt
+    rm -f $f.smooth.original_paths.txt
 fi
 
 if [[ $do_layout == true ]];
