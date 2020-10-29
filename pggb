@@ -24,6 +24,7 @@ wf_diff=500
 merge_segments=false
 do_stats=false
 exclude_delim=false
+consensus_jump_max=100,1000,10000
 
 if [ $# -eq 0 ];
 then
@@ -31,7 +32,7 @@ then
 fi
 
 # read the options
-TEMP=`getopt -o i:p:a:n:s:K:k:w:j:P:e:t:vlhWD:L:M:SY:G: --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,max-block-weight:,max-path-jump:,min-subpath:,max-edge-jump:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments:,stats,exclude-delim:,max-poa-length: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:p:a:n:s:K:k:w:j:P:e:t:vlhWD:L:M:SY:G:C: --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments:,stats,exclude-delim:,poa-length-max:,consensus-jump-max: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -49,11 +50,12 @@ while true ; do
         -L|--wf-min) wf_min=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
-        -w|--max-block-weight) max_block_weight=$2 ; shift 2 ;;
-        -j|--max-path-jump) max_path_jump=$2 ; shift 2 ;;
-        -P|--min-subpath) min_subpath=$2 ; shift 2 ;;
-        -e|--max-edge-jump) max_edge_jump=$2 ; shift 2 ;;
-        -G|--max-poa-length) max_poa_length=$2 ; shift 2 ;;
+        -w|--block-weight-max) max_block_weight=$2 ; shift 2 ;;
+        -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
+        -P|--subpath-min) min_subpath=$2 ; shift 2 ;;
+        -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
+        -G|--poa-length-max) max_poa_length=$2 ; shift 2 ;;
+        -C|--consensus-jump-max) consensus_jump_max=$2 ; shift 2 ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -v|--do-viz) do_viz=true ; shift ;;
         -l|--do-layout) do_layout=true ; shift ;;
@@ -81,33 +83,35 @@ then
     echo "usage: $0 [options]"
     echo "options:"
     echo "   [alignment]"
-    echo "    -i, --input-fasta FILE    input FASTA/FASTQ file"
-    echo "    -s, --segment-length N    segment length for mapping"
-    echo "    -M, --merge-segments      attempt to merge successive segments to make longer mappings"
-    echo "    -p, --map-pct-id PCT      percent identity in the edyeet mashmap step"
-    echo "    -a, --align-pct-id PCT    percent identity in the edyeet edlib alignment step"
-    echo "    -n, --n-secondary N       number of secondary mappings to retain in 'map' filter mode"
-    echo "    -K, --mash-kmer N         kmer size for mashmap [default: 16]"
-    echo "    -W, --wfmash              use wfmash [default: edyeet]"
-    echo "    -L, --wf-min N            reduce wavefronts when we have at least this many [default: 100]"
-    echo "    -D, --wf-dist N           prune wavefronts more than N cells behind the max wavefront [default: 50]"
-    echo "    -Y, --exclude-delim C     skip mappings between sequences with the same name prefix before"
-    echo "                              the given delimiter character [default: all-vs-all and !self]"
+    echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
+    echo "    -s, --segment-length N      segment length for mapping"
+    echo "    -M, --merge-segments        attempt to merge successive segments to make longer mappings"
+    echo "    -p, --map-pct-id PCT        percent identity in the edyeet mashmap step"
+    echo "    -a, --align-pct-id PCT      percent identity in the edyeet edlib alignment step"
+    echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
+    echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
+    echo "    -W, --wfmash                use wfmash [default: edyeet]"
+    echo "    -L, --wf-min N              reduce wavefronts when we have at least this many [default: 100]"
+    echo "    -D, --wf-dist N             prune wavefronts more than N cells behind the max wavefront [default: 50]"
+    echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
+    echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
-    echo "    -k, --min-match-len N     ignore exact matches below this length [default: 8]"
+    echo "    -k, --min-match-len N       ignore exact matches below this length [default: 8]"
     echo "   [smoothxg]"
-    echo "    -w, --max-block-weight N  maximum seed sequence in block [default: 10000]"
-    echo "    -j, --max-path-jump       maximum path jump to include in block [default: 5000]"
-    echo "    -P, --min-subpath N       minimum length of a subpath to include in POA [default: 0 / no filter]"
-    echo "    -e, --max-edge-jump N     maximum edge jump before breaking [default: 5000]"
-    echo "    -G, --max-poa-length N    maximum sequence length to put into POA [default: 10000]"
+    echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000]"
+    echo "    -j, --path-jump-max         maximum path jump to include in block [default: 5000]"
+    #echo "    -P, --subpath-max N         minimum length of a subpath to include in POA [default: 0 / no filter]"
+    echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
+    echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
+    echo "    -C, --consensus-jump-max N  preserve all divergences from the consensus paths greater"
+    echo "                                than this length [default: 100,1000,10000]"
     echo "   [odgi]"
-    echo "    -v, --viz                 render a visualization of the graph in 1D"
-    echo "    -l, --layout              render a 2D layout of the graph"
-    echo "    -S, --stats               generate statistics of the seqwish and smoothxg graph [default: OFF]"
+    echo "    -v, --viz                   render a visualization of the graph in 1D"
+    echo "    -l, --layout                render a 2D layout of the graph"
+    echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: OFF]"
     echo "   [general]"
-    echo "    -t, --threads N           number of compute threads to use in parallel steps"
-    echo "    -h, --help                this text"
+    echo "    -t, --threads N             number of compute threads to use in parallel steps"
+    echo "    -h, --help                  this text"
     echo
     echo "Use edyeet, seqwish, smoothxg, and odgi to build and display a pangenome graph."
     exit
@@ -178,10 +182,12 @@ $timer -f "$fmt" smoothxg \
        -g $f.seqwish.gfa \
        -w $max_block_weight \
        -j $max_path_jump \
-       -k $min_subpath \
        -e $max_edge_jump \
        -l $max_poa_length \
        -m $f.smooth.maf \
+       -s $f.consensus.gfa \
+       -a \
+       -C $consensus_jump_max \
        >$f.smooth.gfa
 
 $timer -f "$fmt" odgi build -g $f.smooth.gfa -o $f.smooth.og
@@ -195,6 +201,7 @@ fi
 
 if [[ $do_viz == true ]];
 then
+    
     $timer -f "$fmt" odgi viz -i $f.smooth.og \
                     -o $f.smooth.og.viz.png \
                     -x 1500 -y 500 -P 5
