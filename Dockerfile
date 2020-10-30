@@ -1,6 +1,6 @@
 FROM debian:buster-slim AS binary
 
-LABEL authors="Erik Garrison, Simon Heumos"
+LABEL authors="Erik Garrison, Simon Heumos, Andrea Guarracino"
 LABEL description="Preliminary docker image containing all requirements for pggb pipeline"
 LABEL base_image="debian:buster-slim"
 LABEL software="pggb"
@@ -57,7 +57,7 @@ RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
     && git submodule update \
-    && git checkout 4498b74 \
+    && git checkout 14f11f0 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi
