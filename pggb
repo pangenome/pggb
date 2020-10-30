@@ -24,7 +24,7 @@ wf_diff=500
 merge_segments=false
 do_stats=false
 exclude_delim=false
-consensus_jump_max=100,1000,10000
+consensus_jump_max=10,100,1000,10000
 
 if [ $# -eq 0 ];
 then
@@ -104,7 +104,7 @@ then
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
     echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
     echo "    -C, --consensus-jump-max N  preserve all divergences from the consensus paths greater"
-    echo "                                than this length [default: 100,1000,10000]"
+    echo "                                than this length [default: 10,100,1000,10000]"
     echo "   [odgi]"
     echo "    -v, --viz                   render a visualization of the graph in 1D"
     echo "    -l, --layout                render a 2D layout of the graph"
@@ -185,7 +185,7 @@ $timer -f "$fmt" smoothxg \
        -e $max_edge_jump \
        -l $max_poa_length \
        -m $f.smooth.maf \
-       -s $f.consensus.gfa \
+       -s $f.consensus \
        -a \
        -C $consensus_jump_max \
        >$f.smooth.gfa
