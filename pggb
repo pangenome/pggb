@@ -32,7 +32,7 @@ then
 fi
 
 # read the options
-TEMP=`getopt -o i:p:a:n:s:K:k:w:j:P:e:t:vlhWD:L:M:SY:G:C: --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments:,stats,exclude-delim:,poa-length-max:,consensus-jump-max: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:p:a:n:s:K:k:w:j:P:e:t:vlhWD:L:MSY:G:C: --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments,stats,exclude-delim:,poa-length-max:,consensus-jump-max: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
