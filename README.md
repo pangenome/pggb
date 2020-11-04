@@ -35,7 +35,9 @@ Other parameters may help in specific instances to shape the alignment set.
 Using a test from the `data/HLA` directory in this repo:
 
 ```sh
-pggb -i DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 16 -v -l
+git clone --recursive https://github.com/pangenome/pggb
+cd pggb
+./pggb -i data/HLA/DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 16 -v -l
 ```
 
 This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, and several diagnostic images.
