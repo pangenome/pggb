@@ -1,5 +1,7 @@
 #!/usr/bin/env nextflow
 
+nextflow.enable.dsl = 2
+
 params.input_fasta="${baseDir}/**.fa.gz"
 params.map_pct_id=false
 params.align_pct_id=false
@@ -15,7 +17,7 @@ params.max_poa_length=10000
 params.do_viz=false
 params.do_layout=false
 
-makeBaseName = { f -> """\
+def makeBaseName = { f -> """\
 ${f.getSimpleName()}.pggb-\
 s${params.segment_length}-\
 p${params.map_pct_id}-\
@@ -33,10 +35,10 @@ fasta = Channel.fromPath("${params.input_fasta}").map { f -> tuple(makeBaseName(
 
 process edyeet {
   input:
-  set f, file(fasta) from fasta
+  tuple val(f), file(fasta)
 
   output:
-  set f, file(fasta), file("${f}.paf") into alignments
+  tuple val(f), file(fasta), file("${f}.paf")
 
   """
   edyeet -X \
@@ -51,12 +53,13 @@ process edyeet {
   """
 }
 
+
 process seqwish {
   input:
-  set f, file(fasta), file(alignment) from alignments
+  tuple val(f), file(fasta), file(alignment)
 
   output:
-  set f, file("${f}.seqwish.gfa") into graphs
+  tuple val(f), file("${f}.seqwish.gfa")
 
   """
   seqwish \
@@ -70,10 +73,10 @@ process seqwish {
 
 process smoothxg {
   input:
-  set f, file(graph) from graphs
+  tuple val(f), file(graph)
 
   output:
-  set f, file("${f}.smooth.gfa") into smoothed
+  tuple val(f), file("${f}.smooth.gfa")
 
   """
   smoothxg \
@@ -93,24 +96,22 @@ process smoothxg {
 
 process odgiBuild {
   input:
-  set f, file(graph) from smoothed
+  tuple val(f), file(graph)
 
   output:
-  set f, file("${f}.smooth.og") into converted
+  tuple val(f), file("${f}.smooth.og")
 
   """
   odgi build -g $graph -o ${f}.smooth.og
   """
 }
 
-(toViz, toLayout) = converted.into(2)
-
 process odgiViz {
   input:
-  set f, file(graph) from toViz
+  tuple val(f), file(graph)
 
   output:
-  set f, file("${f}.smooth.og.viz.png") into viz
+  tuple val(f), file("${f}.smooth.og.viz.png")
 
   """
   odgi viz \
@@ -122,10 +123,10 @@ process odgiViz {
 
 process odgiChop {
   input:
-  set f, file(graph) from toLayout
+  tuple val(f), file(graph)
 
   output:
-  set f, file("${f}.smooth.chop.og") into chopped
+  tuple val(f), file("${f}.smooth.chop.og")
 
   """
   odgi chop -i $graph -c 100 -o ${f}.smooth.chop.og
@@ -134,10 +135,10 @@ process odgiChop {
 
 process odgiLayout {
   input:
-  set f, file(graph) from chopped
+  tuple val(f), file(graph)
 
   output:
-  set f, file(graph), file("${f}.smooth.chop.og.lay") into layout
+  tuple val(f), file(graph), file("${f}.smooth.chop.og.lay")
 
   """
   odgi layout \
@@ -149,10 +150,10 @@ process odgiLayout {
 
 process odgiDraw {
   input:
-  set f, file(graph), file(layoutGraph) from layout
+  tuple val(f), file(graph), file(layoutGraph)
 
   output:
-  set f, file("${f}.smooth.chop.og.lay.png") into chopViz
+  tuple val(f), file("${f}.smooth.chop.og.lay.png")
 
   """
   odgi draw \
@@ -161,4 +162,16 @@ process odgiDraw {
     -p ${f}.smooth.chop.og.lay.png \
     -H 1000 -t ${task.cpus}
   """
+}
+
+
+workflow {
+    edyeet(fasta)
+    seqwish(edyeet.out)
+    smoothxg(seqwish.out)
+    odgiBuild(smoothxg.out)
+    odgiViz(odgiBuild.out)
+    odgiChop(odgiBuild.out)
+    odgiLayout(odgiChop.out)
+    odgiDraw(odgiLayout.out)
 }
