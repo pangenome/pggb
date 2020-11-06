@@ -178,7 +178,15 @@ docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /dat
 
 The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
 
-Or if you want to experiment around, you can build a docker image locally using the `Dockerfile`:
+If you have an older CPU the following error could pop up:
+
+```sh
+6 Illegal instruction     (core dumped) smoothxg -t 1 -g A-3105.pggb-s3000-p70-n10-a70-K11-k8-w10000-j5000-W0-e5000.seqwish.gfa ...
+```
+
+This can happen, because the built container requires CPU instructions which are not supported by your old hardware. 
+
+If so or if you want to experiment around, you can build a docker image locally using the `Dockerfile`:
 
 ```sh
 docker build --target binary -t ${USER}/pggb:latest .
