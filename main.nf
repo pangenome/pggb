@@ -81,10 +81,13 @@ process smoothxg {
     -g $graph \
     -w ${params.max_block_weight} \
     -j ${params.max_path_jump} \
-    -k ${params.min_subpath} \
     -e ${params.max_edge_jump} \
     -l ${params.max_poa_length} \
-    >${f}.smooth.gfa
+    -o ${f}.smooth.gfa \
+    -m ${f}.smooth.maf \
+    -s ${f}.consensus \
+    -a \
+    -C 5000 \
   """
 }
 
