@@ -67,4 +67,7 @@ RUN apt-get install -y time
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb
 
+# Figure out the CPUINFO of the github action machine
+RUN cat /proc/cpuinfo
+
 ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
