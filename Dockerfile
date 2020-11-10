@@ -58,6 +58,7 @@ RUN cd smoothxg \
     && git pull \
     && git submodule update \
     && git checkout 71508de \
+    && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi
