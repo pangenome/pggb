@@ -1,0 +1,11 @@
+on: [push]
+
+name: build and test docker image
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build the Docker image
+        run: docker build . --file Dockerfile --tag Dockerfile:$(date +%s)
