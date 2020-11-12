@@ -8,4 +8,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+        run: docker build . --file Dockerfile --target binary --tag pggb
+      - name: Clone the pggb's repo
+        run: git clone --recursive https://github.com/pangenome/pggb.git && cd pggb
+      - name: Run a test
+        run: docker run -it -v ${PWD}/data/:/data pggb "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
