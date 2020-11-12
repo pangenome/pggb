@@ -182,7 +182,7 @@ $timer -f "$fmt" seqwish \
        -P \
 
 
-$timer -f "$fmt" smoothxg \
+$timer -f "$fmt" smootxhxg \
        -t $threads \
        -g $f.seqwish.gfa \
        -w $max_block_weight \
