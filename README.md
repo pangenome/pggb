@@ -27,7 +27,7 @@ This step yields a rebuilt graph, a consensus subgraph, and a whole genome align
 
 Optional post-processing steps provide 1D and 2D diagnostic visualizations of the graph.
 
-## usage
+## general usage
 
 `pggb` requires at least an input sequence `-i`, a segment length `-s`, a mapping identity minimum `-p`, and an alignment identity minimum `-a`.
 Other parameters may help in specific instances to shape the alignment set.
@@ -62,6 +62,63 @@ In general, increasing `-s`, `-p`, and `-a` decreases runtime and memory usage.
 For instance, a good setting for 10-20 genomes from the same species, with diversity from 1-5% would be `-s 100000 -p 90 -a 90 -n 10`.
 However, if we wanted to include genomes from another species with higher divergence (say 20%), we might use `-s 100000 -p 70 -a 70 -n 10`.
 The exact configuration depends on the application, and testing must be used to determine what is appropriate for a given study.
+
+## installation
+
+### docker
+
+To simplify installation and versioning, we have an automated GitHub action that pushes the current docker build to the GitHub registry.
+To use it, first pull the actual image:
+
+```sh
+docker pull ghcr.io/pangenome/pggb:latest
+```
+
+Going in the `pggb` directory
+
+```sh
+git clone --recursive https://github.com/pangenome/pggb.git
+cd pggb
+```
+
+you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
+
+```sh
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
+```
+
+The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
+
+If you want to experiment around, you can build a docker image locally using the `Dockerfile`:
+
+```sh
+docker build --target binary -t ${USER}/pggb:latest .
+```
+
+Assuming you are in the [`HLA-zoo`](https://github.com/ekg/HLA-zoo) directory, you can run the built container using your
+local HLA-zoo data:
+
+```sh
+docker run -it -v ${PWD}/seqs/:/data ${USER}/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
+```
+
+#### AVX
+
+`abPOA` of `pggb` uses SIMD instructions which require AVX. The currently built docker image has `-march=haswell` set. This means the docker image can be run by processors that support AVX256 or later. If you have a processor that supports AVX512, it is recommended to rebuild the docker image locally, removing the line
+
+```sh
+&& sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
+```
+
+from the `Dockerfile`. This can lead to better performance in the `abPOA` step on machines which have AVX512 support.
+
+### guix
+
+@ekg
+
+### nextflow
+
+A nextflow DSL2 port of `pggb` is developed by the [nf-core](https://nf-co.re/) community. See https://github.com/nf-core/pangenome for more details.
 
 ## parameter considerations
 
@@ -153,51 +210,6 @@ In the aggregate, we see that regions that are linear (the chains of nodes and b
 Applying an MSA algorithm (in this case, `abPOA` or `spoa`) to each of these chunks enforces a local linearity and homogenizes the alignment representation.
 This smoothing step thus yields a graph that is locally as we expect: partially ordered, and linear as the base DNA molecules are, but globally can represent large structural variation.
 The homogenization also rectifies issues with the initial edit-distance-based alignment.
-
-## docker
-
-To simplify installation and versioning, we have an automated GitHub action that pushes the current docker build to the GitHub registry.
-To use it, first pull the actual image:
-
-```sh
-docker pull ghcr.io/pangenome/pggb:latest
-```
-
-Going in the `pggb` directory
-
-```sh
-git clone --recursive https://github.com/pangenome/pggb.git
-cd pggb
-```
-
-you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
-
-```sh
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
-```
-
-The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
-
-If you have an older CPU the following error could pop up:
-
-```sh
-6 Illegal instruction     (core dumped) smoothxg -t 1 -g A-3105.pggb-s3000-p70-n10-a70-K11-k8-w10000-j5000-W0-e5000.seqwish.gfa ...
-```
-
-This can happen, because the built container requires CPU instructions which are not supported by your old hardware. 
-
-If so or if you want to experiment around, you can build a docker image locally using the `Dockerfile`:
-
-```sh
-docker build --target binary -t ${USER}/pggb:latest .
-```
-
-Assuming you are in the [`HLA-zoo`](https://github.com/ekg/HLA-zoo) directory, you can run the built container using your
-local HLA-zoo data:
-
-```sh
-docker run -it -v ${PWD}/seqs/:/data ${USER}/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
-```
 
 ## authors
 
