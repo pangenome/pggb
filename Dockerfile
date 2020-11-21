@@ -57,7 +57,8 @@ RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
     && git submodule update \
-    && git checkout 75be9bf \
+    && git checkout ffc50b7 \
+    && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi
@@ -66,5 +67,8 @@ RUN apt-get install -y time
 
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb
+
+# Figure out the CPUINFO of the github action machine
+RUN cat /proc/cpuinfo
 
 ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
