@@ -112,10 +112,6 @@ docker run -it -v ${PWD}/seqs/:/data ${USER}/pggb "pggb -i /data/A-3105.fa -s 30
 
 from the `Dockerfile`. This can lead to better performance in the `abPOA` step on machines which have AVX512 support.
 
-### guix
-
-@ekg
-
 ### nextflow
 
 A nextflow DSL2 port of `pggb` is developed by the [nf-core](https://nf-co.re/) community. See https://github.com/nf-core/pangenome for more details.
