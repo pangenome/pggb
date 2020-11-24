@@ -74,6 +74,12 @@ To use it, first pull the actual image:
 docker pull ghcr.io/pangenome/pggb:latest
 ```
 
+Or if you want to pull a specific snapshot from [https://github.com/orgs/pangenome/packages/container/package/pggb](https://github.com/orgs/pangenome/packages/container/package/pggb):
+
+```sh
+docker pull ghcr.io/pangenome/pggb:TAG
+```
+
 Going in the `pggb` directory
 
 ```sh
