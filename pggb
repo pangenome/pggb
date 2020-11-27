@@ -38,7 +38,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:N:r --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments,stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min,no-splits,resume -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:Nr --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments,stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
