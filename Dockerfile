@@ -26,11 +26,9 @@ RUN apt-get install -y \
                         zlib1g-dev
 RUN cd edyeet \
     && git pull \
-    && git checkout 57ac620 \
-    && bash bootstrap.sh \
-    && bash configure \
-    && make \
-    && cp edyeet /usr/local/bin/edyeet
+    && git checkout bcf5f1d \
+    && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
+    && cp build/bin/edyeet /usr/local/bin/edyeet
 
 RUN cd ../
 RUN git clone --recursive https://github.com/ekg/wfmash
