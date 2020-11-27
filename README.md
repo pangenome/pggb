@@ -37,10 +37,10 @@ Using a test from the `data/HLA` directory in this repo:
 ```sh
 git clone --recursive https://github.com/pangenome/pggb
 cd pggb
-./pggb -i data/HLA/DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 16 -v -l
+./pggb -i data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 10000 -I 0 -p 70 -a 70 -n 5 -t 16 -v -l -o out
 ```
 
-This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, and several diagnostic images.
+This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, and several diagnostic images (all in the directory `out/`).
 By default, the outputs are named according to the input file and the construction parameters.
 Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
 (These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-l` can take a while.)
