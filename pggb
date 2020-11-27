@@ -14,6 +14,7 @@ mash_kmer=16
 min_match_length=8
 transclose_batch=1000000
 max_block_weight=10000
+block_id_min=0
 max_path_jump=5000
 min_subpath=0
 max_edge_jump=5000
@@ -28,6 +29,7 @@ merge_segments=false
 do_stats=false
 exclude_delim=false
 consensus_jump_max=10,100,1000,10000
+no_splits=false
 
 if [ $# -eq 0 ];
 then
@@ -36,7 +38,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:r --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments,stats,exclude-delim:,poa-length-max:,consensus-jump-max:,resume -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:Nr --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments,stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -49,6 +51,7 @@ while true ; do
         -n|--n-secondary) n_secondary=$2 ; shift 2 ;;
         -s|--segment-length) segment_length=$2 ; shift 2 ;;
         -M|--merge-segments) merge_segments=true ; shift ;;
+        -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -W|--wfmash) mapper=wfmash ; shift ;;
         -D|--wf-dist) wf_diff=$2 ; shift 2 ;;
@@ -57,6 +60,7 @@ while true ; do
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
         -w|--block-weight-max) max_block_weight=$2 ; shift 2 ;;
+        -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -P|--subpath-min) min_subpath=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
@@ -95,6 +99,7 @@ then
     echo "   [alignment]"
     echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
     echo "    -s, --segment-length N      segment length for mapping"
+    echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
     echo "    -M, --merge-segments        attempt to merge successive segments to make longer mappings"
     echo "    -p, --map-pct-id PCT        percent identity in the edyeet mashmap step"
     echo "    -a, --align-pct-id PCT      percent identity in the edyeet edlib alignment step"
@@ -110,8 +115,8 @@ then
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 1000000]"
     echo "   [smoothxg]"
     echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000]"
+    echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0 / OFF]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 5000]"
-    #echo "    -P, --subpath-max N         minimum length of a subpath to include in POA [default: 0 / no filter]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
     echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
     echo "    -C, --consensus-jump-max N  preserve all divergences from the consensus paths greater"
@@ -132,7 +137,7 @@ then
 fi
 
 # todo name according to the things we set
-f=$input_fasta.pggb-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer-k$min_match_length-w$max_block_weight-j$max_path_jump-e$max_edge_jump
+f=$input_fasta.pggb-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer-k$min_match_length-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min
 date=`date "+%m-%d-%Y_%H:%M:%S"`
 log_file=$f.$date.log
 param_file=$f.$date.params.yml
@@ -165,6 +170,7 @@ general:
   threads:            $threads
 alignment:
   mapping-tool:       $mapper
+  no-splits:          $no_splits
   segment-length:     $segment_length
   merge-segments:     $merge_segments
   map-pct-id:         $map_pct_id
@@ -184,6 +190,7 @@ smoothxg:
   edge-jump-max:      $max_edge_jump
   poa-length-max:     $max_poa_length
   consensus-jump-max: $consensus_jump_max
+  block-id-min:       $block_id_min
 odgi:
   viz:                $do_viz
   layout:             $do_layout
@@ -196,6 +203,12 @@ if [[ $merge_segments == true ]];
 then
     merge_cmd=-M
     f=$f"-M"
+fi
+
+if [[ $no_splits == true ]];
+then
+    split_cmd=-N
+    f=$f"-N"
 fi
 
 if [[ $exclude_delim != false ]];
@@ -213,6 +226,7 @@ then
             $exclude_cmd \
             -s $segment_length \
             $merge_cmd \
+            $split_cmd \
             -p $map_pct_id \
             -n $n_secondary \
             -a $align_pct_id \
@@ -229,6 +243,7 @@ then
             $exclude_cmd \
             -s $segment_length \
             $merge_cmd \
+            $split_cmd \
             -p $map_pct_id \
             -n $n_secondary \
             -a $align_pct_id \
@@ -258,6 +273,7 @@ if [[ ! -s $f.smooth.gfa || $resume == false ]]; then
         -t $threads \
         -g $f.seqwish.gfa \
         -w $max_block_weight \
+        -I $block_id_min \
         -j $max_path_jump \
         -e $max_edge_jump \
         -l $max_poa_length \

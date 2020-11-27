@@ -26,11 +26,9 @@ RUN apt-get install -y \
                         zlib1g-dev
 RUN cd edyeet \
     && git pull \
-    && git checkout 1a172f6 \
-    && bash bootstrap.sh \
-    && bash configure \
-    && make \
-    && cp edyeet /usr/local/bin/edyeet
+    && git checkout 057b141 \
+    && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
+    && cp build/bin/edyeet /usr/local/bin/edyeet
 
 RUN cd ../
 RUN git clone --recursive https://github.com/ekg/wfmash
@@ -57,7 +55,7 @@ RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
     && git submodule update \
-    && git checkout 42b59a8 \
+    && git checkout 38c185b \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
