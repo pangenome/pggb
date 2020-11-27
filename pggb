@@ -14,7 +14,7 @@ mash_kmer=16
 min_match_length=8
 transclose_batch=1000000
 max_block_weight=10000
-block_id_min=0.7
+block_id_min=0
 max_path_jump=5000
 min_subpath=0
 max_edge_jump=5000
@@ -115,7 +115,7 @@ then
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 1000000]"
     echo "   [smoothxg]"
     echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000]"
-    echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0.7]"
+    echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0 / OFF]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 5000]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
     echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
