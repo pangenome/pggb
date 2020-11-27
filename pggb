@@ -284,7 +284,6 @@ if [[ ! -s $f.smooth.gfa || $resume == false ]]; then
         -o $f.smooth.gfa \
         2> >(tee -a $log_file)
 fi
->>>>>>> e465b0355514c8058c76025036950f2d32a4f513
 
 $timer -f "$fmt" odgi build -g $f.smooth.gfa -o $f.smooth.og 2> >(tee -a $log_file)
 
