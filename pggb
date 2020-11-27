@@ -4,6 +4,8 @@
 set -eo pipefail
 
 input_fasta=false
+output_dir=""
+resume=false
 map_pct_id=false
 align_pct_id=false
 n_secondary=false
@@ -35,13 +37,15 @@ then
 fi
 
 # read the options
-TEMP=`getopt -o i:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:N --long input-fasta:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments,stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min,no-splits -n 'pggb' -- "$@"`
+cmd=$0" "$@
+TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:N:r --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,viz,layout,help,wfmash,wf-dist:,wf-min:,merge-segments,stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min,no-splits,resume -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
 while true ; do
     case "$1" in
         -i|--input-fasta) input_fasta=$2 ; shift 2 ;;
+        -o|--output-dir) output_dir=$2 ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
         -a|--align-pct-id) align_pct_id=$2 ; shift 2 ;;
         -n|--n-secondary) n_secondary=$2 ; shift 2 ;;
@@ -66,6 +70,7 @@ while true ; do
         -v|--do-viz) do_viz=true ; shift ;;
         -l|--do-layout) do_layout=true ; shift ;;
         -S|--do-stats) do_stats=true ; shift ;;
+        -r|--resume) resume=true ; shift ;;
         -h|--help) show_help=true ; shift ;;
         #-d|--debug) debug=true ; shift ;;
         --) shift ; break ;;
@@ -82,11 +87,14 @@ if [[
    ]];
 then
     show_help=true
+    >&2 echo "Mandatory arguments -i, -s, -n, -p, -a"
 fi
 
 if [ $show_help ];
 then
-    echo "usage: $0 [options]"
+    padding=`printf %${#0}s` # prints as many spaces as the length of $0
+    echo "usage: $0 -i <input-fasta> -s <segment-length> -n <n-secondary>"
+    echo "       $padding -p <map-pct-id> -a <align-pct-id> [options]"
     echo "options:"
     echo "   [alignment]"
     echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
@@ -118,6 +126,9 @@ then
     echo "    -l, --layout                render a 2D layout of the graph"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: OFF]"
     echo "   [general]"
+    echo "    -o, --output-dir PATH       output directory"
+    echo "    -r, --resume                do not overwrite existing output from edyeet, seqwish, smoothxg"
+    echo "                                [default: start pipeline from scratch]"
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
     echo "    -h, --help                  this text"
     echo
@@ -127,9 +138,66 @@ fi
 
 # todo name according to the things we set
 f=$input_fasta.pggb-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer-k$min_match_length-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min
+date=`date "+%m-%d-%Y_%H:%M:%S"`
+log_file=$f.$date.log
+param_file=$f.$date.params.yml
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
 timer=/usr/bin/time
+
+if [[ $output_dir != "" ]]; then
+	if [ ! -e $output_dir ]; then
+		mkdir $output_dir
+	fi
+	f=$output_dir/$(basename "$f")
+    log_file=$f.$date.log
+    param_file=$f.$date.params.yml
+fi
+
+# write parameters to log_file:
+echo -e "Starting pggb on `date`\n" > $log_file
+echo -e "Command: $cmd\n" >> $log_file
+echo -e "PARAMETERS\n" >> $log_file
+if [[ $wfmash == "wfmash" ]]; then
+     wfmash_bool=true
+else wfmash_bool=false
+fi
+cat <<EOT | tee -a $log_file $param_file >/dev/null
+general:
+  input-fasta:        $input_fasta
+  output-dir:         $output_dir
+  resume:             $resume
+  threads:            $threads
+alignment:
+  mapping-tool:       $mapper
+  no-splits:          $no_splits
+  segment-length:     $segment_length
+  merge-segments:     $merge_segments
+  map-pct-id:         $map_pct_id
+  align-pct-id:       $align_pct_id
+  n-secondary:        $n_secondary
+  mash-kmer:          $mash_kmer
+  wfmash:             $wfmash_bool
+  wf-min:             $wf_min
+  wf-dist:            $wf_diff
+  exclude-delim:      $exclude_delim
+seqwish:
+  min-match-len:      $min_match_length
+  transclose-batch:   $transclose_batch
+smoothxg:
+  block-weight-max:   $max_block_weight
+  path-jump-max:      $max_path_jump
+  edge-jump-max:      $max_edge_jump
+  poa-length-max:     $max_poa_length
+  consensus-jump-max: $consensus_jump_max
+  block-id-min:       $block_id_min
+odgi:
+  viz:                $do_viz
+  layout:             $do_layout
+  stats:              $do_stats
+EOT
+echo -e "\nRunning pggb\n" >> $log_file
+
 
 if [[ $merge_segments == true ]];
 then
@@ -153,73 +221,81 @@ fi
 
 if [[ "$mapper" == "edyeet" ]];
 then
-    $timer -f "$fmt" edyeet \
-           $exclude_cmd \
-           -s $segment_length \
-           $merge_cmd \
-           $split_cmd \
-           -p $map_pct_id \
-           -n $n_secondary \
-           -a $align_pct_id \
-           -k $mash_kmer \
-           -t $threads \
-           $input_fasta $input_fasta \
-           >$f.paf
+	if [[ ! -s $f.paf || $resume == false ]]; then
+        ($timer -f "$fmt" edyeet \
+            $exclude_cmd \
+            -s $segment_length \
+            $merge_cmd \
+            $split_cmd \
+            -p $map_pct_id \
+            -n $n_secondary \
+            -a $align_pct_id \
+            -k $mash_kmer \
+            -t $threads \
+            $input_fasta $input_fasta \
+            >$f.paf) 2> >(tee -a $log_file)
+    fi
 elif [[ "$mapper" == "wfmash" ]];
 then
     f=$f"-W-L"$wf_min"-D"$wf_diff
-    $timer -f "$fmt" wfmash \
-           $exclude_cmd \
-           -s $segment_length \
-           $merge_cmd \
-           $split_cmd \
-           -p $map_pct_id \
-           -n $n_secondary \
-           -a $align_pct_id \
-           -k $mash_kmer \
-           -l $wf_min \
-           -d $wf_diff \
-           -t $threads \
-           $input_fasta $input_fasta \
-           >$f.paf
+    if [[ ! -s $f.paf || $resume == false ]]; then
+        ($timer -f "$fmt" wfmash \
+            $exclude_cmd \
+            -s $segment_length \
+            $merge_cmd \
+            $split_cmd \
+            -p $map_pct_id \
+            -n $n_secondary \
+            -a $align_pct_id \
+            -k $mash_kmer \
+            -l $wf_min \
+            -d $wf_diff \
+            -t $threads \
+            $input_fasta $input_fasta \
+            >$f.paf) 2> >(tee -a $log_file)
+    fi
 fi
 
+if [[ ! -s $f.seqwish.gfa || $resume == false ]]; then
+    $timer -f "$fmt" seqwish \
+        -t $threads \
+        -s $input_fasta \
+        -p $f.paf \
+        -k $min_match_length \
+        -g $f.seqwish.gfa \
+        -B $transclose_batch \
+        -P \
+        2> >(tee -a $log_file)
+fi
 
-$timer -f "$fmt" seqwish \
-       -t $threads \
-       -s $input_fasta \
-       -p $f.paf \
-       -k $min_match_length \
-       -g $f.seqwish.gfa \
-       -B $transclose_batch \
-       -P \
+if [[ ! -s $f.smooth.gfa || $resume == false ]]; then
+    $timer -f "$fmt" smoothxg \
+        -t $threads \
+        -g $f.seqwish.gfa \
+        -w $max_block_weight \
+        -I $block_id_min \
+        -j $max_path_jump \
+        -e $max_edge_jump \
+        -l $max_poa_length \
+        -m $f.smooth.maf \
+        -s $f.consensus \
+        -a \
+        -C $consensus_jump_max \
+        -o $f.smooth.gfa \
+        2> >(tee -a $log_file)
+fi
+>>>>>>> e465b0355514c8058c76025036950f2d32a4f513
 
-
-$timer -f "$fmt" smoothxg \
-       -t $threads \
-       -g $f.seqwish.gfa \
-       -w $max_block_weight \
-       -I $block_id_min \
-       -j $max_path_jump \
-       -e $max_edge_jump \
-       -l $max_poa_length \
-       -m $f.smooth.maf \
-       -s $f.consensus \
-       -a \
-       -M \
-       -C $consensus_jump_max \
-       -o $f.smooth.gfa
-
-$timer -f "$fmt" odgi build -g $f.smooth.gfa -o $f.smooth.og
+$timer -f "$fmt" odgi build -g $f.smooth.gfa -o $f.smooth.og 2> >(tee -a $log_file)
 
 if [[ $do_stats == true ]];
 then
-    $timer -f "$fmt" odgi build -g $f.seqwish.gfa -o $f.seqwish.og
-    odgi stats -i $f.seqwish.og -S -s -l -d > $f.seqwish.og.stats 2>&1
-    odgi stats -i $f.smooth.og -S -s -l -d > $f.smooth.og.stats 2>&1
+    $timer -f "$fmt" odgi build -g $f.seqwish.gfa -o $f.seqwish.og 2> >(tee -a $log_file)
+    odgi stats -i $f.seqwish.og -S -s -l -d > $f.seqwish.og.stats 2>&1 | tee -a $log_file
+    odgi stats -i $f.smooth.og -S -s -l -d > $f.smooth.og.stats 2>&1 | tee -a $log_file
     for consensus_graph in $f*.consensus*.gfa; do
-        odgi build -g "$consensus_graph" -o "$consensus_graph".og
-        odgi stats -i "$consensus_graph".og -S -s -l -d >"$consensus_graph".og.stats 2>&1
+        odgi build -g "$consensus_graph" -o "$consensus_graph".og 2> >(tee -a $log_file)
+        odgi stats -i "$consensus_graph".og -S -s -l -d >"$consensus_graph".og.stats 2>&1 | tee -a $log_file
     done
 
 fi
@@ -227,27 +303,32 @@ fi
 if [[ $do_viz == true ]];
 then
     # big problem: this assumes that there is no "Consensus_" in the input sequences
-    odgi paths -i $f.smooth.og -L | grep -v Consensus_ >$f.smooth.original_paths.txt
+    odgi paths -i $f.smooth.og -L | grep -v Consensus_ >$f.smooth.original_paths.txt \
+        2> >(tee -a $log_file)
     $timer -f "$fmt" odgi viz -i $f.smooth.og \
                     -o $f.smooth.og.viz.png \
-                    -x 1500 -y 500 -P 10 -p $f.smooth.original_paths.txt
-    rm -f $f.smooth.original_paths.txt
+                    -x 1500 -y 500 -P 10 -p $f.smooth.original_paths.txt \
+                    2> >(tee -a $log_file)
+    rm -f $f.smooth.original_paths.txt 2> >(tee -a $log_file)
 fi
 
 if [[ $do_layout == true ]];
 then
     # the 2D layout is "smoother" when we chop the nodes of the graph to a fixed maximum length
-    $timer -f "$fmt" odgi chop -i $f.smooth.og -c 100 -o $f.smooth.chop.og
+    $timer -f "$fmt" odgi chop -i $f.smooth.og -c 100 -o $f.smooth.chop.og \
+        2> >(tee -a $log_file)
 
     # adding -N to this call can help when rendering large, complex graphs that aren't globally linear
     $timer -f "$fmt" odgi layout -i $f.smooth.chop.og \
                        -o $f.smooth.chop.og.lay \
-                       -t $threads -P
+                       -t $threads -P \
+                       2> >(tee -a $log_file)
 
     # this can be configured to draw the graph in different ways, based on the same layout
     $timer -f "$fmt" odgi draw -i $f.smooth.chop.og \
                      -c $f.smooth.chop.og.lay \
                      -p $f.smooth.chop.og.lay.png \
                      -C -w 20 \
-                     -H 1500 -t $threads
+                     -H 1500 -t $threads \
+                     2> >(tee -a $log_file)
 fi
