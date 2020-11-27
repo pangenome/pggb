@@ -26,7 +26,7 @@ RUN apt-get install -y \
                         zlib1g-dev
 RUN cd edyeet \
     && git pull \
-    && git checkout 1639633 \
+    && git checkout 057b141 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/edyeet /usr/local/bin/edyeet
 
