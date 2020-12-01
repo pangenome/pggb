@@ -105,7 +105,7 @@ Assuming you are in the [`HLA-zoo`](https://github.com/ekg/HLA-zoo) directory, y
 local HLA-zoo data:
 
 ```sh
-docker run -it -v ${PWD}/seqs/:/data ${USER}/pggb "pggb -i /data/A-3105.fa -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/A-3105.fa.gz -s 3000 -K 11 -p 70 -a 70 -n 10 -t 2 -v -l"
 ```
 
 #### AVX
