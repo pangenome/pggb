@@ -4,7 +4,7 @@
 set -eo pipefail
 
 input_fasta=false
-output_dir=""
+output_dir="./"
 resume=false
 map_pct_id=false
 align_pct_id=false
