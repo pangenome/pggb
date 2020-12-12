@@ -10,5 +10,5 @@ jobs:
       - name: Build the Docker image
         run: docker build . --file Dockerfile --target binary --tag pggb
       - name: Run a test on the DRB1-3123 dataset
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 8 -v -l"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 2 -v -l"
 
