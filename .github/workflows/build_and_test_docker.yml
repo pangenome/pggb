@@ -4,11 +4,11 @@ name: build and test docker image
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Build the Docker image
         run: docker build . --file Dockerfile --target binary --tag pggb
       - name: Run a test on the DRB1-3123 dataset
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 2 -v -l"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 2 -v -l -m"
 

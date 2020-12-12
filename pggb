@@ -30,6 +30,7 @@ do_stats=false
 exclude_delim=false
 consensus_jump_max=10,100,1000,10000
 no_splits=false
+multiqc=false
 
 if [ $# -eq 0 ];
 then
@@ -38,7 +39,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:Nr --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,wf-dist:,wf-min:,merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,wf-dist:,wf-min:,merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -70,6 +71,7 @@ while true ; do
         -v|--do-viz) do_viz=true ; shift ;;
         -l|--do-layout) do_layout=true ; shift ;;
         -S|--do-stats) do_stats=true ; shift ;;
+        -m|--multiqc) multiqc=true ; shift ;;
         -r|--resume) resume=true ; shift ;;
         -h|--help) show_help=true ; shift ;;
         #-d|--debug) debug=true ; shift ;;
@@ -125,6 +127,8 @@ then
     echo "    -v, --viz                   render a visualization of the graph in 1D"
     echo "    -l, --layout                render a 2D layout of the graph"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: OFF]"
+    echo "   [multiqc]"
+    echo "    -m, --multiqc                   generate MultiQC report of graphs' statistics and visualizations, automatically runs odgi stats [default: OFF]"
     echo "   [general]"
     echo "    -o, --output-dir PATH       output directory"
     echo "    -r, --resume                do not overwrite existing output from edyeet, seqwish, smoothxg"
@@ -195,8 +199,15 @@ odgi:
   viz:                $do_viz
   layout:             $do_layout
   stats:              $do_stats
+reporting:
+  multiqc:            $multiqc
 EOT
 echo -e "\nRunning pggb\n" >> $log_file
+
+if [[ $multiqc == true ]];
+then
+    do_stats=true
+fi
 
 
 if [[ $merge_segments == true ]];
@@ -305,7 +316,7 @@ then
     odgi paths -i $f.smooth.og -L | grep -v Consensus_ >$f.smooth.original_paths.txt \
         2> >(tee -a $log_file)
     $timer -f "$fmt" odgi viz -i $f.smooth.og \
-                    -o $f.smooth.og.viz.png \
+                    -o $f.smooth.og.viz_mqc.png \
                     -x 1500 -y 500 -P 10 -p $f.smooth.original_paths.txt \
                     2> >(tee -a $log_file)
     rm -f $f.smooth.original_paths.txt 2> >(tee -a $log_file)
@@ -326,8 +337,26 @@ then
     # this can be configured to draw the graph in different ways, based on the same layout
     $timer -f "$fmt" odgi draw -i $f.smooth.chop.og \
                      -c $f.smooth.chop.og.lay \
-                     -p $f.smooth.chop.og.lay.png \
+                     -p $f.smooth.chop.og.lay.draw_mqc.png \
                      -C -w 20 \
                      -H 1500 -t $threads \
                      2> >(tee -a $log_file)
+fi
+
+multiqc_out_dir=$(dirname "$input_fasta")
+
+if [[ $multiqc == true ]];
+then 
+    if [[ $output_dir == "" ]];
+    then
+        $timer -f "$fmt" multiqc $multiqc_out_dir \
+        -s \
+        -o $multiqc_out_dir \
+        2> >(tee -a $log_file)
+    else 
+        $timer -f "$fmt" multiqc $output_dir \
+        -s \
+        -o $output_dir \
+        2> >(tee -a $log_file)
+    fi
 fi

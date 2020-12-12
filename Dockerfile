@@ -61,12 +61,17 @@ RUN cd smoothxg \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi
 
+RUN apt-get install -y pip
+
+RUN cd ../
+RUN git clone https://github.com/Imipenem/MultiQC
+RUN cd MultiQC \
+    && git checkout module/odgi_stats \
+    && pip install .
+
 RUN apt-get install -y time
 
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb
-
-# Figure out the CPUINFO of the github action machine
-RUN cat /proc/cpuinfo
 
 ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
