@@ -128,7 +128,7 @@ then
     echo "    -l, --layout                render a 2D layout of the graph"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: OFF]"
     echo "   [multiqc]"
-    echo "    -v, --viz                   generate MultiQC report of graphs' statistics and visualizations, automatically runs odgi stats [default: OFF]"
+    echo "    -m, --multiqc                   generate MultiQC report of graphs' statistics and visualizations, automatically runs odgi stats [default: OFF]"
     echo "   [general]"
     echo "    -o, --output-dir PATH       output directory"
     echo "    -r, --resume                do not overwrite existing output from edyeet, seqwish, smoothxg"
