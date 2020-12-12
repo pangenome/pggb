@@ -4,7 +4,7 @@
 set -eo pipefail
 
 input_fasta=false
-output_dir="./"
+output_dir=""
 resume=false
 map_pct_id=false
 align_pct_id=false
@@ -343,10 +343,20 @@ then
                      2> >(tee -a $log_file)
 fi
 
+multiqc_out_dir=$(dirname "$input_fasta")
+
 if [[ $multiqc == true ]];
 then 
-    $timer -f "$fmt" multiqc $output_dir \
-    -s \
-    -o $output_dir \
-    2> >(tee -a $log_file)
+    if [[ $output_dir == "" ]];
+    then
+        $timer -f "$fmt" multiqc $multiqc_out_dir \
+        -s \
+        -o $multiqc_out_dir \
+        2> >(tee -a $log_file)
+    else 
+        $timer -f "$fmt" $output_dir \
+        -s \
+        -o $output_dir \
+        2> >(tee -a $log_file)
+    fi
 fi
