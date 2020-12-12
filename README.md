@@ -90,7 +90,7 @@ cd pggb
 you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 10000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -l -o /data/out"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -l -o /data/out -m"
 ```
 
 The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
@@ -104,11 +104,11 @@ docker build --target binary -t ${USER}/pggb:latest .
 Staying in the `pggb` directory, we can run `pggb` with the locally build image:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 10000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -l -o /data/out"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -l -o /data/out -m"
 ```
 
 #### AVX
-
+pip
 `abPOA` of `pggb` uses SIMD instructions which require AVX. The currently built docker image has `-march=haswell` set. This means the docker image can be run by processors that support AVX256 or later. If you have a processor that supports AVX512, it is recommended to rebuild the docker image locally, removing the line
 
 ```sh
@@ -169,6 +169,25 @@ In particular, `-e[N], --max-edge-jump=[N]` breaks a growing block when an edge 
 This is designed to encourage blocks to stop near the boundaries of structural variation.
 When a path leaves and returns to a given block, we can pull in the sequence that lies outside the block if it is less than `-j[N], --max-path-jump=[N]`.
 Paths that only travers a given block for `-W[N], --min-subpath=[N]` bp are removed from the block.
+
+## reporting
+
+### MultiQC
+
+Many thanks go to @Zethson and @Imipenem who implemented a MultiQC module for `odgi stats`. Using `-m, --multiqc` statistics are generated automatically, and summarized in a MultiQC report. If created, visualizations and layouts are integrated into the report, too. In the following an example excerpt:
+
+![MultiQC example report](./data/images/multiqc_report.png)
+
+#### installation
+
+As the MultiQC module is not part of a MultiQC release, yet, it can be installed as follows:
+
+```sh
+git clone https://github.com/Imipenem/MultiQC
+cd MultiQC && git checkout module/odgi_stats && pip install . --user
+```
+
+The docker image already contains this version of MultiQC.
 
 ## extension
 
