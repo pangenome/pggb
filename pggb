@@ -7,11 +7,11 @@ input_fasta=false
 output_dir=""
 resume=false
 map_pct_id=false
-align_pct_id=false
+align_pct_id=0
 n_secondary=false
 segment_length=false
 mash_kmer=16
-min_match_length=8
+min_match_length=19
 transclose_batch=1000000
 max_block_weight=10000
 block_id_min=0
@@ -25,7 +25,7 @@ threads=1
 mapper=edyeet
 wf_min=100
 wf_diff=500
-merge_segments=false
+no_merge_segments=false
 do_stats=false
 exclude_delim=false
 consensus_jump_max=10,100,1000,10000
@@ -39,7 +39,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,wf-dist:,wf-min:,merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,wf-dist:,wf-min:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -51,7 +51,7 @@ while true ; do
         -a|--align-pct-id) align_pct_id=$2 ; shift 2 ;;
         -n|--n-secondary) n_secondary=$2 ; shift 2 ;;
         -s|--segment-length) segment_length=$2 ; shift 2 ;;
-        -M|--merge-segments) merge_segments=true ; shift ;;
+        -M|--no-merge-segments) no_merge_segments=true ; shift ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -W|--wfmash) mapper=wfmash ; shift ;;
@@ -83,7 +83,6 @@ done
 if [[
        $input_fasta == false
     || $map_pct_id == false
-    || $align_pct_id == false
     || $n_secondary == false
     || $segment_length == false
    ]];
@@ -102,9 +101,9 @@ then
     echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
     echo "    -s, --segment-length N      segment length for mapping"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
-    echo "    -M, --merge-segments        attempt to merge successive segments to make longer mappings"
+    echo "    -M, --no-merge-segments     do not merge successive mappings"
     echo "    -p, --map-pct-id PCT        percent identity in the edyeet mashmap step"
-    echo "    -a, --align-pct-id PCT      percent identity in the edyeet edlib alignment step"
+    echo "    -a, --align-pct-id PCT      percent identity in the edyeet edlib alignment step [default: 0]"
     echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
     echo "    -W, --wfmash                use wfmash [default: edyeet]"
@@ -113,7 +112,7 @@ then
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
-    echo "    -k, --min-match-len N       ignore exact matches below this length [default: 8]"
+    echo "    -k, --min-match-len N       ignore exact matches below this length [default: 19]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 1000000]"
     echo "   [smoothxg]"
     echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000]"
@@ -176,7 +175,7 @@ alignment:
   mapping-tool:       $mapper
   no-splits:          $no_splits
   segment-length:     $segment_length
-  merge-segments:     $merge_segments
+  no-merge-segments:  $no_merge_segments
   map-pct-id:         $map_pct_id
   align-pct-id:       $align_pct_id
   n-secondary:        $n_secondary
@@ -210,7 +209,7 @@ then
 fi
 
 
-if [[ $merge_segments == true ]];
+if [[ $no_merge_segments == true ]];
 then
     merge_cmd=-M
     f=$f"-M"
@@ -284,6 +283,8 @@ if [[ ! -s $f.smooth.gfa || $resume == false ]]; then
         -t $threads \
         -g $f.seqwish.gfa \
         -w $max_block_weight \
+        -M \
+        -J 0.7 \
         -I $block_id_min \
         -j $max_path_jump \
         -e $max_edge_jump \
