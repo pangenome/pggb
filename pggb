@@ -39,7 +39,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:Nr:Q --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,wf-dist:,wf-min:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,wf-dist:,wf-min:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -71,7 +71,7 @@ while true ; do
         -v|--do-viz) do_viz=true ; shift ;;
         -l|--do-layout) do_layout=true ; shift ;;
         -S|--do-stats) do_stats=true ; shift ;;
-        -Q|--multiqc) multiqc=true ; shift ;;
+        -m|--multiqc) multiqc=true ; shift ;;
         -r|--resume) resume=true ; shift ;;
         -h|--help) show_help=true ; shift ;;
         #-d|--debug) debug=true ; shift ;;
