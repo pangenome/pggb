@@ -35,7 +35,7 @@ RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
     && git checkout dd8799a \
-    && sed -i '/include(CTest)/,/endif()/d' src/common/wflign/deps/edlib/CMakeLists.txt
+    && sed -i '/include(CTest)/,/endif()/d' src/common/wflign/deps/edlib/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/wfmash /usr/local/bin/wfmash
 
@@ -54,7 +54,7 @@ RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
     && git submodule update \
-    && git checkout 96368b6 \
+    && git checkout 000f2c0 \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
