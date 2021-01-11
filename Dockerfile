@@ -34,7 +34,7 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
-    && git checkout 5c6ae5d \
+    && git checkout dd8799a \
     && bash bootstrap.sh \
     && bash configure \
     && make \
@@ -46,7 +46,7 @@ RUN apt-get install -y \
                         build-essential
 RUN cd seqwish \
     && git pull \
-    && git checkout e13ee3a \
+    && git checkout 131474d \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish
 
