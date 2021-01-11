@@ -37,7 +37,7 @@ RUN cd wfmash \
     && git checkout dd8799a \
     && sed -i '/include(CTest)/,/endif()/d' src/common/wflign/deps/edlib/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
-    && cp bin/wfmash /usr/local/bin/wfmash
+    && cp build/bin/wfmash /usr/local/bin/wfmash
 
 RUN cd ../
 RUN git clone --recursive https://github.com/ekg/seqwish
