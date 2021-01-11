@@ -35,10 +35,8 @@ RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
     && git checkout dd8799a \
-    && bash bootstrap.sh \
-    && bash configure \
-    && make \
-    && cp wfmash /usr/local/bin/wfmash
+    && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
+    && cp bin/wfmash /usr/local/bin/wfmash
 
 RUN cd ../
 RUN git clone --recursive https://github.com/ekg/seqwish
