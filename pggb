@@ -275,6 +275,7 @@ if [[ ! -s $f.smooth.gfa || $resume == false ]]; then
         -w $max_block_weight \
         -M \
         -J 0.7 \
+        -K \
         -I $block_id_min \
         -j $max_path_jump \
         -e $max_edge_jump \
@@ -287,15 +288,15 @@ if [[ ! -s $f.smooth.gfa || $resume == false ]]; then
         2> >(tee -a $log_file)
 fi
 
-$timer -f "$fmt" odgi build -g $f.smooth.gfa -o $f.smooth.og 2> >(tee -a $log_file)
+$timer -f "$fmt" odgi build -t $threads -p -g $f.smooth.gfa -o $f.smooth.og 2> >(tee -a $log_file)
 
 if [[ $do_stats == true ]];
 then
-    $timer -f "$fmt" odgi build -g $f.seqwish.gfa -o $f.seqwish.og 2> >(tee -a $log_file)
+    $timer -f "$fmt" odgi build -t $threads -p -g $f.seqwish.gfa -o $f.seqwish.og 2> >(tee -a $log_file)
     odgi stats -i $f.seqwish.og -S -s -l -d > $f.seqwish.og.stats 2>&1 | tee -a $log_file
     odgi stats -i $f.smooth.og -S -s -l -d > $f.smooth.og.stats 2>&1 | tee -a $log_file
     for consensus_graph in $f*.consensus*.gfa; do
-        odgi build -g "$consensus_graph" -o "$consensus_graph".og 2> >(tee -a $log_file)
+        odgi build -t $threads -p -g "$consensus_graph" -o "$consensus_graph".og 2> >(tee -a $log_file)
         odgi stats -i "$consensus_graph".og -S -s -l -d >"$consensus_graph".og.stats 2>&1 | tee -a $log_file
     done
 

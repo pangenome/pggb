@@ -26,7 +26,7 @@ RUN apt-get install -y \
                         zlib1g-dev
 RUN cd edyeet \
     && git pull \
-    && git checkout c923695 \
+    && git checkout 5e1f752 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/edyeet /usr/local/bin/edyeet
 
@@ -46,7 +46,7 @@ RUN apt-get install -y \
                         build-essential
 RUN cd seqwish \
     && git pull \
-    && git checkout fe8d766 \
+    && git checkout e13ee3a \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish
 
@@ -55,7 +55,7 @@ RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
     && git submodule update \
-    && git checkout 39dcd06 \
+    && git checkout 96368b6 \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
