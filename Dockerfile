@@ -35,6 +35,7 @@ RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
     && git checkout dd8799a \
+    && sed -i '/include(CTest)/,/endif()/d' src/common/wflign/deps/edlib/CMakeLists.txt
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/wfmash /usr/local/bin/wfmash
 
