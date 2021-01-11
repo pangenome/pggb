@@ -39,7 +39,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWD:L:MSY:G:C:I:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,wf-dist:,wf-min:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWMSY:G:C:I:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -55,8 +55,6 @@ while true ; do
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -W|--wfmash) mapper=wfmash ; shift ;;
-        -D|--wf-dist) wf_diff=$2 ; shift 2 ;;
-        -L|--wf-min) wf_min=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
@@ -107,8 +105,6 @@ then
     echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
     echo "    -W, --wfmash                use wfmash [default: edyeet]"
-    echo "    -L, --wf-min N              reduce wavefronts when we have at least this many [default: 100]"
-    echo "    -D, --wf-dist N             prune wavefronts more than N cells behind the max wavefront [default: 50]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
@@ -181,8 +177,6 @@ alignment:
   n-secondary:        $n_secondary
   mash-kmer:          $mash_kmer
   wfmash:             $wfmash_bool
-  wf-min:             $wf_min
-  wf-dist:            $wf_diff
   exclude-delim:      $exclude_delim
 seqwish:
   min-match-len:      $min_match_length
@@ -247,7 +241,6 @@ then
     fi
 elif [[ "$mapper" == "wfmash" ]];
 then
-    f=$f"-W-L"$wf_min"-D"$wf_diff
     if [[ ! -s $f.paf || $resume == false ]]; then
         ($timer -f "$fmt" wfmash \
             $exclude_cmd \
@@ -256,10 +249,7 @@ then
             $split_cmd \
             -p $map_pct_id \
             -n $n_secondary \
-            -a $align_pct_id \
             -k $mash_kmer \
-            -l $wf_min \
-            -d $wf_diff \
             -t $threads \
             $input_fasta $input_fasta \
             >$f.paf) 2> >(tee -a $log_file)
