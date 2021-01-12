@@ -26,7 +26,7 @@ RUN apt-get install -y \
                         zlib1g-dev
 RUN cd edyeet \
     && git pull \
-    && git checkout 5e1f752 \
+    && git checkout 94a846d \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/edyeet /usr/local/bin/edyeet
 
@@ -34,8 +34,7 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
-    && git checkout dd8799a \
-    && sed -i '/include(CTest)/,/endif()/d' src/common/wflign/deps/edlib/CMakeLists.txt \
+    && git checkout e596d42 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash
 
@@ -45,7 +44,7 @@ RUN apt-get install -y \
                         build-essential
 RUN cd seqwish \
     && git pull \
-    && git checkout 131474d \
+    && git checkout de5112d \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish
 
