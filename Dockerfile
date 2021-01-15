@@ -34,7 +34,7 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
-    && git checkout 263ea1729efffe4cb4fc461ddcaf13e2d5cf4770 \
+    && git checkout 8ff9d7d \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash
 
@@ -44,7 +44,7 @@ RUN apt-get install -y \
                         build-essential
 RUN cd seqwish \
     && git pull \
-    && git checkout de5112d \
+    && git checkout e448d5b \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish
 
@@ -53,7 +53,7 @@ RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
     && git submodule update \
-    && git checkout 1022605 \
+    && git checkout 4b9f0051 \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
