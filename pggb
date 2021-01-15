@@ -23,7 +23,7 @@ max_poa_length=10000
 do_viz=false
 do_layout=false
 threads=1
-mapper=edyeet
+mapper=wfmash
 wf_min=100
 wf_diff=500
 no_merge_segments=false
@@ -40,7 +40,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWMSY:G:C:I:R:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,ratio-contain:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhEMSY:G:C:I:R:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,ratio-contain:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -55,7 +55,7 @@ while true ; do
         -M|--no-merge-segments) no_merge_segments=true ; shift ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
-        -W|--wfmash) mapper=wfmash ; shift ;;
+        -E|--edyeet) mapper=edyeet ; shift ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
@@ -106,7 +106,7 @@ then
     echo "    -a, --align-pct-id PCT      percent identity in the edyeet edlib alignment step [default: 0]"
     echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
-    echo "    -W, --wfmash                use wfmash [default: edyeet]"
+    echo "    -E, --edyeet                use the edyeet edit-distance mashmapper [default: wfmash]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
