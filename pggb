@@ -16,13 +16,13 @@ transclose_batch=1000000
 max_block_weight=10000
 block_id_min=0
 max_path_jump=5000
-min_subpath=0
+
 max_edge_jump=5000
 max_poa_length=10000
 do_viz=false
 do_layout=false
 threads=1
-mapper=edyeet
+mapper="edyeet"
 wf_min=100
 wf_diff=500
 merge_segments=false
@@ -54,7 +54,7 @@ while true ; do
         -M|--merge-segments) merge_segments=true ; shift ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
-        -W|--wfmash) mapper=wfmash ; shift ;;
+        -W|--wfmash) mapper="wfmash" ; shift ;;
         -D|--wf-dist) wf_diff=$2 ; shift 2 ;;
         -L|--wf-min) wf_min=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
@@ -63,7 +63,6 @@ while true ; do
         -w|--block-weight-max) max_block_weight=$2 ; shift 2 ;;
         -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
-        -P|--subpath-min) min_subpath=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
         -G|--poa-length-max) max_poa_length=$2 ; shift 2 ;;
         -C|--consensus-jump-max) consensus_jump_max=$2 ; shift 2 ;;
@@ -76,12 +75,12 @@ while true ; do
         -h|--help) show_help=true ; shift ;;
         #-d|--debug) debug=true ; shift ;;
         --) shift ; break ;;
-        *) echo $2 "Internal error!" ; exit 1 ;;
+        *) echo "$2" "Internal error!" ; exit 1 ;;
     esac
 done
 
 if [[
-       $input_fasta == false
+       "$input_fasta" == false
     || $map_pct_id == false
     || $align_pct_id == false
     || $n_secondary == false
@@ -141,18 +140,18 @@ then
 fi
 
 # Alignment
-prefix_paf=$input_fasta.pggb-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer
+prefix_paf="$input_fasta".pggb-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer
 
 if [[ $merge_segments == true ]];
 then
     merge_cmd=-M
-    prefix_paf=$prefix_paf"-M"
+    prefix_paf="$prefix_paf"-M
 fi
 
 if [[ $no_splits == true ]];
 then
     split_cmd=-N
-    prefix_paf=$prefix_paf"-N"
+    prefix_paf="$prefix_paf"-N
 fi
 
 if [[ $exclude_delim != false ]];
@@ -162,46 +161,46 @@ else
     exclude_cmd=-X
 fi
 
-if [[ "$mapper" == "edyeet" ]];
+if [[ $mapper == "edyeet" ]];
 then
-    prefix_paf=$prefix_paf"-E"
-elif [[ "$mapper" == "wfmash" ]];
+    prefix_paf="$prefix_paf"-E
+elif [[ $mapper == "wfmash" ]];
 then
-    prefix_paf=$prefix_paf-W-L$wf_min-D$wf_diff
+    prefix_paf="$prefix_paf"-W-L$wf_min-D$wf_diff
 fi
 
 # Graph induction
-prefix_seqwish=$prefix_paf-k$min_match_length.seqwish
+prefix_seqwish="$prefix_paf"-k$min_match_length.seqwish
 
 # Normalization
-prefix_smoothed=$prefix_seqwish-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min.smooth
+prefix_smoothed="$prefix_seqwish"-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min.smooth
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
 timer=/usr/bin/time
 
-if [[ $output_dir != "" ]]; then
-	if [ ! -e $output_dir ]; then
-		mkdir $output_dir
+if [[ "$output_dir" != "" ]]; then
+	if [ ! -e "$output_dir" ]; then
+		mkdir "$output_dir"
 	fi
-	prefix_paf=$output_dir/$(basename "$prefix_paf")
-	prefix_seqwish=$output_dir/$(basename "$prefix_seqwish")
-	prefix_smoothed=$output_dir/$(basename "$prefix_smoothed")
+	prefix_paf="$output_dir"/$(basename "$prefix_paf")
+	prefix_seqwish="$output_dir"/$(basename "$prefix_seqwish")
+	prefix_smoothed="$output_dir"/$(basename "$prefix_smoothed")
 fi
 
 date=`date "+%m-%d-%Y_%H:%M:%S"`
-log_file=$prefix_smoothed.$date.log
-param_file=$prefix_smoothed.$date.params.yml
+log_file="$prefix_smoothed".$date.log
+param_file="$prefix_smoothed".$date.params.yml
 
 # write parameters to log_file:
-echo -e "Starting pggb on `date`\n" > $log_file
-echo -e "Command: $cmd\n" >> $log_file
-echo -e "PARAMETERS\n" >> $log_file
-if [[ $wfmash == "wfmash" ]]; then
+echo -e "Starting pggb on `date`\n" > "$log_file"
+echo -e "Command: $cmd\n" >> "$log_file"
+echo -e "PARAMETERS\n" >> "$log_file"
+if [[ $mapper == "wfmash" ]]; then
      wfmash_bool=true
 else wfmash_bool=false
 fi
-cat <<EOT | tee -a $log_file $param_file >/dev/null
+cat <<EOT | tee -a "$log_file" "$param_file" >/dev/null
 general:
   input-fasta:        $input_fasta
   output-dir:         $output_dir
@@ -238,8 +237,8 @@ reporting:
   multiqc:            $multiqc
 EOT
 
-echo -e "\nRunning pggb\n" >> $log_file
-if [[ ! -s $prefix_paf.paf || $resume == false ]]; then
+echo -e "\nRunning pggb\n" >> "$log_file"
+if [[ ! -s "$prefix_paf".paf || $resume == false ]]; then
   if [[ "$mapper" == "edyeet" ]];
   then
           ($timer -f "$fmt" edyeet \
@@ -252,8 +251,8 @@ if [[ ! -s $prefix_paf.paf || $resume == false ]]; then
               -a $align_pct_id \
               -k $mash_kmer \
               -t $threads \
-              $input_fasta $input_fasta \
-              > $prefix_paf.paf) 2> >(tee -a $log_file)
+              "$input_fasta" "$input_fasta" \
+              > "$prefix_paf".paf) 2> >(tee -a "$log_file")
   elif [[ "$mapper" == "wfmash" ]];
   then
           ($timer -f "$fmt" wfmash \
@@ -266,41 +265,41 @@ if [[ ! -s $prefix_paf.paf || $resume == false ]]; then
               -k $mash_kmer \
               -l $wf_min \
               -t $threads \
-              $input_fasta $input_fasta \
-              > $prefix_paf.paf) 2> >(tee -a $log_file)
+              "$input_fasta" "$input_fasta" \
+              > "$prefix_paf".paf) 2> >(tee -a "$log_file")
   fi
 fi
 
 if [[ ! -s $prefix_seqwish.gfa || $resume == false ]]; then
     $timer -f "$fmt" seqwish \
         -t $threads \
-        -s $input_fasta \
-        -p $prefix_paf.paf \
+        -s "$input_fasta" \
+        -p "$prefix_paf".paf \
         -k $min_match_length \
-        -g $prefix_seqwish.gfa \
+        -g "$prefix_seqwish".gfa \
         -B $transclose_batch \
         -P \
-        2> >(tee -a $log_file)
+        2> >(tee -a "$log_file")
 fi
 
 if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
     $timer -f "$fmt" smoothxg \
         -t $threads \
-        -g $prefix_seqwish.gfa \
+        -g "$prefix_seqwish".gfa \
         -w $max_block_weight \
         -I $block_id_min \
         -j $max_path_jump \
         -e $max_edge_jump \
         -l $max_poa_length \
-        -m $prefix_smoothed.maf \
-        -s $prefix_smoothed.consensus \
+        -m "$prefix_smoothed".maf \
+        -s "$prefix_smoothed".consensus \
         -a \
         -C $consensus_jump_max \
-        -o $prefix_smoothed.gfa \
-        2> >(tee -a $log_file)
+        -o "$prefix_smoothed".gfa \
+        2> >(tee -a "$log_file")
 fi
 
-$timer -f "$fmt" odgi build -g $prefix_smoothed.gfa -o $prefix_smoothed.og 2> >(tee -a $log_file)
+$timer -f "$fmt" odgi build -g "$prefix_smoothed".gfa -o "$prefix_smoothed".og 2> >(tee -a "$log_file")
 
 if [[ $multiqc == true ]];
 then
@@ -309,47 +308,46 @@ fi
 
 if [[ $do_stats == true ]];
 then
-    $timer -f "$fmt" odgi build -g $prefix_seqwish.gfa -o $prefix_seqwish.og 2> >(tee -a $log_file)
-    odgi stats -i $prefix_seqwish.og -S -s -l -d > $prefix_seqwish.og.stats 2>&1 | tee -a $log_file
-    odgi stats -i $prefix_smoothed.og -S -s -l -d > $prefix_smoothed.og.stats 2>&1 | tee -a $log_file
-    for consensus_graph in $prefix_smoothed*.consensus*.gfa; do
-        odgi build -g "$consensus_graph" -o "$consensus_graph".og 2> >(tee -a $log_file)
-        odgi stats -i "$consensus_graph".og -S -s -l -d >"$consensus_graph".og.stats 2>&1 | tee -a $log_file
+    $timer -f "$fmt" odgi build -g "$prefix_seqwish".gfa -o "$prefix_seqwish".og 2> >(tee -a "$log_file")
+    odgi stats -i "$prefix_seqwish".og -S -s -l -d > "$prefix_seqwish".og.stats 2>&1 | tee -a "$log_file"
+    odgi stats -i "$prefix_smoothed".og -S -s -l -d > "$prefix_smoothed".og.stats 2>&1 | tee -a "$log_file"
+    for consensus_graph in "$prefix_smoothed"*.consensus*.gfa; do
+        odgi build -g "$consensus_graph" -o "$consensus_graph".og 2> >(tee -a "$log_file")
+        odgi stats -i "$consensus_graph".og -S -s -l -d >"$consensus_graph".og.stats 2>&1 | tee -a "$log_file"
     done
-
 fi
 
 if [[ $do_viz == true ]];
 then
     # big problem: this assumes that there is no "Consensus_" in the input sequences
-    odgi paths -i $prefix_smoothed.og -L | grep -v Consensus_ > $prefix_smoothed.original_paths.txt \
-        2> >(tee -a $log_file)
-    $timer -f "$fmt" odgi viz -i $prefix_smoothed.og \
-                    -o $prefix_smoothed.og.viz_mqc.png \
-                    -x 1500 -y 500 -P 10 -p $prefix_smoothed.original_paths.txt \
-                    2> >(tee -a $log_file)
-    rm -f $prefix_smoothed.original_paths.txt 2> >(tee -a $log_file)
+    odgi paths -i "$prefix_smoothed".og -L | grep -v Consensus_ > "$prefix_smoothed".original_paths.txt \
+        2> >(tee -a "$log_file")
+    $timer -f "$fmt" odgi viz -i "$prefix_smoothed".og \
+                    -o "$prefix_smoothed".og.viz_mqc.png \
+                    -x 1500 -y 500 -P 10 -p "$prefix_smoothed".original_paths.txt \
+                    2> >(tee -a "$log_file")
+    rm -f "$prefix_smoothed".original_paths.txt 2> >(tee -a "$log_file")
 fi
 
 if [[ $do_layout == true ]];
 then
     # the 2D layout is "smoother" when we chop the nodes of the graph to a fixed maximum length
-    $timer -f "$fmt" odgi chop -i $prefix_smoothed.og -c 100 -o $prefix_smoothed.chop.og \
-        2> >(tee -a $log_file)
+    $timer -f "$fmt" odgi chop -i "$prefix_smoothed".og -c 100 -o "$prefix_smoothed".chop.og \
+        2> >(tee -a "$log_file")
 
     # adding -N to this call can help when rendering large, complex graphs that aren't globally linear
-    $timer -f "$fmt" odgi layout -i $prefix_smoothed.chop.og \
-                       -o $prefix_smoothed.chop.og.lay \
+    $timer -f "$fmt" odgi layout -i "$prefix_smoothed".chop.og \
+                       -o "$prefix_smoothed".chop.og.lay \
                        -t $threads -P \
-                       2> >(tee -a $log_file)
+                       2> >(tee -a "$log_file")
 
     # this can be configured to draw the graph in different ways, based on the same layout
-    $timer -f "$fmt" odgi draw -i $prefix_smoothed.chop.og \
-                     -c $prefix_smoothed.chop.og.lay \
-                     -p $prefix_smoothed.chop.og.lay.draw_mqc.png \
+    $timer -f "$fmt" odgi draw -i "$prefix_smoothed".chop.og \
+                     -c "$prefix_smoothed".chop.og.lay \
+                     -p "$prefix_smoothed".chop.og.lay.draw_mqc.png \
                      -C -w 20 \
                      -H 1500 -t $threads \
-                     2> >(tee -a $log_file)
+                     2> >(tee -a "$log_file")
 fi
 
 multiqc_out_dir=$(dirname "$input_fasta")
@@ -358,14 +356,14 @@ if [[ $multiqc == true ]];
 then
     if [[ $output_dir == "" ]];
     then
-        $timer -f "$fmt" multiqc $multiqc_out_dir \
+        $timer -f "$fmt" multiqc "$multiqc_out_dir" \
         -s \
-        -o $multiqc_out_dir \
-        2> >(tee -a $log_file)
+        -o "$multiqc_out_dir" \
+        2> >(tee -a "$log_file")
     else
-        $timer -f "$fmt" multiqc $output_dir \
+        $timer -f "$fmt" multiqc "$output_dir" \
         -s \
-        -o $output_dir \
-        2> >(tee -a $log_file)
+        -o "$output_dir" \
+        2> >(tee -a "$log_file")
     fi
 fi
