@@ -15,6 +15,7 @@ min_match_length=19
 transclose_batch=1000000
 max_block_weight=10000
 block_id_min=0
+ratio_contain=0
 max_path_jump=5000
 min_subpath=0
 max_edge_jump=5000
@@ -39,7 +40,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWMSY:G:C:I:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:K:k:B:w:j:P:e:t:vlhWMSY:G:C:I:R:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,ratio-contain:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -60,6 +61,7 @@ while true ; do
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
         -w|--block-weight-max) max_block_weight=$2 ; shift 2 ;;
         -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
+        -R|--ratio-contain) ratio_contain=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -P|--subpath-min) min_subpath=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
@@ -113,6 +115,8 @@ then
     echo "   [smoothxg]"
     echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000]"
     echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0 / OFF]"
+    echo "    -R, --ratio-contain N       minimum short length / long length ratio to compare sequences for the containment"
+    echo "                                metric in the clustering [default: 0, no containment metric]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 5000]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
     echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
@@ -123,7 +127,8 @@ then
     echo "    -l, --layout                render a 2D layout of the graph"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: OFF]"
     echo "   [multiqc]"
-    echo "    -m, --multiqc                   generate MultiQC report of graphs' statistics and visualizations, automatically runs odgi stats [default: OFF]"
+    echo "    -m, --multiqc               generate MultiQC report of graphs' statistics and visualizations,"
+    echo "                                automatically runs odgi stats [default: OFF]"
     echo "   [general]"
     echo "    -o, --output-dir PATH       output directory"
     echo "    -r, --resume                do not overwrite existing output from edyeet, seqwish, smoothxg"
@@ -136,7 +141,7 @@ then
 fi
 
 # todo name according to the things we set
-f=$input_fasta.pggb-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer-k$min_match_length-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min
+f=$input_fasta.pggb-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer-k$min_match_length-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min-R$ratio_contain
 date=`date "+%m-%d-%Y_%H:%M:%S"`
 log_file=$f.$date.log
 param_file=$f.$date.params.yml
@@ -188,6 +193,7 @@ smoothxg:
   poa-length-max:     $max_poa_length
   consensus-jump-max: $consensus_jump_max
   block-id-min:       $block_id_min
+  ratio-contain:      $ratio_contain
 odgi:
   viz:                $do_viz
   layout:             $do_layout
@@ -277,6 +283,7 @@ if [[ ! -s $f.smooth.gfa || $resume == false ]]; then
         -J 0.7 \
         -K \
         -I $block_id_min \
+        -R $ratio_contain \
         -j $max_path_jump \
         -e $max_edge_jump \
         -l $max_poa_length \
