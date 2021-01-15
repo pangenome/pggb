@@ -26,7 +26,7 @@ RUN apt-get install -y \
                         zlib1g-dev
 RUN cd edyeet \
     && git pull \
-    && git checkout c923695 \
+    && git checkout 76d8528 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/edyeet /usr/local/bin/edyeet
 
@@ -34,11 +34,9 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
-    && git checkout 5c6ae5d \
-    && bash bootstrap.sh \
-    && bash configure \
-    && make \
-    && cp wfmash /usr/local/bin/wfmash
+    && git checkout 8ff9d7d \
+    && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
+    && cp build/bin/wfmash /usr/local/bin/wfmash
 
 RUN cd ../
 RUN git clone --recursive https://github.com/ekg/seqwish
@@ -46,7 +44,7 @@ RUN apt-get install -y \
                         build-essential
 RUN cd seqwish \
     && git pull \
-    && git checkout fe8d766 \
+    && git checkout e448d5b \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish
 
@@ -55,7 +53,7 @@ RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
     && git submodule update \
-    && git checkout 39dcd06 \
+    && git checkout 4b9f0051 \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
