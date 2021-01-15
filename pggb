@@ -140,8 +140,6 @@ then
     exit
 fi
 
-# todo name according to the things we set
-
 # Alignment
 prefix_paf=$input_fasta.pggb-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer
 
@@ -178,9 +176,6 @@ prefix_seqwish=$prefix_paf-k$min_match_length.seqwish
 # Normalization
 prefix_smoothed=$prefix_seqwish-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min.smooth
 
-date=`date "+%m-%d-%Y_%H:%M:%S"`
-log_file=$prefix_smoothed.$date.log
-param_file=$prefix_smoothed.$date.params.yml
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
 timer=/usr/bin/time
@@ -189,10 +184,14 @@ if [[ $output_dir != "" ]]; then
 	if [ ! -e $output_dir ]; then
 		mkdir $output_dir
 	fi
+	prefix_paf=$output_dir/$(basename "$prefix_paf")
+	prefix_seqwish=$output_dir/$(basename "$prefix_seqwish")
 	prefix_smoothed=$output_dir/$(basename "$prefix_smoothed")
-    log_file=$prefix_smoothed.$date.log
-    param_file=$prefix_smoothed.$date.params.yml
 fi
+
+date=`date "+%m-%d-%Y_%H:%M:%S"`
+log_file=$prefix_smoothed.$date.log
+param_file=$prefix_smoothed.$date.params.yml
 
 # write parameters to log_file:
 echo -e "Starting pggb on `date`\n" > $log_file
