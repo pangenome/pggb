@@ -16,6 +16,7 @@ RUN apt-get update \
                        make \
                        g++ \
                        python3-dev \
+                       bc \
                        libatomic-ops-dev
 
 RUN cd ../../
