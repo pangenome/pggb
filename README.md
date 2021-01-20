@@ -59,8 +59,8 @@ To ensure that we only get high-quality alignments, we might need to set `-p` an
 Setting `-n`
 In general, increasing `-s`, `-p`, and `-a` decreases runtime and memory usage.
 
-For instance, a good setting for 10-20 genomes from the same species, with diversity from 1-5% would be `-s 100000 -p 90 -a 90 -n 10`.
-However, if we wanted to include genomes from another species with higher divergence (say 20%), we might use `-s 100000 -p 70 -a 70 -n 10`.
+For instance, a good setting for 10-20 genomes from the same species, with diversity from 1-5% would be `-s 100000 -p 90 -n 10`.
+However, if we wanted to include genomes from another species with higher divergence (say 20%), we might use `-s 100000 -p 70 -n 10`.
 The exact configuration depends on the application, and testing must be used to determine what is appropriate for a given study.
 
 ## installation
@@ -90,7 +90,7 @@ cd pggb
 you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -L -o /data/out -m"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -n 5 -t 2 -v -L -o /data/out -m"
 ```
 
 The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
@@ -104,7 +104,7 @@ docker build --target binary -t ${USER}/pggb:latest .
 Staying in the `pggb` directory, we can run `pggb` with the locally build image:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -L -o /data/out -m"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -n 5 -t 2 -v -L -o /data/out -m"
 ```
 
 #### AVX
