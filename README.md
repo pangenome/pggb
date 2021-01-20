@@ -29,7 +29,7 @@ Optional post-processing steps provide 1D and 2D diagnostic visualizations of th
 
 ## general usage
 
-`pggb` requires at least an input sequence `-i`, a segment length `-s`, a mapping identity minimum `-p`, and an alignment identity minimum `-a`.
+`pggb` requires at least an input sequence `-i`, a segment length `-s`, and a mapping identity minimum `-p`.
 Other parameters may help in specific instances to shape the alignment set.
 
 Using a test from the `data/HLA` directory in this repo:
@@ -37,17 +37,18 @@ Using a test from the `data/HLA` directory in this repo:
 ```sh
 git clone --recursive https://github.com/pangenome/pggb
 cd pggb
-./pggb -i data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 10000 -I 0 -p 70 -a 70 -n 5 -t 16 -v -l -o out
+./pggb -i data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 5000 -I 0 -p 80 -n 10 -k 8 -t 16 -v -L -o out
 ```
 
-This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, and several diagnostic images (all in the directory `out/`).
+
+This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, a series of consensus graphs at different levels of variant resolution, and several diagnostic images (all in the directory `out/`).
 By default, the outputs are named according to the input file and the construction parameters.
 Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
-(These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-l` can take a while.)
+(These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-L` can take a while.)
 
-![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K16-k8-w10000-j5000-e5000.smooth.og.viz.png)
+![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-E-s5000-l15000-p80-n10-a0-K16-k8-w50000-j5000-e5000-I0-R0-N.smooth.og.viz_mqc.png)
 
-![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K16-k8-w10000-j5000-e5000.smooth.chop.og.lay.png)
+![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-E-s5000-l15000-p80-n10-a0-K16-k8-w50000-j5000-e5000-I0-R0-N.smooth.chop.og.lay.draw_mqc.png)
 
 ### suggestions for larger pangenomes
 
@@ -59,8 +60,8 @@ To ensure that we only get high-quality alignments, we might need to set `-p` an
 Setting `-n`
 In general, increasing `-s`, `-p`, and `-a` decreases runtime and memory usage.
 
-For instance, a good setting for 10-20 genomes from the same species, with diversity from 1-5% would be `-s 100000 -p 90 -a 90 -n 10`.
-However, if we wanted to include genomes from another species with higher divergence (say 20%), we might use `-s 100000 -p 70 -a 70 -n 10`.
+For instance, a good setting for 10-20 genomes from the same species, with diversity from 1-5% would be `-s 100000 -p 90 -n 10`.
+However, if we wanted to include genomes from another species with higher divergence (say 20%), we might use `-s 100000 -p 70 -n 10`.
 The exact configuration depends on the application, and testing must be used to determine what is appropriate for a given study.
 
 ## installation
@@ -90,7 +91,7 @@ cd pggb
 you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -l -o /data/out -m"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 5000 -I 0 -p 80 -n 10 -k 8 -t 2 -v -L -o /data/out -m"
 ```
 
 The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
@@ -104,7 +105,7 @@ docker build --target binary -t ${USER}/pggb:latest .
 Staying in the `pggb` directory, we can run `pggb` with the locally build image:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -l -o /data/out -m"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 5000 -I 0 -p 80 -n 10 -k 8 -t 2 -v -L -o /data/out -m"
 ```
 
 #### AVX

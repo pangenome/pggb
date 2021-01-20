@@ -16,6 +16,7 @@ RUN apt-get update \
                        make \
                        g++ \
                        python3-dev \
+                       bc \
                        libatomic-ops-dev
 
 RUN cd ../../
@@ -26,7 +27,7 @@ RUN apt-get install -y \
                         zlib1g-dev
 RUN cd edyeet \
     && git pull \
-    && git checkout 76d8528 \
+    && git checkout 5e1f752 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/edyeet /usr/local/bin/edyeet
 
@@ -34,7 +35,7 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
-    && git checkout 8ff9d7d \
+    && git checkout 4e3aaf0 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash
 
