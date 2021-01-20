@@ -57,7 +57,7 @@ while true ; do
         -M|--no-merge-segments) no_merge_segments=true ; shift ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
-        -W|--edyeet) mapper=wfmash ; shift ;;
+        -W|--wfmash) mapper=wfmash ; shift ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
@@ -149,8 +149,13 @@ then
 fi
 
 # todo name according to the things we set
-f=$input_fasta.pggb-s$segment_length-l$block_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer-k$min_match_length-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min-R$ratio_contain
+mapper_letter='E'
+if [[ "$mapper" == "wfmash" ]];
+then
+  mapper_letter='W'
+fi
 
+f=$input_fasta.pggb-$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer-k$min_match_length-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min-R$ratio_contain
 
 date=`date "+%m-%d-%Y_%H:%M:%S"`
 log_file=$f.$date.log
