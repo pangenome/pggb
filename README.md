@@ -37,13 +37,13 @@ Using a test from the `data/HLA` directory in this repo:
 ```sh
 git clone --recursive https://github.com/pangenome/pggb
 cd pggb
-./pggb -i data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 10000 -I 0 -p 70 -a 70 -n 5 -t 16 -v -l -o out
+./pggb -i data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 10000 -I 0 -p 70 -a 70 -n 5 -t 16 -v -L -o out
 ```
 
 This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, and several diagnostic images (all in the directory `out/`).
 By default, the outputs are named according to the input file and the construction parameters.
 Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
-(These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-l` can take a while.)
+(These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-L` can take a while.)
 
 ![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-s3000-p70-n10-a70-K16-k8-w10000-j5000-e5000.smooth.og.viz.png)
 
@@ -90,7 +90,7 @@ cd pggb
 you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -l -o /data/out -m"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -L -o /data/out -m"
 ```
 
 The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
@@ -104,7 +104,7 @@ docker build --target binary -t ${USER}/pggb:latest .
 Staying in the `pggb` directory, we can run `pggb` with the locally build image:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -l -o /data/out -m"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 3000 -I 0 -p 70 -a 70 -n 5 -t 2 -v -L -o /data/out -m"
 ```
 
 #### AVX
