@@ -18,7 +18,6 @@ max_block_weight=10000
 block_id_min=0
 ratio_contain=0
 max_path_jump=5000
-min_subpath=0
 max_edge_jump=5000
 max_poa_length=10000
 do_viz=false
@@ -65,7 +64,6 @@ while true ; do
         -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
         -R|--ratio-contain) ratio_contain=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
-        -P|--subpath-min) min_subpath=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
         -G|--poa-length-max) max_poa_length=$2 ; shift 2 ;;
         -C|--consensus-jump-max) consensus_jump_max=$2 ; shift 2 ;;
@@ -178,10 +176,10 @@ fi
 
 if [[ $mapper == "edyeet" ]];
 then
-    prefix_paf="$prefix_paf"-E
+    prefix_paf="$prefix_paf"
 elif [[ $mapper == "wfmash" ]];
 then
-    prefix_paf="$prefix_paf"-W-L$wf_min-D$wf_diff
+    prefix_paf="$prefix_paf"-L$wf_min-D$wf_diff
 fi
 
 # Graph induction
