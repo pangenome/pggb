@@ -35,7 +35,7 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
-    && git checkout fcd2f0c \
+    && git checkout 4c3d818 \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash
 
