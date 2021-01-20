@@ -114,7 +114,7 @@ then
     echo "    -a, --align-pct-id PCT      percent identity in the edyeet edlib alignment step [default: 0]"
     echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
-    echo "    -W, --edyeet                use the wfmash edit-distance mashmapper [default: edyeet]"
+    echo "    -W, --wfmash                use the wfmash edit-distance mashmapper [default: edyeet]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
