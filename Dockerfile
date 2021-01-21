@@ -5,7 +5,7 @@ LABEL description="Preliminary docker image containing all requirements for pggb
 LABEL base_image="debian:buster-slim"
 LABEL software="pggb"
 LABEL about.home="https://github.com/pangenome/pggb"
-LABEL about.license="SPDX:MIT"      
+LABEL about.license="SPDX:MIT"
 
 # odgi's dependencies
 RUN apt-get update \
@@ -28,6 +28,7 @@ RUN apt-get install -y \
 RUN cd edyeet \
     && git pull \
     && git checkout 776a0c8 \
+    && sed -i 's/-march=native //g' CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/edyeet /usr/local/bin/edyeet
 
@@ -36,6 +37,7 @@ RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
     && git checkout 4e3aaf0 \
+    && sed -i 's/-march=native //g' CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash
 

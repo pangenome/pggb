@@ -177,7 +177,7 @@ fi
 echo -e "Starting pggb on `date`\n" > $log_file
 echo -e "Command: $cmd\n" >> $log_file
 echo -e "PARAMETERS\n" >> $log_file
-if [[ $wfmash == "wfmash" ]]; then
+if [[ $mapper == "wfmash" ]]; then
      wfmash_bool=true
 else wfmash_bool=false
 fi

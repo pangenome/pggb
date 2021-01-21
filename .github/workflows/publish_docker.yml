@@ -4,11 +4,12 @@ name: Publish container to github container registry
 
 on:
   push:
-      branches:
-        - master
+    branches:
+      - master
+
 jobs:
   publish_release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@master
     - name: Publish to Registry
