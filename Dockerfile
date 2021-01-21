@@ -28,7 +28,7 @@ RUN apt-get install -y \
 RUN cd edyeet \
     && git pull \
     && git checkout 776a0c8 \
-    && sed -i 's/CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mcx16 -march=native -g/CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O -mcx16 -march=native -g -fsanitize=address/g' CMakeLists.txt && sed -i 's/CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mcx16 -march=native -g/CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O -mcx16 -march=native -g -fsanitize=address/g' CMakeLists.txt \
+    && sed -i 's/-march=native/-march=haswell/g' CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/edyeet /usr/local/bin/edyeet
 
@@ -37,6 +37,7 @@ RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
     && git checkout 4e3aaf0 \
+    && sed -i 's/-march=native/-march=haswell/g' CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash
 
