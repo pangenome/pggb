@@ -1,11 +1,11 @@
-FROM ubuntu:20.04 AS binary
+FROM debian:bullseye-slim AS binary
 
 LABEL authors="Erik Garrison, Simon Heumos, Andrea Guarracino"
 LABEL description="Preliminary docker image containing all requirements for pggb pipeline"
 LABEL base_image="debian:buster-slim"
 LABEL software="pggb"
 LABEL about.home="https://github.com/pangenome/pggb"
-LABEL about.license="SPDX:MIT"      
+LABEL about.license="SPDX:MIT"
 
 # odgi's dependencies
 RUN apt-get update \
@@ -28,6 +28,7 @@ RUN apt-get install -y \
 RUN cd edyeet \
     && git pull \
     && git checkout 776a0c8 \
+    && sed -i 's/CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -mcx16 -march=native -g/CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O -mcx16 -march=native -g -fsanitize=address/g' CMakeLists.txt && sed -i 's/CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -mcx16 -march=native -g/CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O -mcx16 -march=native -g -fsanitize=address/g' CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/edyeet /usr/local/bin/edyeet
 
