@@ -43,7 +43,7 @@ cd pggb
 
 This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, a series of consensus graphs at different levels of variant resolution, and several diagnostic images (all in the directory `out/`).
 By default, the outputs are named according to the input file and the construction parameters.
-Adding `-v` and `-l` render 1D and 2D diagnostic images of the graph.
+Adding `-v` and `-L` render 1D and 2D diagnostic images of the graph.
 (These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-L` can take a while.)
 
 ![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-E-s5000-l15000-p80-n10-a0-K16-k8-w50000-j5000-e5000-I0-R0-N.smooth.og.viz_mqc.png)
@@ -127,7 +127,7 @@ It is important to understand the key parameters of each phase and their effect 
 Each pangenome is different.
 We may require different settings to obtain useful graphs for particular applications in different contexts.
 
-### defining the base alignment with edyeet
+### defining the base alignment with edyeet/wfmash
 
 Four parameters passed to `edyeet` are essential for establishing the basic structure of the pangenome:
 
@@ -137,7 +137,7 @@ Four parameters passed to `edyeet` are essential for establishing the basic stru
 * `-a[%], --align-pct-id=[%]` defines the minimum percentage identity allowed in the _alignment_ step
 
 Crucially, `--segment-length` provides a kind of minimum alignment length filter.
-The mashmap step in `edyeet` will only consider segments of this size, and require them to have an approximate pairwise identity of at least `--map-pct-id`.
+The mashmap step in `edyeet`/`wfmash` will only consider segments of this size, and require them to have an approximate pairwise identity of at least `--map-pct-id`.
 For small pangenome graphs, or where there are few repeats, `--segment-length` can be set low (such as 3000 in the example above).
 However, for larger contexts, with repeats, it can be very important to set this high (for instance 100000 in the case of human genomes).
 A long segment length ensures that we represent long collinear regions of the input sequences in the structure of the graph.
