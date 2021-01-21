@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim AS binary
+FROM ubuntu:20.04 AS binary
 
 LABEL authors="Erik Garrison, Simon Heumos, Andrea Guarracino"
 LABEL description="Preliminary docker image containing all requirements for pggb pipeline"
