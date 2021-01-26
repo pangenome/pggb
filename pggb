@@ -25,7 +25,6 @@ do_layout=false
 threads=1
 mapper=edyeet
 wf_min=100
-wf_diff=500
 no_merge_segments=false
 do_stats=false
 exclude_delim=false
@@ -88,7 +87,7 @@ if [[
    ]];
 then
     show_help=true
-    >&2 echo "Mandatory arguments -i, -s, -n, -p, -a"
+    >&2 echo "Mandatory arguments -i, -s, -n, -p"
 fi
 
 if [[ $block_length == false ]];
@@ -100,7 +99,7 @@ if [ $show_help ];
 then
     padding=`printf %${#0}s` # prints as many spaces as the length of $0
     echo "usage: $0 -i <input-fasta> -s <segment-length> -n <n-secondary>"
-    echo "       $padding -p <map-pct-id> -a <align-pct-id> [options]"
+    echo "       $padding -p <map-pct-id> [options]"
     echo "options:"
     echo "   [alignment]"
     echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
@@ -354,7 +353,7 @@ then
     $timer -f "$fmt" odgi chop -i "$prefix_smoothed".og -c 100 -o "$prefix_smoothed".chop.og \
         2> >(tee -a "$log_file")
 
-    # adding -N to this call can help when rendering large, complex graphs that aren't globally linear
+    # adding `-N g` to this call can help when rendering large, complex graphs that aren't globally linear
     $timer -f "$fmt" odgi layout -i "$prefix_smoothed".chop.og \
                        -o "$prefix_smoothed".chop.og.lay \
                        -t $threads -P \
