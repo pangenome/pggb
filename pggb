@@ -24,11 +24,10 @@ do_viz=false
 do_layout=false
 threads=1
 mapper=edyeet
-wf_min=100
 no_merge_segments=false
 do_stats=false
 exclude_delim=false
-consensus_jump_max=10,100,1000,10000
+consensus_spec=10,100,1000,10000
 no_splits=false
 multiqc=false
 
@@ -39,7 +38,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhWMSY:G:C:I:R:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-jump-max:,block-id-min:,ratio-contain:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhWMSY:G:C:I:R:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-spec:,block-id-min:,ratio-contain:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -65,7 +64,7 @@ while true ; do
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
         -G|--poa-length-max) max_poa_length=$2 ; shift 2 ;;
-        -C|--consensus-jump-max) consensus_jump_max=$2 ; shift 2 ;;
+        -C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -v|--do-viz) do_viz=true ; shift ;;
         -L|--do-layout) do_layout=true ; shift ;;
@@ -125,8 +124,14 @@ then
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 5000]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
     echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
-    echo "    -C, --consensus-jump-max N  preserve all divergences from the consensus paths greater"
-    echo "                                than this length [default: 10,100,1000,10000]"
+    echo "    -C, --consensus-spec SPEC   consensus graph specification: write the consensus graph to"
+    echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a jump_max"
+    echo "                                parameter (which defines the length of divergences from consensus paths to"
+    echo "                                preserve in the output), optionally a file containing reference paths to"
+    echo "                                preserve in the output, and a flag (y/n) indicating whether we should also use"
+    echo "                                the POA consensus paths; implies -a; basename is given by the output file name"
+    echo "                                example: 100,1000:refs1.txt:n,1000:refs2.txt:y,10000"
+    echo "                                [default: 10,100,1000,10000]"
     echo "   [odgi]"
     echo "    -v, --viz                   render a visualization of the graph in 1D"
     echo "    -L, --layout                render a 2D layout of the graph"
@@ -178,7 +183,7 @@ then
     prefix_paf="$prefix_paf"
 elif [[ $mapper == "wfmash" ]];
 then
-    prefix_paf="$prefix_paf"-L$wf_min-D$wf_diff
+    prefix_paf="$prefix_paf"
 fi
 
 # Graph induction
@@ -238,7 +243,7 @@ smoothxg:
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
   poa-length-max:     $max_poa_length
-  consensus-jump-max: $consensus_jump_max
+  consensus-spec:     $consensus_spec
   block-id-min:       $block_id_min
   ratio-contain:      $ratio_contain
 odgi:
@@ -277,7 +282,6 @@ if [[ ! -s "$prefix_paf".paf || $resume == false ]]; then
               -p $map_pct_id \
               -n $n_secondary \
               -k $mash_kmer \
-              -l $wf_min \
               -t $threads \
               "$input_fasta" "$input_fasta" \
               > "$prefix_paf".paf) 2> >(tee -a "$log_file")
@@ -310,9 +314,7 @@ if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
         -e $max_edge_jump \
         -l $max_poa_length \
         -m "$prefix_smoothed".maf \
-        -s "$prefix_smoothed".consensus \
-        -a \
-        -C $consensus_jump_max \
+        -C "$prefix_smoothed".consensus,$consensus_spec \
         -o "$prefix_smoothed".gfa \
         2> >(tee -a "$log_file")
 fi
