@@ -157,7 +157,7 @@ then
   mapper_letter='W'
 fi
 
-prefix_paf="$input_fasta".pggb-$mapper_letter-s$segment_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer
+prefix_paf="$input_fasta".pggb-$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer
 
 if [[ $no_merge_segments == true ]];
 then
