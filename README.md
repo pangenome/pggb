@@ -40,7 +40,6 @@ cd pggb
 ./pggb -i data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 5000 -I 0 -p 80 -n 10 -k 8 -t 16 -v -L -o out
 ```
 
-
 This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, a series of consensus graphs at different levels of variant resolution, and several diagnostic images (all in the directory `out/`).
 By default, the outputs are named according to the input file and the construction parameters.
 Adding `-v` and `-L` render 1D and 2D diagnostic images of the graph.
@@ -48,7 +47,18 @@ Adding `-v` and `-L` render 1D and 2D diagnostic images of the graph.
 
 ![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-E-s5000-l15000-p80-n10-a0-K16-k8-w50000-j5000-e5000-I0-R0-N.smooth.og.viz_mqc.png)
 
+`1D graph visualization explained:`
+
+- The graph nodes’ are arranged from left to right forming the pangenome’s sequence.
+- The colored bars represent the binned, linearized renderings of the embedded paths versus this pangenome sequence in a binary matrix.
+- The black lines under the paths, so called links, represent the topology of the graph.
+
 ![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-E-s5000-l15000-p80-n10-a0-K16-k8-w50000-j5000-e5000-I0-R0-N.smooth.chop.og.lay.draw_mqc.png)
+
+`2D graph visualization explained:`
+
+- Each colored rectangle represents a node of a path. The node’s x-coordinates are on the x-axis and the y-coordinates are on the y-axis, respectively.
+- A bubble indicates that here some paths have a diverging sequence or it can represent a repeat region.
 
 ### suggestions for larger pangenomes
 
@@ -109,6 +119,7 @@ docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.f
 ```
 
 #### AVX
+
 `abPOA` of `pggb` uses SIMD instructions which require AVX. The currently built docker image has `-march=haswell` set. This means the docker image can be run by processors that support AVX256 or later. If you have a processor that supports AVX512, it is recommended to rebuild the docker image locally, removing the line
 
 ```sh
@@ -119,7 +130,7 @@ from the `Dockerfile`. This can lead to better performance in the `abPOA` step o
 
 ### nextflow
 
-A nextflow DSL2 port of `pggb` is developed by the [nf-core](https://nf-co.re/) community. See https://github.com/nf-core/pangenome for more details.
+A nextflow DSL2 port of `pggb` is developed by the [nf-core](https://nf-co.re/) community. See [nf-core/pangenome](https://github.com/nf-core/pangenome) for more details.
 
 ## parameter considerations
 
@@ -131,10 +142,10 @@ We may require different settings to obtain useful graphs for particular applica
 
 Four parameters passed to `edyeet` are essential for establishing the basic structure of the pangenome:
 
-* `-s[N], --segment-length=[N]` is the length of the mapped and aligned segment
-* `-p[%], --map-pct-id=[%]` is the percentage identity minimum in the _mapping_ step
-* `-n[N], --n-secondary=[N]` is the maximum number of mappings (and alignments) to report for each segment
-* `-a[%], --align-pct-id=[%]` defines the minimum percentage identity allowed in the _alignment_ step
+- `-s[N], --segment-length=[N]` is the length of the mapped and aligned segment
+- `-p[%], --map-pct-id=[%]` is the percentage identity minimum in the _mapping_ step
+- `-n[N], --n-secondary=[N]` is the maximum number of mappings (and alignments) to report for each segment
+- `-a[%], --align-pct-id=[%]` defines the minimum percentage identity allowed in the _alignment_ step
 
 Crucially, `--segment-length` provides a kind of minimum alignment length filter.
 The mashmap step in `edyeet`/`wfmash` will only consider segments of this size, and require them to have an approximate pairwise identity of at least `--map-pct-id`.

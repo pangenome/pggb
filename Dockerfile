@@ -2,7 +2,7 @@ FROM debian:bullseye-slim AS binary
 
 LABEL authors="Erik Garrison, Simon Heumos, Andrea Guarracino"
 LABEL description="Preliminary docker image containing all requirements for pggb pipeline"
-LABEL base_image="debian:buster-slim"
+LABEL base_image="debian:bullseye-slim"
 LABEL software="pggb"
 LABEL about.home="https://github.com/pangenome/pggb"
 LABEL about.license="SPDX:MIT"
@@ -69,7 +69,7 @@ RUN apt-get install -y pip
 RUN cd ../
 RUN git clone https://github.com/Imipenem/MultiQC
 RUN cd MultiQC \
-    && git checkout module/odgi_stats \
+    && git checkout adacbcb490baa5304443ea8532e7fc6964ecc358 \
     && pip install .
 
 RUN apt-get install -y time
