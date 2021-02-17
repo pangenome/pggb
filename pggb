@@ -129,12 +129,13 @@ then
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
     echo "                                [default: 2,4,6,2,24,1]"
     echo "    -C, --consensus-spec SPEC   consensus graph specification: write the consensus graph to"
-    echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a jump_max"
-    echo "                                parameter (which defines the length of divergences from consensus paths to"
-    echo "                                preserve in the output), optionally a file containing reference paths to"
-    echo "                                preserve in the output, and a flag (y/n) indicating whether we should also use"
-    echo "                                the POA consensus paths; implies -a; basename is given by the output file name"
-    echo "                                example: 100,1000:refs1.txt:n,1000:refs2.txt:y,10000"
+    echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a min_len parameter"
+    echo "                                (which defines the length of divergences from consensus paths to preserve in the"
+    echo "                                output), optionally a file containing reference paths to preserve in the output,"
+    echo "                                a flag (y/n) indicating whether we should also use the POA consensus paths, a"
+    echo "                                minimum coverage of consensus paths to retain (min_cov), and a maximum allele"
+    echo "                                length (max_len, defaults to 1e6); implies -a; example:"
+    echo "                                cons,100,1000:refs1.txt:n,1000:refs2.txt:y:2.3:1000000,10000"
     echo "                                [default: 10,100,1000,10000]"
     echo "   [odgi]"
     echo "    -v, --viz                   render a visualization of the graph in 1D"
@@ -313,6 +314,7 @@ if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
         -M \
         -J 0.7 \
         -K \
+        -G 100 \
         -I $block_id_min \
         -R $ratio_contain \
         -j $max_path_jump \
