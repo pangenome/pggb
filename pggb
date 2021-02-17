@@ -309,6 +309,7 @@ if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
         -M \
         -J 0.7 \
         -K \
+        -G 100 \
         -I $block_id_min \
         -R $ratio_contain \
         -j $max_path_jump \
