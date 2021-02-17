@@ -135,6 +135,7 @@ then
     echo "                                preserve in the output, and a flag (y/n) indicating whether we should also use"
     echo "                                the POA consensus paths; implies -a; basename is given by the output file name"
     echo "                                example: 100,1000:refs1.txt:n,1000:refs2.txt:y,10000"
+    echo "                                [default: 10,100,1000,10000]"
     echo "   [odgi]"
     echo "    -v, --viz                   render a visualization of the graph in 1D"
     echo "    -L, --layout                render a 2D layout of the graph"
