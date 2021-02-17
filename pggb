@@ -20,6 +20,7 @@ ratio_contain=0
 max_path_jump=5000
 max_edge_jump=5000
 max_poa_length=10000
+poa_params="2,4,6,2,24,1"
 do_viz=false
 do_layout=false
 threads=1
@@ -38,7 +39,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhWMSY:G:C:I:R:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,consensus-spec:,block-id-min:,ratio-contain:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhWMSY:G:C:I:R:Nr:m --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,block-id-min:,ratio-contain:,no-splits,resume,multiqc -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -64,6 +65,7 @@ while true ; do
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
         -G|--poa-length-max) max_poa_length=$2 ; shift 2 ;;
+        -P|--poa-params) poa_params=$2 ; shift 2 ;;
         -C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -v|--do-viz) do_viz=true ; shift ;;
@@ -124,6 +126,8 @@ then
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 5000]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
     echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
+    echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
+    echo "                                [default: 2,4,6,2,24,1]"
     echo "    -C, --consensus-spec SPEC   consensus graph specification: write the consensus graph to"
     echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a jump_max"
     echo "                                parameter (which defines the length of divergences from consensus paths to"
@@ -243,6 +247,7 @@ smoothxg:
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
   poa-length-max:     $max_poa_length
+  poa-params:         $poa_params
   consensus-spec:     $consensus_spec
   block-id-min:       $block_id_min
   ratio-contain:      $ratio_contain
@@ -313,6 +318,7 @@ if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
         -j $max_path_jump \
         -e $max_edge_jump \
         -l $max_poa_length \
+        -p $poa_params \
         -m "$prefix_smoothed".maf \
         -C "$prefix_smoothed".consensus,$consensus_spec \
         -o "$prefix_smoothed".gfa \
