@@ -20,7 +20,11 @@ ratio_contain=0
 max_path_jump=5000
 max_edge_jump=5000
 max_poa_length=10000
-poa_params="2,4,6,2,24,1"
+# poa param suggestions from minimap2
+# - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
+# - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
+# - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
+poa_params="1,4,6,2,26,1"
 do_viz=false
 do_layout=false
 threads=1
@@ -127,7 +131,7 @@ then
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
     echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
-    echo "                                [default: 2,4,6,2,24,1]"
+    echo "                                [default: 1,4,6,2,26,1]"
     echo "    -C, --consensus-spec SPEC   consensus graph specification: write the consensus graph to"
     echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a min_len parameter"
     echo "                                (which defines the length of divergences from consensus paths to preserve in the"
