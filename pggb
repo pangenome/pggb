@@ -196,10 +196,12 @@ then
 fi
 
 # Graph induction
-prefix_seqwish="$prefix_paf"-k$min_match_length.seqwish
+prefix_seqwish="$prefix_paf".seqwish-k$min_match_length-B$transclose_batch
+
+poa_params_display=$(echo "$poa_params" | tr "," "_")
 
 # Normalization
-prefix_smoothed="$prefix_seqwish"-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min.smooth
+prefix_smoothed="$prefix_seqwish".smooth-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min-p"$poa_params_display"
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
@@ -324,7 +326,7 @@ if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
         -j $max_path_jump \
         -e $max_edge_jump \
         -l $max_poa_length \
-        -p $poa_params \
+        -p "$poa_params" \
         -m "$prefix_smoothed".maf \
         -C "$prefix_smoothed".consensus,$consensus_spec \
         -o "$prefix_smoothed".gfa \
