@@ -28,8 +28,8 @@ RUN apt-get install -y \
 RUN cd edyeet \
     && git pull \
     && git checkout 776a0c8 \
-    && sed -i 's/-march=native/-march=haswell/g' CMakeLists.txt \
-    && sed -i 's/-march=native/-march=haswell/g' src/common/wflign/CMakeLists.txt \
+    && sed -i 's/-march=native //g' CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/edyeet /usr/local/bin/edyeet
 
