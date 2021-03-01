@@ -38,8 +38,8 @@ RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
     && git checkout 4e3aaf0 \
-    && sed -i 's/-march=native/-march=haswell/g' CMakeLists.txt \
-    && sed -i 's/-march=native/-march=haswell/g' src/common/wflign/CMakeLists.txt \
+    && sed -i 's/-march=native //g' CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash
 
