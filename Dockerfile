@@ -72,7 +72,7 @@ RUN cd MultiQC \
     && git checkout adacbcb490baa5304443ea8532e7fc6964ecc358 \
     && pip install .
 
-RUN apt-get install -y time
+RUN apt-get install -y time pigz
 
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb
