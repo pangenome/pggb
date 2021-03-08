@@ -58,7 +58,7 @@ RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
     && git submodule update \
-    && git checkout 9102c47 \
+    && git checkout 3a784ed \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
