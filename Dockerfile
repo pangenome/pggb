@@ -27,7 +27,7 @@ RUN apt-get install -y \
                         zlib1g-dev
 RUN cd edyeet \
     && git pull \
-    && git checkout 776a0c8 \
+    && git checkout 03a28af \
     && sed -i 's/-march=native //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
@@ -37,7 +37,7 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
-    && git checkout 4e3aaf0 \
+    && git checkout a25d52f \
     && sed -i 's/-march=native //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
@@ -58,7 +58,7 @@ RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
     && git submodule update \
-    && git checkout d1301d5 \
+    && git checkout 9102c47 \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
@@ -72,7 +72,7 @@ RUN cd MultiQC \
     && git checkout adacbcb490baa5304443ea8532e7fc6964ecc358 \
     && pip install .
 
-RUN apt-get install -y time
+RUN apt-get install -y time pigz
 
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb

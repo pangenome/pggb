@@ -10,10 +10,10 @@ jobs:
       - name: Build the Docker image
         run: docker build . --file Dockerfile --target binary --tag pggb
       - name: Run a test on the DRB1-3123 dataset (wfmash)
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 2 -v -L -m -W"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 2 -v -L -m -W -Z"
       - name: Run a test on the LPA dataset (wfmash)
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/LPA/LPA.fa.gz -s 30000 -j 5000 -e 5000 -K 16 -k 19 -p 70 -a 70 -n 10 -t 2 -v -L -m -W"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/LPA/LPA.fa.gz -s 30000 -j 5000 -e 5000 -K 16 -k 19 -p 70 -a 70 -n 10 -t 2 -v -L -m -W -Z"
       - name: Run a test on the DRB1-3123 dataset (edyeet)
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 2 -v -L -m"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -s 3000 -p 70 -a 70 -n 10 -t 2 -v -L -m -Z"
       - name: Run a test on the LPA dataset (edyeet)
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/LPA/LPA.fa.gz -s 30000 -j 5000 -e 5000 -K 16 -k 19 -p 70 -a 70 -n 10 -t 2 -v -L -m"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/LPA/LPA.fa.gz -s 30000 -j 5000 -e 5000 -K 16 -k 19 -p 70 -a 70 -n 10 -t 2 -v -L -m -Z"
