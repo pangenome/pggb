@@ -36,6 +36,7 @@ consensus_spec=10,100,1000,10000
 no_splits=false
 multiqc=false
 pigz_compress=false
+hyb_pct_id=false
 
 if [ $# -eq 0 ];
 then
@@ -44,7 +45,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhWMSY:G:C:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,block-id-min:,ratio-contain:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhWH:MSY:G:C:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,block-id-min:,ratio-contain:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -61,6 +62,7 @@ while true ; do
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -W|--wfmash) mapper=wfmash ; shift ;;
+        -H|--hyb-pct-id) mapper=wfmash-hyb ; hyb_pct_id=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
@@ -119,6 +121,9 @@ then
     echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
     echo "    -W, --wfmash                use the wfmash edit-distance mashmapper [default: edyeet]"
+    echo "    -H, --hyb-pct-id PCT        use wfmash in two phases to increase alignment sensitivity"
+    echo "                                  1) default, 2) unmerged (-M) with the specified PCT identity"
+    echo "                                  and with segment-length = block-length [default: off]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
@@ -168,6 +173,10 @@ if [[ "$mapper" == "wfmash" ]];
 then
   mapper_letter='W'
 fi
+if [[ "$mapper" == "wfmash-hyb" ]];
+then
+  mapper_letter='H'$hyb_pct_id
+fi
 
 prefix_paf="$input_fasta".pggb-$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer
 
@@ -196,6 +205,9 @@ then
 elif [[ $mapper == "wfmash" ]];
 then
     prefix_paf="$prefix_paf"
+elif [[ $mapper == "wfmash-hyb" ]];
+then
+    prefix_paf="$prefix_paf"
 fi
 
 # Graph induction
@@ -204,7 +216,7 @@ prefix_seqwish="$prefix_paf".seqwish-k$min_match_length-B$transclose_batch
 poa_params_display=$(echo "$poa_params" | tr "," "_")
 
 # Normalization
-prefix_smoothed="$prefix_seqwish".smooth-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min-p"$poa_params_display"
+prefix_smoothed="$prefix_seqwish".smooth-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min-R$ratio_contain-p"$poa_params_display"
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
@@ -248,6 +260,7 @@ alignment:
   n-secondary:        $n_secondary
   mash-kmer:          $mash_kmer
   wfmash:             $wfmash_bool
+  hyb-pct-id:         $hyb_pct_id
   exclude-delim:      $exclude_delim
 seqwish:
   min-match-len:      $min_match_length
@@ -300,6 +313,33 @@ if [[ ! -s "$prefix_paf".paf || $resume == false ]]; then
               -t $threads \
               "$input_fasta" "$input_fasta" \
               > "$prefix_paf".paf) 2> >(tee -a "$log_file")
+  elif [[ "$mapper" == "wfmash-hyb" ]];
+  then
+          ($timer -f "$fmt" wfmash \
+              $exclude_cmd \
+              -s $segment_length \
+              -l $block_length \
+              $merge_cmd \
+              $split_cmd \
+              -p $map_pct_id \
+              -n $n_secondary \
+              -k $mash_kmer \
+              -t $threads \
+              "$input_fasta" "$input_fasta" \
+              > "$prefix_paf".paf) 2> >(tee -a "$log_file")
+          ($timer -f "$fmt" wfmash \
+              $exclude_cmd \
+              -s $block_length \
+              -l 0 -M \
+              $split_cmd \
+              -p $hyb_pct_id \
+              -n $n_secondary \
+              -k $mash_kmer \
+              -t $threads \
+              "$input_fasta" "$input_fasta" \
+              > "$prefix_paf".hyb.paf) 2> >(tee -a "$log_file")
+          cat "$prefix_paf".hyb.paf >>"$prefix_paf".paf
+          rm -f "$prefix_paf".hyb.paf
   fi
 fi
 
