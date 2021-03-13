@@ -15,8 +15,7 @@ mash_kmer=16
 min_match_length=19
 transclose_batch=1000000
 max_block_weight=10000
-block_id_min=0
-ratio_contain=0
+block_id_min=0.5
 max_path_jump=5000
 max_edge_jump=5000
 max_poa_length=10000
@@ -46,7 +45,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhWH:MSY:G:C:Q:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,ratio-contain:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhWH:MSY:G:C:Q:I:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -69,7 +68,6 @@ while true ; do
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
         -w|--block-weight-max) max_block_weight=$2 ; shift 2 ;;
         -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
-        -R|--ratio-contain) ratio_contain=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
         -G|--poa-length-max) max_poa_length=$2 ; shift 2 ;;
@@ -133,9 +131,7 @@ then
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 1000000]"
     echo "   [smoothxg]"
     echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000]"
-    echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0 / OFF]"
-    echo "    -R, --ratio-contain N       minimum short length / long length ratio to compare sequences for the containment"
-    echo "                                metric in the clustering [default: 0, no containment metric]"
+    echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0.5]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 5000]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
     echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
@@ -219,7 +215,7 @@ prefix_seqwish="$prefix_paf".seqwish-k$min_match_length-B$transclose_batch
 poa_params_display=$(echo "$poa_params" | tr "," "_")
 
 # Normalization
-prefix_smoothed="$prefix_seqwish".smooth-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min-R$ratio_contain-p"$poa_params_display"
+prefix_smoothed="$prefix_seqwish".smooth-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min-p"$poa_params_display"
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
@@ -277,7 +273,6 @@ smoothxg:
   consensus-prefix:   $consensus_prefix
   consensus-spec:     $consensus_spec
   block-id-min:       $block_id_min
-  ratio-contain:      $ratio_contain
 odgi:
   viz:                $do_viz
   layout:             $do_layout
@@ -369,7 +364,6 @@ if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
         -K \
         -G 150 \
         -I $block_id_min \
-        -R $ratio_contain \
         -j $max_path_jump \
         -e $max_edge_jump \
         -l $max_poa_length \
