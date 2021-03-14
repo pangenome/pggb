@@ -27,7 +27,7 @@ poa_params="1,4,6,2,26,1"
 do_viz=false
 do_layout=false
 threads=1
-mapper=edyeet
+mapper=wfmash
 no_merge_segments=false
 do_stats=false
 exclude_delim=false
@@ -45,7 +45,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhWH:MSY:G:C:Q:I:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhEH:MSY:G:C:Q:I:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,edyeet,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -61,7 +61,7 @@ while true ; do
         -M|--no-merge-segments) no_merge_segments=true ; shift ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
-        -W|--wfmash) mapper=wfmash ; shift ;;
+        -E|--edyeet) mapper=edyeet ; shift ;;
         -H|--hyb-pct-id) mapper=wfmash-hyb ; hyb_pct_id=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
@@ -120,7 +120,7 @@ then
     echo "    -a, --align-pct-id PCT      percent identity in the edyeet edlib alignment step [default: 0]"
     echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
-    echo "    -W, --wfmash                use the wfmash edit-distance mashmapper [default: edyeet]"
+    echo "    -E, --edyeet                use the edyeet edit-distance mashmapper [default: wfmash]"
     echo "    -H, --hyb-pct-id PCT        use wfmash in two phases to increase alignment sensitivity"
     echo "                                  1) default, 2) unmerged (-M) with the specified PCT identity"
     echo "                                  and with segment-length = block-length [default: off]"
@@ -162,7 +162,7 @@ then
     echo "    -Z, --pigz-compress         compress graph (.gfa) and MSA (.maf) outputs with pigz"
     echo "    -h, --help                  this text"
     echo
-    echo "Use edyeet, seqwish, smoothxg, and odgi to build and display a pangenome graph."
+    echo "Use wfmash, seqwish, smoothxg, and odgi to build and display a pangenome graph."
     exit
 fi
 
