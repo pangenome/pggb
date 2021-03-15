@@ -16,6 +16,7 @@ min_match_length=19
 transclose_batch=1000000
 max_block_weight=10000
 block_id_min=0.5
+
 max_path_jump=5000
 max_edge_jump=5000
 max_poa_length=10000
@@ -23,7 +24,7 @@ max_poa_length=10000
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
 # - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
-poa_params="1,4,6,2,26,1"
+poa_params="1,7,11,2,33,1"
 do_viz=false
 do_layout=false
 threads=1
@@ -136,7 +137,7 @@ then
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
     echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
-    echo "                                [default: 1,4,6,2,26,1]"
+    echo "                                [default: 1,7,11,2,33,1]"
     echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
     echo "    -C, --consensus-spec SPEC   consensus graph specification: write the consensus graph to"
     echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a min_len parameter"
