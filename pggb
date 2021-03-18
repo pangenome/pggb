@@ -363,8 +363,6 @@ if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
         -t $threads \
         -g "$prefix_seqwish".gfa \
         -w $max_block_weight \
-        -M \
-        -J 0.7 \
         -K \
         -G 150 \
         -I $block_id_min \
