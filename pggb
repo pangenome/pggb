@@ -365,7 +365,7 @@ if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
         -w $max_block_weight \
         -K \
         -M \
-        -J 1
+        -J 1 \
         -G 150 \
         -I $block_id_min \
         -R $block_ratio_min \
