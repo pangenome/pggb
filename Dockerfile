@@ -24,7 +24,8 @@ RUN git clone --recursive https://github.com/ekg/edyeet
 RUN apt-get install -y \
                         autoconf \
                         libgsl-dev \
-                        zlib1g-dev
+                        zlib1g-dev \
+                        libzstd-dev
 RUN cd edyeet \
     && git pull \
     && git checkout 03a28af \
@@ -37,7 +38,7 @@ RUN cd ../
 RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
-    && git checkout d200025 \
+    && git checkout a932d64 \
     && sed -i 's/-mcx16 -march=native //g' CMakeLists.txt \
     && sed -i 's/-mcx16 -march=native //g' src/common/wflign/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
@@ -58,7 +59,7 @@ RUN git clone --recursive https://github.com/ekg/smoothxg
 RUN cd smoothxg \
     && git pull \
     && git submodule update \
-    && git checkout 22b793f \
+    && git checkout d20b3cb \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
