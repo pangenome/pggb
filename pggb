@@ -162,7 +162,7 @@ then
     echo "    -r, --resume                do not overwrite existing output from edyeet, seqwish, smoothxg"
     echo "                                [default: start pipeline from scratch]"
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
-    echo "    -Z, --pigz-compress         compress graph (.gfa) and MSA (.maf) outputs with pigz"
+    echo "    -Z, --pigz-compress         compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz"
     echo "    -h, --help                  this text"
     echo
     echo "Use wfmash, seqwish, smoothxg, and odgi to build and display a pangenome graph."
