@@ -46,7 +46,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhEH:MSY:G:C:Q:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,edyeet,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhEZH:MSY:G:C:Q:I:R:Nrmz --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,edyeet,mashz,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -63,6 +63,7 @@ while true ; do
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -E|--edyeet) mapper=edyeet ; shift ;;
+        -Z|--mashz) mapper=mashz ; shift ;;
         -H|--hyb-pct-id) mapper=wfmash-hyb ; hyb_pct_id=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
@@ -82,7 +83,7 @@ while true ; do
         -S|--do-stats) do_stats=true ; shift ;;
         -m|--multiqc) multiqc=true ; shift ;;
         -r|--resume) resume=true ; shift ;;
-        -Z|--pigz) pigz_compress=true ; shift ;;
+        -z|--pigz) pigz_compress=true ; shift ;;
         -h|--help) show_help=true ; shift ;;
         #-d|--debug) debug=true ; shift ;;
         --) shift ; break ;;
@@ -123,6 +124,7 @@ then
     echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
     echo "    -E, --edyeet                use the edyeet edit-distance mashmapper [default: wfmash]"
+    echo "    -Z, --mashz                 use the mashz lastz-based mashmapper [default: wfmash]"
     echo "    -H, --hyb-pct-id PCT        use wfmash in two phases to increase alignment sensitivity"
     echo "                                  1) default, 2) unmerged (-M) with the specified PCT identity"
     echo "                                  and with segment-length = block-length [default: off]"
@@ -162,7 +164,7 @@ then
     echo "    -r, --resume                do not overwrite existing output from edyeet, seqwish, smoothxg"
     echo "                                [default: start pipeline from scratch]"
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
-    echo "    -Z, --pigz-compress         compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz"
+    echo "    -z, --pigz-compress         compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz"
     echo "    -h, --help                  this text"
     echo
     echo "Use wfmash, seqwish, smoothxg, and odgi to build and display a pangenome graph."
@@ -171,6 +173,10 @@ fi
 
 # Alignment
 mapper_letter='E'
+if [[ "$mapper" == "mashz" ]];
+then
+  mapper_letter='Z'
+fi
 if [[ "$mapper" == "wfmash" ]];
 then
   mapper_letter='W'
@@ -202,6 +208,9 @@ else
 fi
 
 if [[ $mapper == "edyeet" ]];
+then
+    prefix_paf="$prefix_paf"
+elif [[ $mapper == "mashz" ]];
 then
     prefix_paf="$prefix_paf"
 elif [[ $mapper == "wfmash" ]];
@@ -245,6 +254,10 @@ if [[ $mapper == "wfmash" ]]; then
      wfmash_bool=true
 else wfmash_bool=false
 fi
+if [[ $mapper == "mashz" ]]; then
+    mashz_bool=true
+else mashz_bool=false
+fi
 cat <<EOT | tee -a "$log_file" "$param_file" >/dev/null
 general:
   input-fasta:        $input_fasta
@@ -262,6 +275,7 @@ alignment:
   n-secondary:        $n_secondary
   mash-kmer:          $mash_kmer
   wfmash:             $wfmash_bool
+  mashz:              $mashz_bool
   hyb-pct-id:         $hyb_pct_id
   exclude-delim:      $exclude_delim
 seqwish:
@@ -300,6 +314,21 @@ if [[ ! -s "$prefix_paf".paf || $resume == false ]]; then
               -a $align_pct_id \
               -k $mash_kmer \
               -t $threads \
+              "$input_fasta" "$input_fasta" \
+              > "$prefix_paf".paf) 2> >(tee -a "$log_file")
+  elif [[ "$mapper" == "mashz" ]];
+  then
+          ($timer -f "$fmt" mashz \
+              $exclude_cmd \
+              -s $segment_length \
+              -l $block_length \
+              $merge_cmd \
+              $split_cmd \
+              -p $map_pct_id \
+              -n $n_secondary \
+              -k $mash_kmer \
+              -t $threads \
+              -z "--filter=nmatch:$segment_length --gfextend --chain --gapped --allocate:traceback=500M" \
               "$input_fasta" "$input_fasta" \
               > "$prefix_paf".paf) 2> >(tee -a "$log_file")
   elif [[ "$mapper" == "wfmash" ]];
