@@ -328,7 +328,8 @@ if [[ ! -s "$prefix_paf".paf || $resume == false ]]; then
               -n $n_secondary \
               -k $mash_kmer \
               -t $threads \
-              -z "--filter=nmatch:$segment_length --gfextend --chain --gapped --allocate:traceback=500M" \
+              -a $align_pct_id \
+              -z "--gfextend --chain --gapped --allocate:traceback=500M" \
               "$input_fasta" "$input_fasta" \
               > "$prefix_paf".paf) 2> >(tee -a "$log_file")
   elif [[ "$mapper" == "wfmash" ]];
