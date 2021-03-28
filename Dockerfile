@@ -29,8 +29,10 @@ RUN apt-get install -y \
 RUN cd edyeet \
     && git pull \
     && git checkout 03a28af \
-    && sed -i 's/-mcx16 -march=native //g' CMakeLists.txt \
-    && sed -i 's/-mcx16 -march=native //g' src/common/wflign/CMakeLists.txt \
+    && sed -i 's/-mcx16 //g' CMakeLists.txt \
+    && sed -i 's/-march=native //g' CMakeLists.txt \
+    && sed -i 's/-mcx16 //g' src/common/wflign/CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/edyeet /usr/local/bin/edyeet
 
@@ -39,10 +41,24 @@ RUN git clone --recursive https://github.com/ekg/wfmash
 RUN cd wfmash \
     && git pull \
     && git checkout a932d64 \
-    && sed -i 's/-mcx16 -march=native //g' CMakeLists.txt \
-    && sed -i 's/-mcx16 -march=native //g' src/common/wflign/CMakeLists.txt \
+    && sed -i 's/-mcx16 //g' CMakeLists.txt \
+    && sed -i 's/-march=native //g' CMakeLists.txt \
+    && sed -i 's/-mcx16 //g' src/common/wflign/CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash
+
+RUN cd ../
+RUN git clone --recursive https://github.com/urbanslug/mashz
+RUN cd mashz \
+    && git pull \
+    && git checkout 68ec4b6 \
+    && sed -i 's/-mcx16 //g' CMakeLists.txt \
+    && sed -i 's/-march=native //g' CMakeLists.txt \
+    && sed -i 's/-mcx16 //g' src/common/wflign/CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
+    && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
+    && cp build/bin/mashz /usr/local/bin/mashz
 
 RUN cd ../
 RUN git clone --recursive https://github.com/ekg/seqwish
