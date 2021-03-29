@@ -21,6 +21,7 @@ RUN apt-get update \
                        autoconf \
                        libgsl-dev \
                        zlib1g-dev \
+                       libzstd-dev \
                        build-essential \
                        time \
                        pigz
