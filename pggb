@@ -478,7 +478,7 @@ then
                      2> >(tee -a "$log_file")
 fi
 
-multiqcgraph_out_dir=$(dirname "$input_fasta")
+multiqc_out_dir=$(dirname "$input_fasta")
 
 if [[ $multiqc == true ]];
 then
