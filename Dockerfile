@@ -17,38 +17,44 @@ RUN apt-get update \
                        g++ \
                        python3-dev \
                        bc \
-                       libatomic-ops-dev
-
-RUN cd ../../
-RUN git clone --recursive https://github.com/ekg/edyeet
-RUN apt-get install -y \
-                        autoconf \
-                        libgsl-dev \
-                        zlib1g-dev \
-                        libzstd-dev
-RUN cd edyeet \
+                       autoconf \
+                       libgsl-dev \
+                       zlib1g-dev \
+                       libzstd-dev
+                       libatomic-ops-dev \
+                       autoconf \
+                       libgsl-dev \
+                       zlib1g-dev \
+                       build-essential \
+                       time \
+                       pigz
+                        
+RUN git clone --recursive https://github.com/ekg/edyeet \
+    && cd edyeet \
     && git pull \
     && git checkout 03a28af \
+    && git submodule update --init --recursive \
     && sed -i 's/-mcx16 //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' CMakeLists.txt \
     && sed -i 's/-mcx16 //g' src/common/wflign/CMakeLists.txt \
     && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
-    && cp build/bin/edyeet /usr/local/bin/edyeet
+    && cp build/bin/edyeet /usr/local/bin/edyeet \
+    && cd ../
 
-RUN cd ../
-RUN git clone --recursive https://github.com/ekg/wfmash
-RUN cd wfmash \
+RUN git clone --recursive https://github.com/ekg/wfmash \
+    && cd wfmash \
     && git pull \
     && git checkout a932d64 \
+    && git submodule update --init --recursive \
     && sed -i 's/-mcx16 //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' CMakeLists.txt \
     && sed -i 's/-mcx16 //g' src/common/wflign/CMakeLists.txt \
     && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
-    && cp build/bin/wfmash /usr/local/bin/wfmash
+    && cp build/bin/wfmash /usr/local/bin/wfmash \
+    && cd ../
 
-RUN cd ../
 RUN git clone --recursive https://github.com/urbanslug/mashz
 RUN cd mashz \
     && git pull \
@@ -61,20 +67,18 @@ RUN cd mashz \
     && cp build/bin/mashz /usr/local/bin/mashz
 
 RUN cd ../
-RUN git clone --recursive https://github.com/ekg/seqwish
-RUN apt-get install -y \
-                        build-essential
-RUN cd seqwish \
+RUN git clone --recursive https://github.com/ekg/seqwish \
+    && cd seqwish \
     && git pull \
     && git checkout cbab96f \
+    && git submodule update --init --recursive \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
-    && cp bin/seqwish /usr/local/bin/seqwish
+    && cp bin/seqwish /usr/local/bin/seqwish \
+    && cd ../
 
-RUN cd ../
-RUN git clone --recursive https://github.com/ekg/smoothxg
-RUN cd smoothxg \
+RUN git clone --recursive https://github.com/ekg/smoothxg \
+    && cd smoothxg \
     && git pull \
-    && git submodule update \
     && git checkout 669d92b \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
@@ -89,8 +93,6 @@ RUN git clone https://github.com/Imipenem/MultiQC
 RUN cd MultiQC \
     && git checkout adacbcb490baa5304443ea8532e7fc6964ecc358 \
     && pip install .
-
-RUN apt-get install -y time pigz
 
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb
