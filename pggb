@@ -216,7 +216,11 @@ timer=/usr/bin/time
 date=`date "+%m-%d-%Y_%H:%M:%S"`
 
 if [[ "$uniq_output_dir" != false ]]; then
-    output_dir="$output_dir"_$(basename "$prefix_smoothed")_"$date"
+    if [[ "$output_dir" != "" ]]; then
+        output_dir="$output_dir"_$(basename "$prefix_smoothed")_"$date"
+    else 
+        output_dir=$(basename "$prefix_smoothed")_"$date"
+    fi
 fi
 
 if [[ "$resume" != false ]]; then
