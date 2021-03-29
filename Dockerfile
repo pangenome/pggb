@@ -20,7 +20,7 @@ RUN apt-get update \
                        autoconf \
                        libgsl-dev \
                        zlib1g-dev \
-                       libzstd-dev
+                       libzstd-dev \
                        libatomic-ops-dev \
                        autoconf \
                        libgsl-dev \
