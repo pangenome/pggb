@@ -40,7 +40,7 @@ RUN git clone --recursive https://github.com/ekg/edyeet \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout a932d64 \
+    && git checkout 3d1474d \
     && git submodule update --init --recursive \
     && sed -i 's/-mcx16 -march=native //g' CMakeLists.txt \
     && sed -i 's/-mcx16 -march=native //g' src/common/wflign/CMakeLists.txt \
@@ -60,7 +60,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout d20b3cb \
+    && git checkout 439a83d  \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
