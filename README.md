@@ -45,17 +45,17 @@ By default, the outputs are named according to the input file and the constructi
 Adding `-v` and `-L` render 1D and 2D diagnostic images of the graph.
 (These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-L` can take a while.)
 
-![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-E-s5000-l15000-p80-n10-a0-K16-k8-w50000-j5000-e5000-I0-R0-N.smooth.og.viz_mqc.png)
+### 1D graph visualization
 
-`1D graph visualization explained:`
+![odgi viz rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-E-s5000-l15000-p80-n10-a0-K16-k8-w50000-j5000-e5000-I0-R0-N.smooth.og.viz_mqc.png)
 
 - The graph nodes’ are arranged from left to right forming the pangenome’s sequence.
 - The colored bars represent the binned, linearized renderings of the embedded paths versus this pangenome sequence in a binary matrix.
 - The black lines under the paths, so called links, represent the topology of the graph.
 
-![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-E-s5000-l15000-p80-n10-a0-K16-k8-w50000-j5000-e5000-I0-R0-N.smooth.chop.og.lay.draw_mqc.png)
+### 2D graph visualization
 
-`2D graph visualization explained:`
+![odgi layout rendering of DRB1-3123 graph](https://raw.githubusercontent.com/pangenome/pggb/master/data/images/DRB1-3123.fa.gz.pggb-E-s5000-l15000-p80-n10-a0-K16-k8-w50000-j5000-e5000-I0-R0-N.smooth.chop.og.lay.draw_mqc.png)
 
 - Each colored rectangle represents a node of a path. The node’s x-coordinates are on the x-axis and the y-coordinates are on the y-axis, respectively.
 - A bubble indicates that here some paths have a diverging sequence or it can represent a repeat region.
