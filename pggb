@@ -38,7 +38,6 @@ no_splits=false
 multiqc=false
 pigz_compress=false
 hyb_pct_id=false
-uniq_output_dir=false
 
 if [ $# -eq 0 ];
 then
@@ -47,7 +46,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhEH:MSY:G:C:Q:I:R:Nr:mZu --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,edyeet,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,block-ratio-min:,no-splits,resume:,multiqc,pigz-compress,uniq-output-dir -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhEH:MSY:G:C:Q:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,edyeet,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -82,9 +81,8 @@ while true ; do
         -L|--do-layout) do_layout=true ; shift ;;
         -S|--do-stats) do_stats=true ; shift ;;
         -m|--multiqc) multiqc=true ; shift ;;
-        -r|--resume) resume=$2 ; shift 2 ;;
+        -r|--resume) resume=true ; shift ;;
         -Z|--pigz) pigz_compress=true ; shift ;;
-        -u|--uniq-output-dir) uniq_output_dir=true ; shift ;;
         -h|--help) show_help=true ; shift ;;
         #-d|--debug) debug=true ; shift ;;
         --) shift ; break ;;
@@ -165,7 +163,6 @@ then
     echo "                                [default: start pipeline from scratch in a new directory]"
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
     echo "    -Z, --pigz-compress         compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz"
-    echo "    -u, --uniq-output-dir       extend the -o/--output-dir PATH with all parameters and a unique timestamp"
     echo "    -h, --help                  this text"
     echo
     echo "Use wfmash, seqwish, smoothxg, and odgi to build and display a pangenome graph."
@@ -227,20 +224,6 @@ prefix_smoothed="$prefix_seqwish".smooth-w$max_block_weight-j$max_path_jump-e$ma
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
 timer=/usr/bin/time
 
-date=`date "+%m-%d-%Y_%H:%M:%S"`
-
-if [[ "$uniq_output_dir" != false ]]; then
-    if [[ "$output_dir" != "" ]]; then
-        output_dir="$output_dir"_$(basename "$prefix_smoothed")_"$date"
-    else 
-        output_dir=$(basename "$prefix_smoothed")_"$date"
-    fi
-fi
-
-if [[ "$resume" != false ]]; then
-    output_dir="$resume"
-fi
-
 if [[ "$output_dir" != "" ]]; then
 	if [ ! -e "$output_dir" ]; then
 		mkdir "$output_dir"
@@ -250,6 +233,7 @@ if [[ "$output_dir" != "" ]]; then
 	prefix_smoothed="$output_dir"/$(basename "$prefix_smoothed")
 fi
 
+date=`date "+%m-%d-%Y_%H:%M:%S"`
 log_file="$prefix_smoothed".$date.log
 param_file="$prefix_smoothed".$date.params.yml
 
@@ -267,7 +251,6 @@ general:
   output-dir:         $output_dir
   resume:             $resume
   pigz-compress:      $pigz_compress
-  uniq-output-dir:    $uniq_output_dir
   threads:            $threads
 alignment:
   mapping-tool:       $mapper
