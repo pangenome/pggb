@@ -14,12 +14,12 @@ block_length=false
 mash_kmer=16
 min_match_length=19
 transclose_batch=1000000
-max_block_weight=10000
-block_id_min=0.5
+max_block_weight=10000000
+block_id_min=0.95
 block_ratio_min=0.05
-max_path_jump=5000
-max_edge_jump=5000
-max_poa_length=10000
+max_path_jump=100
+max_edge_jump=0
+target_poa_length=5000
 # poa param suggestions from minimap2
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
 # - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
@@ -46,7 +46,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhEH:MSY:G:C:Q:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,edyeet,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhEH:MSY:G:C:Q:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,edyeet,hyb-pct-id:,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -72,7 +72,7 @@ while true ; do
         -R|--block-ratio-min) block_ratio_min=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
-        -G|--poa-length-max) max_poa_length=$2 ; shift 2 ;;
+        -G|--poa-length-target) target_poa_length=$2 ; shift 2 ;;
         -P|--poa-params) poa_params=$2 ; shift 2 ;;
         -C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
         -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
@@ -132,12 +132,12 @@ then
     echo "    -k, --min-match-len N       ignore exact matches below this length [default: 19]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 1000000]"
     echo "   [smoothxg]"
-    echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000]"
-    echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0.5]"
+    echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000000]"
+    echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0.95]"
     echo "    -R, --block-ratio-min N     minimum small / large length ratio to cluster in a block [default: 0.05]"
-    echo "    -j, --path-jump-max         maximum path jump to include in block [default: 5000]"
-    echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
-    echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
+    echo "    -j, --path-jump-max         maximum path jump to include in block [default: 100]"
+    echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
+    echo "    -G, --poa-length-target N   target sequence length to put into POA [default: 5000]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
     echo "                                [default: 1,7,11,2,33,1]"
     echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
@@ -218,7 +218,7 @@ prefix_seqwish="$prefix_paf".seqwish-k$min_match_length-B$transclose_batch
 poa_params_display=$(echo "$poa_params" | tr "," "_")
 
 # Normalization
-prefix_smoothed="$prefix_seqwish".smooth-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min-R$block_ratio_min-p"$poa_params_display"
+prefix_smoothed="$prefix_seqwish".smooth-w$max_block_weight-G$target_poa_length-j$max_path_jump-e$max_edge_jump-I$block_id_min-R$block_ratio_min-p"$poa_params_display"
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
@@ -272,7 +272,7 @@ smoothxg:
   block-weight-max:   $max_block_weight
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
-  poa-length-max:     $max_poa_length
+  poa-length-target:  $target_poa_length
   poa-params:         $poa_params
   consensus-prefix:   $consensus_prefix
   consensus-spec:     $consensus_spec
@@ -372,7 +372,7 @@ if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
         -R $block_ratio_min \
         -j $max_path_jump \
         -e $max_edge_jump \
-        -l $max_poa_length \
+        -l $target_poa_length \
         -p "$poa_params" \
         -m "$prefix_smoothed".maf \
         -C "$prefix_smoothed".consensus,$consensus_spec \
