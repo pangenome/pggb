@@ -40,7 +40,7 @@ RUN git clone --recursive https://github.com/ekg/edyeet \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 8970f46 \
+    && git checkout 7d494d4 \
     && git submodule update --init --recursive \
     && sed -i 's/-mcx16 -march=native //g' CMakeLists.txt \
     && sed -i 's/-mcx16 -march=native //g' src/common/wflign/CMakeLists.txt \
