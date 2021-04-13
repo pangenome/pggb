@@ -70,9 +70,12 @@ RUN git clone --recursive https://github.com/ekg/smoothxg \
 RUN apt-get install -y pip
 
 RUN cd ../
+
+ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
+
 RUN git clone https://github.com/Imipenem/MultiQC
 RUN cd MultiQC \
-    && git checkout adacbcb490baa5304443ea8532e7fc6964ecc358 \
+    && git checkout 5684a0c \
     && pip install .
 
 COPY pggb /usr/local/bin/pggb
