@@ -428,7 +428,7 @@ then
                      -c "$prefix_smoothed".chop.og.lay \
                      -p "$prefix_smoothed".chop.og.lay.draw_mqc.png \
                      -C -w 20 \
-                     -H 1500 -t $threads \
+                     -H 1500 \
                      2> >(tee -a "$log_file")
 fi
 
