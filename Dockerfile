@@ -26,17 +26,6 @@ RUN apt-get update \
                        time \
                        pigz
                         
-RUN git clone --recursive https://github.com/ekg/edyeet \
-    && cd edyeet \
-    && git pull \
-    && git checkout 03a28af \
-    && git submodule update --init --recursive \
-    && sed -i 's/-mcx16 -march=native //g' CMakeLists.txt \
-    && sed -i 's/-mcx16 -march=native //g' src/common/wflign/CMakeLists.txt \
-    && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
-    && cp build/bin/edyeet /usr/local/bin/edyeet \
-    && cd ../
-
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
