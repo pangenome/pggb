@@ -7,7 +7,6 @@ input_fasta=false
 output_dir=""
 resume=false
 map_pct_id=false
-align_pct_id=0
 n_secondary=false
 segment_length=false
 block_length=false
@@ -45,7 +44,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhMSY:G:C:Q:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:e:t:vLhMSY:G:C:Q:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -54,7 +53,6 @@ while true ; do
         -i|--input-fasta) input_fasta=$2 ; shift 2 ;;
         -o|--output-dir) output_dir=$2 ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
-        -a|--align-pct-id) align_pct_id=$2 ; shift 2 ;;
         -n|--n-secondary) n_secondary=$2 ; shift 2 ;;
         -s|--segment-length) segment_length=$2 ; shift 2 ;;
         -l|--block-length) block_length=$2 ; shift 2 ;;
@@ -164,7 +162,7 @@ fi
 # Alignment
 mapper_letter='W'
 
-paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer
+paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_secondary-K$mash_kmer
 
 if [[ $no_merge_segments == true ]];
 then
@@ -230,7 +228,6 @@ alignment:
   block-length:       $block_length
   no-merge-segments:  $no_merge_segments
   map-pct-id:         $map_pct_id
-  align-pct-id:       $align_pct_id
   n-secondary:        $n_secondary
   mash-kmer:          $mash_kmer
   exclude-delim:      $exclude_delim
