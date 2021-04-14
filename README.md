@@ -10,7 +10,7 @@ Maintaining local linearity is important for the interpretation, visualization, 
 
 It uses three phases:
 
-1. _[edyeet](https://github.com/ekg/edyeet) or [wfmash](https://github.com/ekg/wfmash)_: (*alignment*) -- They are probabilistic mash-map mappers. Both use mashmap to obtain approximate mappings, and then apply a [wavefront-guided global alignment algorithm for long sequences](https://github.com/ekg/wflign) to derive an alignment for each mapping. Their base-level alignment algorithm is different: edyeet is an [edit-distance](https://github.com/Martinsos/edlib) based mapper, meanwhile wfmash uses the [wavefront alignment algorithm](https://github.com/smarco/WFA). These mappers are used to scaffold the pangenome, using genome segments of a given length with a specified maximum level of sequence divergence.
+1. _[wfmash](https://github.com/ekg/wfmash)_: (*alignment*) -- `wfmash` is a probabilistic mash-map mapper. It uses mashmap to obtain approximate mappings, and then applies a [wavefront-guided global alignment algorithm for long sequences](https://github.com/ekg/wflign) to derive an alignment for each mapping.  `wfmash` uses the [wavefront alignment algorithm](https://github.com/smarco/WFA) for base-level alignment. This mapper is used to scaffold the pangenome, using genome segments of a given length with a specified maximum level of sequence divergence.
 All segments in the input are mapped to all others.
 This step yields alignments represented in the [PAF](https://github.com/lh3/miniasm/blob/master/PAF.md) output format, with cigars describing their base-exact alignment.
 
@@ -138,27 +138,24 @@ It is important to understand the key parameters of each phase and their effect 
 Each pangenome is different.
 We may require different settings to obtain useful graphs for particular applications in different contexts.
 
-### defining the base alignment with edyeet/wfmash
+### defining the base alignment with wfmash
 
-Four parameters passed to `edyeet` are essential for establishing the basic structure of the pangenome:
+Four parameters passed to `wfnasg` are essential for establishing the basic structure of the pangenome:
 
 - `-s[N], --segment-length=[N]` is the length of the mapped and aligned segment
 - `-p[%], --map-pct-id=[%]` is the percentage identity minimum in the _mapping_ step
 - `-n[N], --n-secondary=[N]` is the maximum number of mappings (and alignments) to report for each segment
-- `-a[%], --align-pct-id=[%]` defines the minimum percentage identity allowed in the _alignment_ step
 
 Crucially, `--segment-length` provides a kind of minimum alignment length filter.
-The mashmap step in `edyeet`/`wfmash` will only consider segments of this size, and require them to have an approximate pairwise identity of at least `--map-pct-id`.
+The mashmap step in `wfmash` will only consider segments of this size, and require them to have an approximate pairwise identity of at least `--map-pct-id`.
 For small pangenome graphs, or where there are few repeats, `--segment-length` can be set low (such as 3000 in the example above).
 However, for larger contexts, with repeats, it can be very important to set this high (for instance 100000 in the case of human genomes).
 A long segment length ensures that we represent long collinear regions of the input sequences in the structure of the graph.
-Setting `--align-pct-id` near or below `--map-pct-id` ensures that we can derive a base-level alignment for the typical mapping.
-However, setting it very low with a long `--segment-length` may result in long runtimes due to the quadratic costs of alignment.
 
 ### generating the initial graph with seqwish
 
 The `-k` or `--min-match-length` parameter given to `seqwish` will drop any short matches from consideration.
-In practice, these often occur in regions of low alignment quality, which are typical of areas with large indels and structural variations in the `edyeet` alignments.
+In practice, these often occur in regions of low alignment quality, which are typical of areas with large indels and structural variations in the `wfmash` alignments.
 In effect, setting `-k` to N means that we can tolerate a local pairwise difference rate of no more than 1/N.
 Thus, indels which may be represented by complex series of edit operations will be opened into [bubbles](https://doi.org/10.1089/cmb.2017.0251) in the induced graph, and alignment regions with very low identity will be ignored.
 Using affine-gapped alignment (such as with _[minimap2](https://github.com/lh3/minimap2)_) may reduce the impact of this step by representing large indels more precisely in the input alignments.
@@ -204,7 +201,7 @@ The docker image already contains this version of MultiQC.
 
 The pipeline is provided as a single script with configurable command-line options.
 Users should consider taking this script as a starting point for their own pangenome project.
-For instance, you might consider swapping out `edyeet` with `minimap2` or another PAF-producing long-read aligner.
+For instance, you might consider swapping out `wfmash` with `minimap2` or another PAF-producing long-read aligner.
 If the graph is small, it might also be possible to use `abPOA` or `spoa` to generate it directly.
 On the other hand, maybe you're starting with an assembly overlap graph which can be converted to blunt-ended GFA using _[gimbricate](https://github.com/ekg/gimbricate)_.
 You might have a validation process based on alignment of sequences to the graph, which should be added at the end of the process.
@@ -225,7 +222,7 @@ Although its design represents efforts to scale these approaches to collections 
 
 It's straightforward to generate a pangenome graph by the all-pairs alignment of a set of input sequences.
 This can scale poorly, but it has ideal sensitivity.
-The mashmap/edlib alignment algorithm in `edyeet` is a very fast way to generate alignments between the sequences.
+The mashmap/wfa alignment algorithm in `wfmash` is a very fast way to generate alignments between the sequences.
 Crucially, it is robust to repetitive sequences (the initial mash mapping step is linear in the space of the genome irrespective of its sequence context), and it can be adjusted using probabilistic thresholds for segment alignment identity.
 This allows us to define the base graph structure using a few free parameters: we consider the best-n candidate alignments for each N-bp segment, where the alignments must have at least a given identity threshold.
 
