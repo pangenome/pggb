@@ -140,7 +140,7 @@ We may require different settings to obtain useful graphs for particular applica
 
 ### defining the base alignment with wfmash
 
-Four parameters passed to `wfnasg` are essential for establishing the basic structure of the pangenome:
+Four parameters passed to `wfmash` are essential for establishing the basic structure of the pangenome:
 
 - `-s[N], --segment-length=[N]` is the length of the mapped and aligned segment
 - `-p[%], --map-pct-id=[%]` is the percentage identity minimum in the _mapping_ step
