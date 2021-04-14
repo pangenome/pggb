@@ -61,9 +61,6 @@ RUN git clone --recursive https://github.com/ekg/smoothxg \
 RUN apt-get install -y pip
 
 RUN cd ../
-
-ADD "https://www.random.org/cgi-bin/randbyte?nbytes=10&format=h" skipcache
-
 RUN git clone https://github.com/Imipenem/MultiQC
 RUN cd MultiQC \
     && git checkout 5684a0c \
