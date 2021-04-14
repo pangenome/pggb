@@ -37,7 +37,6 @@ consensus_prefix=Consensus_
 no_splits=false
 multiqc=false
 pigz_compress=false
-hyb_pct_id=false
 
 if [ $# -eq 0 ];
 then
@@ -116,8 +115,7 @@ then
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 3*segment-length]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
     echo "    -M, --no-merge-segments     do not merge successive mappings"
-    echo "    -p, --map-pct-id PCT        percent identity in the wfmash or edyeet mashmap step"
-    echo "    -a, --align-pct-id PCT      percent identity in the edyeet edlib alignment step [default: 0]"
+    echo "    -p, --map-pct-id PCT        percent identity in the wfmash step"
     echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
@@ -153,7 +151,7 @@ then
     echo "                                automatically runs odgi stats [default: OFF]"
     echo "   [general]"
     echo "    -o, --output-dir PATH       output directory"
-    echo "    -r, --resume PATH           do not overwrite existing output from edyeet, seqwish, smoothxg in given directory"
+    echo "    -r, --resume PATH           do not overwrite existing output from wfmash, seqwish, smoothxg in given directory"
     echo "                                [default: start pipeline from scratch in a new directory]"
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
     echo "    -Z, --pigz-compress         compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz"
@@ -164,15 +162,7 @@ then
 fi
 
 # Alignment
-mapper_letter='E'
-if [[ "$mapper" == "wfmash" ]];
-then
-  mapper_letter='W'
-fi
-if [[ "$mapper" == "wfmash-hyb" ]];
-then
-  mapper_letter='H'$hyb_pct_id
-fi
+mapper_letter='W'
 
 paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer
 
@@ -243,7 +233,6 @@ alignment:
   align-pct-id:       $align_pct_id
   n-secondary:        $n_secondary
   mash-kmer:          $mash_kmer
-  hyb-pct-id:         $hyb_pct_id
   exclude-delim:      $exclude_delim
 seqwish:
   min-match-len:      $min_match_length
