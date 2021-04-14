@@ -7,36 +7,35 @@ input_fasta=false
 output_dir=""
 resume=false
 map_pct_id=false
-align_pct_id=0
 n_secondary=false
 segment_length=false
 block_length=false
 mash_kmer=16
 min_match_length=19
 transclose_batch=1000000
-max_block_weight=10000
-block_id_min=0
-ratio_contain=0
-max_path_jump=5000
-max_edge_jump=5000
-max_poa_length=10000
+max_block_weight=10000000
+block_id_min=0.95
+block_ratio_min=0.05
+max_path_jump=100
+max_edge_jump=0
+target_poa_length=5000
 # poa param suggestions from minimap2
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
 # - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
-poa_params="1,4,6,2,26,1"
+poa_params="1,7,11,2,33,1"
 do_viz=false
 do_layout=false
 threads=1
-mapper=edyeet
+mapper=wfmash
 no_merge_segments=false
 do_stats=false
 exclude_delim=false
 consensus_spec=10,100,1000,10000
+consensus_prefix=Consensus_
 no_splits=false
 multiqc=false
 pigz_compress=false
-uniq_output_dir=false
 
 if [ $# -eq 0 ];
 then
@@ -45,7 +44,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:a:n:s:l:K:k:B:w:j:P:e:t:vLhWMSY:G:C:I:R:Nr:mZu --long input-fasta:,output-dir:,map-pct-id:,align-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,wfmash,no-merge-segments,do-stats,exclude-delim:,poa-length-max:,poa-params:,consensus-spec:,block-id-min:,ratio-contain:,no-splits,resume:,multiqc,pigz-compress,uniq-output-dir -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:e:t:vLhMSY:G:C:Q:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -54,33 +53,31 @@ while true ; do
         -i|--input-fasta) input_fasta=$2 ; shift 2 ;;
         -o|--output-dir) output_dir=$2 ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
-        -a|--align-pct-id) align_pct_id=$2 ; shift 2 ;;
         -n|--n-secondary) n_secondary=$2 ; shift 2 ;;
         -s|--segment-length) segment_length=$2 ; shift 2 ;;
         -l|--block-length) block_length=$2 ; shift 2 ;;
         -M|--no-merge-segments) no_merge_segments=true ; shift ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
-        -W|--wfmash) mapper=wfmash ; shift ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
         -w|--block-weight-max) max_block_weight=$2 ; shift 2 ;;
         -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
-        -R|--ratio-contain) ratio_contain=$2 ; shift 2 ;;
+        -R|--block-ratio-min) block_ratio_min=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
-        -G|--poa-length-max) max_poa_length=$2 ; shift 2 ;;
+        -G|--poa-length-target) target_poa_length=$2 ; shift 2 ;;
         -P|--poa-params) poa_params=$2 ; shift 2 ;;
         -C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
+        -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -v|--do-viz) do_viz=true ; shift ;;
         -L|--do-layout) do_layout=true ; shift ;;
         -S|--do-stats) do_stats=true ; shift ;;
         -m|--multiqc) multiqc=true ; shift ;;
-        -r|--resume) resume=$2 ; shift 2 ;;
+        -r|--resume) resume=true ; shift ;;
         -Z|--pigz) pigz_compress=true ; shift ;;
-        -u|--uniq-output-dir) uniq_output_dir=true ; shift ;;
         -h|--help) show_help=true ; shift ;;
         #-d|--debug) debug=true ; shift ;;
         --) shift ; break ;;
@@ -116,26 +113,24 @@ then
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 3*segment-length]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
     echo "    -M, --no-merge-segments     do not merge successive mappings"
-    echo "    -p, --map-pct-id PCT        percent identity in the wfmash or edyeet mashmap step"
-    echo "    -a, --align-pct-id PCT      percent identity in the edyeet edlib alignment step [default: 0]"
+    echo "    -p, --map-pct-id PCT        percent identity in the wfmash step"
     echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
-    echo "    -W, --wfmash                use the wfmash edit-distance mashmapper [default: edyeet]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
     echo "    -k, --min-match-len N       ignore exact matches below this length [default: 19]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 1000000]"
     echo "   [smoothxg]"
-    echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000]"
-    echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0 / OFF]"
-    echo "    -R, --ratio-contain N       minimum short length / long length ratio to compare sequences for the containment"
-    echo "                                metric in the clustering [default: 0, no containment metric]"
-    echo "    -j, --path-jump-max         maximum path jump to include in block [default: 5000]"
-    echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 5000]"
-    echo "    -G, --poa-length-max N      maximum sequence length to put into POA [default: 10000]"
+    echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000000]"
+    echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0.95]"
+    echo "    -R, --block-ratio-min N     minimum small / large length ratio to cluster in a block [default: 0.05]"
+    echo "    -j, --path-jump-max         maximum path jump to include in block [default: 100]"
+    echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
+    echo "    -G, --poa-length-target N   target sequence length to put into POA [default: 5000]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
-    echo "                                [default: 1,4,6,2,26,1]"
+    echo "                                [default: 1,7,11,2,33,1]"
+    echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
     echo "    -C, --consensus-spec SPEC   consensus graph specification: write the consensus graph to"
     echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a min_len parameter"
     echo "                                (which defines the length of divergences from consensus paths to preserve in the"
@@ -154,37 +149,34 @@ then
     echo "                                automatically runs odgi stats [default: OFF]"
     echo "   [general]"
     echo "    -o, --output-dir PATH       output directory"
-    echo "    -r, --resume PATH           do not overwrite existing output from edyeet, seqwish, smoothxg in given directory"
+    echo "    -r, --resume PATH           do not overwrite existing output from wfmash, seqwish, smoothxg in given directory"
     echo "                                [default: start pipeline from scratch in a new directory]"
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
-    echo "    -Z, --pigz-compress         compress graph (.gfa) and MSA (.maf) outputs with pigz"
-    echo "    -u, --uniq-output-dir       extend the -o/--output-dir PATH with all parameters and a unique timestamp"
+    echo "    -Z, --pigz-compress         compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz"
     echo "    -h, --help                  this text"
     echo
-    echo "Use edyeet, seqwish, smoothxg, and odgi to build and display a pangenome graph."
+    echo "Use wfmash, seqwish, smoothxg, and odgi to build and display a pangenome graph."
     exit
 fi
 
 # Alignment
-mapper_letter='E'
-if [[ "$mapper" == "wfmash" ]];
-then
-  mapper_letter='W'
-fi
+mapper_letter='W'
 
-prefix_paf="$input_fasta".pggb-$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_secondary-a$align_pct_id-K$mash_kmer
+paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_secondary-K$mash_kmer
 
 if [[ $no_merge_segments == true ]];
 then
     merge_cmd=-M
-    prefix_paf="$prefix_paf"-M
+    paf_spec="$paf_spec"-M
 fi
 
 if [[ $no_splits == true ]];
 then
     split_cmd=-N
-    prefix_paf="$prefix_paf"-N
+    paf_spec="$paf_spec"-N
 fi
+
+prefix_paf="$input_fasta".$(echo $paf_spec | sha256sum | head -c 7)
 
 if [[ $exclude_delim != false ]];
 then
@@ -193,39 +185,17 @@ else
     exclude_cmd=-X
 fi
 
-if [[ $mapper == "edyeet" ]];
-then
-    prefix_paf="$prefix_paf"
-elif [[ $mapper == "wfmash" ]];
-then
-    prefix_paf="$prefix_paf"
-fi
-
 # Graph induction
-prefix_seqwish="$prefix_paf".seqwish-k$min_match_length-B$transclose_batch
+prefix_seqwish="$prefix_paf".$(echo k$min_match_length-B$transclose_batch | sha256sum | head -c 7)
 
 poa_params_display=$(echo "$poa_params" | tr "," "_")
 
 # Normalization
-prefix_smoothed="$prefix_seqwish".smooth-w$max_block_weight-j$max_path_jump-e$max_edge_jump-I$block_id_min-p"$poa_params_display"
+prefix_smoothed="$prefix_seqwish".$(echo w$max_block_weight-G$target_poa_length-j$max_path_jump-e$max_edge_jump-I$block_id_min-R$block_ratio_min-p"$poa_params_display" | sha256sum | head -c 7)
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
 timer=/usr/bin/time
-
-date=`date "+%m-%d-%Y_%H:%M:%S"`
-
-if [[ "$uniq_output_dir" != false ]]; then
-    if [[ "$output_dir" != "" ]]; then
-        output_dir="$output_dir"_$(basename "$prefix_smoothed")_"$date"
-    else 
-        output_dir=$(basename "$prefix_smoothed")_"$date"
-    fi
-fi
-
-if [[ "$resume" != false ]]; then
-    output_dir="$resume"
-fi
 
 if [[ "$output_dir" != "" ]]; then
 	if [ ! -e "$output_dir" ]; then
@@ -236,6 +206,7 @@ if [[ "$output_dir" != "" ]]; then
 	prefix_smoothed="$output_dir"/$(basename "$prefix_smoothed")
 fi
 
+date=`date "+%m-%d-%Y_%H:%M:%S"`
 log_file="$prefix_smoothed".$date.log
 param_file="$prefix_smoothed".$date.params.yml
 
@@ -243,17 +214,12 @@ param_file="$prefix_smoothed".$date.params.yml
 echo -e "Starting pggb on `date`\n" > "$log_file"
 echo -e "Command: $cmd\n" >> "$log_file"
 echo -e "PARAMETERS\n" >> "$log_file"
-if [[ $mapper == "wfmash" ]]; then
-     wfmash_bool=true
-else wfmash_bool=false
-fi
 cat <<EOT | tee -a "$log_file" "$param_file" >/dev/null
 general:
   input-fasta:        $input_fasta
   output-dir:         $output_dir
   resume:             $resume
   pigz-compress:      $pigz_compress
-  uniq-output-dir:    $uniq_output_dir
   threads:            $threads
 alignment:
   mapping-tool:       $mapper
@@ -262,10 +228,8 @@ alignment:
   block-length:       $block_length
   no-merge-segments:  $no_merge_segments
   map-pct-id:         $map_pct_id
-  align-pct-id:       $align_pct_id
   n-secondary:        $n_secondary
   mash-kmer:          $mash_kmer
-  wfmash:             $wfmash_bool
   exclude-delim:      $exclude_delim
 seqwish:
   min-match-len:      $min_match_length
@@ -274,11 +238,12 @@ smoothxg:
   block-weight-max:   $max_block_weight
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
-  poa-length-max:     $max_poa_length
+  poa-length-target:  $target_poa_length
   poa-params:         $poa_params
+  consensus-prefix:   $consensus_prefix
   consensus-spec:     $consensus_spec
   block-id-min:       $block_id_min
-  ratio-contain:      $ratio_contain
+  block-ratio-min:    $block_ratio_min
 odgi:
   viz:                $do_viz
   layout:             $do_layout
@@ -288,23 +253,8 @@ reporting:
 EOT
 
 echo -e "\nRunning pggb\n" >> "$log_file"
-if [[ ! -s "$prefix_paf".paf || $resume == false ]]; then
-  if [[ "$mapper" == "edyeet" ]];
-  then
-          ($timer -f "$fmt" edyeet \
-              $exclude_cmd \
-              -s $segment_length \
-              -l $block_length \
-              $merge_cmd \
-              $split_cmd \
-              -p $map_pct_id \
-              -n $n_secondary \
-              -a $align_pct_id \
-              -k $mash_kmer \
-              -t $threads \
-              "$input_fasta" "$input_fasta" \
-              > "$prefix_paf".paf) 2> >(tee -a "$log_file")
-  elif [[ "$mapper" == "wfmash" ]];
+if [[ ! -s "$prefix_paf".$mapper.paf || $resume == false ]]; then
+  if [[ "$mapper" == "wfmash" ]];
   then
           ($timer -f "$fmt" wfmash \
               $exclude_cmd \
@@ -317,44 +267,45 @@ if [[ ! -s "$prefix_paf".paf || $resume == false ]]; then
               -k $mash_kmer \
               -t $threads \
               "$input_fasta" "$input_fasta" \
-              > "$prefix_paf".paf) 2> >(tee -a "$log_file")
+              > "$prefix_paf".$mapper.paf) 2> >(tee -a "$log_file")
   fi
 fi
 
-if [[ ! -s $prefix_seqwish.gfa || $resume == false ]]; then
+if [[ ! -s $prefix_seqwish.seqwish.gfa || $resume == false ]]; then
     $timer -f "$fmt" seqwish \
         -t $threads \
         -s "$input_fasta" \
-        -p "$prefix_paf".paf \
+        -p "$prefix_paf".$mapper.paf \
         -k $min_match_length \
-        -g "$prefix_seqwish".gfa \
+        -g "$prefix_seqwish".seqwish.gfa \
         -B $transclose_batch \
         -P \
         2> >(tee -a "$log_file")
 fi
 
-if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
+if [[ ! -s $prefix_smoothed.smooth.gfa || $resume == false ]]; then
     $timer -f "$fmt" smoothxg \
         -t $threads \
-        -g "$prefix_seqwish".gfa \
+        -g "$prefix_seqwish".seqwish.gfa \
         -w $max_block_weight \
-        -M \
-        -J 0.7 \
         -K \
+        -M \
+        -J 1 \
         -G 150 \
         -I $block_id_min \
-        -R $ratio_contain \
+        -R $block_ratio_min \
         -j $max_path_jump \
         -e $max_edge_jump \
-        -l $max_poa_length \
+        -l $target_poa_length \
         -p "$poa_params" \
-        -m "$prefix_smoothed".maf \
-        -C "$prefix_smoothed".consensus,$consensus_spec \
-        -o "$prefix_smoothed".gfa \
+        -m "$prefix_smoothed".smooth.maf \
+        -C "$prefix_smoothed".cons,$consensus_spec \
+        -Q $consensus_prefix \
+        -o "$prefix_smoothed".smooth.gfa \
         2> >(tee -a "$log_file")
 fi
 
-$timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".gfa -o "$prefix_smoothed".og 2> >(tee -a "$log_file")
+$timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.gfa -o "$prefix_smoothed".smooth.og 2> >(tee -a "$log_file")
 
 if [[ $multiqc == true ]];
 then
@@ -363,10 +314,10 @@ fi
 
 if [[ $do_stats == true ]];
 then
-    $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_seqwish".gfa -o "$prefix_seqwish".og 2> >(tee -a "$log_file")
-    odgi stats -i "$prefix_seqwish".og -S -s -l -d > "$prefix_seqwish".og.stats 2>&1 | tee -a "$log_file"
-    odgi stats -i "$prefix_smoothed".og -S -s -l -d > "$prefix_smoothed".og.stats 2>&1 | tee -a "$log_file"
-    for consensus_graph in "$prefix_smoothed"*.consensus*.gfa; do
+    $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_seqwish".seqwish.gfa -o "$prefix_seqwish".seqwish.og 2> >(tee -a "$log_file")
+    odgi stats -i "$prefix_seqwish".seqwish.og -S -s -l -d > "$prefix_seqwish".seqwish.og.stats 2>&1 | tee -a "$log_file"
+    odgi stats -i "$prefix_smoothed".smooth.og -S -s -l -d > "$prefix_smoothed".smooth.og.stats 2>&1 | tee -a "$log_file"
+    for consensus_graph in "$prefix_smoothed"*.cons*.gfa; do
         odgi build -t $threads -P -g "$consensus_graph" -o "$consensus_graph".og 2> >(tee -a "$log_file")
         odgi stats -i "$consensus_graph".og -S -s -l -d >"$consensus_graph".og.stats 2>&1 | tee -a "$log_file"
     done
@@ -375,33 +326,33 @@ fi
 if [[ $do_viz == true ]];
 then
     # big problem: this assumes that there is no "Consensus_" in the input sequences
-    odgi paths -i "$prefix_smoothed".og -L | grep -v Consensus_ > "$prefix_smoothed".original_paths.txt \
+    odgi paths -i "$prefix_smoothed".smooth.og -L | grep -v Consensus_ > "$prefix_smoothed".smooth.original_paths.txt \
         2> >(tee -a "$log_file")
-    $timer -f "$fmt" odgi viz -i "$prefix_smoothed".og \
-                    -o "$prefix_smoothed".og.viz_mqc.png \
-                    -x 1500 -y 500 -P 10 -p "$prefix_smoothed".original_paths.txt \
+    $timer -f "$fmt" odgi viz -i "$prefix_smoothed".smooth.og \
+                    -o "$prefix_smoothed".smooth.og.viz_mqc.png \
+                    -x 1500 -y 500 -P 10 -p "$prefix_smoothed".smooth.original_paths.txt \
                     2> >(tee -a "$log_file")
-    rm -f "$prefix_smoothed".original_paths.txt 2> >(tee -a "$log_file")
+    rm -f "$prefix_smoothed".smooth.original_paths.txt 2> >(tee -a "$log_file")
 fi
 
 if [[ $do_layout == true ]];
 then
     # the 2D layout is "smoother" when we chop the nodes of the graph to a fixed maximum length
-    $timer -f "$fmt" odgi chop -i "$prefix_smoothed".og -c 100 -o "$prefix_smoothed".chop.og \
+    $timer -f "$fmt" odgi chop -i "$prefix_smoothed".smooth.og -c 100 -o "$prefix_smoothed".smooth.chop.og \
         2> >(tee -a "$log_file")
 
     # adding `-N g` to this call can help when rendering large, complex graphs that aren't globally linear
-    $timer -f "$fmt" odgi layout -i "$prefix_smoothed".chop.og \
-                       -o "$prefix_smoothed".chop.og.lay \
+    $timer -f "$fmt" odgi layout -i "$prefix_smoothed".smooth.chop.og \
+                       -o "$prefix_smoothed".smooth.chop.og.lay \
                        -t $threads -P \
                        2> >(tee -a "$log_file")
 
     # this can be configured to draw the graph in different ways, based on the same layout
-    $timer -f "$fmt" odgi draw -i "$prefix_smoothed".chop.og \
-                     -c "$prefix_smoothed".chop.og.lay \
-                     -p "$prefix_smoothed".chop.og.lay.draw_mqc.png \
+    $timer -f "$fmt" odgi draw -i "$prefix_smoothed".smooth.chop.og \
+                     -c "$prefix_smoothed".smooth.chop.og.lay \
+                     -p "$prefix_smoothed".smooth.chop.og.lay.draw_mqc.png \
                      -C -w 20 \
-                     -H 1500 -t $threads \
+                     -H 1500 \
                      2> >(tee -a "$log_file")
 fi
 
