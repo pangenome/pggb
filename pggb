@@ -16,6 +16,7 @@ transclose_batch=1000000
 max_block_weight=10000000
 block_id_min=0
 block_ratio_min=0
+split_min_depth=2000
 max_path_jump=100
 max_edge_jump=0
 target_poa_length=5000
@@ -44,7 +45,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:e:t:vLhMSY:G:C:Q:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,consensus-spec:,consensus-prefix:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:e:t:vLhMSY:G:C:Q:d:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,consensus-spec:,consensus-prefix:,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -63,6 +64,7 @@ while true ; do
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
         -w|--block-weight-max) max_block_weight=$2 ; shift 2 ;;
+        -d|--split-min-depth) split_min_depth=$2 ; shift 2 ;;
         -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
         -R|--block-ratio-min) block_ratio_min=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
@@ -123,6 +125,7 @@ then
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 1000000]"
     echo "   [smoothxg]"
     echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000000]"
+    echo "    -d, --split-min-depth N     minimum POA block depth to trigger splitting [default: 2000]"
     echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0.0]"
     echo "    -R, --block-ratio-min N     minimum small / large length ratio to cluster in a block [default: 0.0]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 100]"
@@ -191,7 +194,7 @@ prefix_seqwish="$prefix_paf".$(echo k$min_match_length-B$transclose_batch | sha2
 poa_params_display=$(echo "$poa_params" | tr "," "_")
 
 # Normalization
-prefix_smoothed="$prefix_seqwish".$(echo w$max_block_weight-G$target_poa_length-j$max_path_jump-e$max_edge_jump-I$block_id_min-R$block_ratio_min-p"$poa_params_display" | sha256sum | head -c 7)
+prefix_smoothed="$prefix_seqwish".$(echo w$max_block_weight-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$split_min_depth-I$block_id_min-R$block_ratio_min-p"$poa_params_display" | sha256sum | head -c 7)
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
@@ -242,6 +245,7 @@ smoothxg:
   poa-params:         $poa_params
   consensus-prefix:   $consensus_prefix
   consensus-spec:     $consensus_spec
+  split-min-depth:    $split_min_depth
   block-id-min:       $block_id_min
   block-ratio-min:    $block_ratio_min
 odgi:
@@ -292,6 +296,7 @@ if [[ ! -s $prefix_smoothed.smooth.gfa || $resume == false ]]; then
         -M \
         -J 1 \
         -G 150 \
+        -d $split_min_depth \
         -I $block_id_min \
         -R $block_ratio_min \
         -j $max_path_jump \
