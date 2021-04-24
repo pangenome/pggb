@@ -22,6 +22,7 @@ RUN apt-get update \
                        libgsl-dev \
                        zlib1g-dev \
                        libzstd-dev \
+                       libjemalloc-dev \
                        build-essential \
                        time \
                        pigz
@@ -29,7 +30,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 1ae7065 \
+    && git checkout 62dcccd \
     && git submodule update --init --recursive \
     && sed -i 's/-mcx16 //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' CMakeLists.txt \
@@ -51,7 +52,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 723e013 \
+    && git checkout dc937af \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
