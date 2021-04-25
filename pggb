@@ -261,7 +261,7 @@ reporting:
 EOT
 
 echo -e "\nRunning pggb\n" >> "$log_file"
-if [[ ! -s "$prefix_paf".$mapper.paf || $resume == false ]]; then
+if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
   if [[ "$mapper" == "wfmash" ]];
   then
           ($timer -f "$fmt" wfmash \
