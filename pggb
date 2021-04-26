@@ -395,6 +395,6 @@ fi
 
 if [[ $pigz_compress == true ]];
 then
-    pigz -q -p $threads $prefix_paf*.paf
-    pigz -q -p $threads $prefix_seqwish*.{gfa,og,maf}
+    pigz -q -p $threads "$prefix_paf"*.paf -v
+    pigz -q -p $threads "$prefix_seqwish"*.{gfa,og,maf} -v
 fi
