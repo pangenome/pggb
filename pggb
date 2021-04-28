@@ -345,11 +345,9 @@ fi
 if [[ $do_viz == true ]];
 then
     # big problem: this assumes that there is no "Consensus_" in the input sequences
-    odgi paths -i "$prefix_smoothed".smooth.og -L | grep -v Consensus_ > "$prefix_smoothed".smooth.original_paths.txt \
-        2> >(tee -a "$log_file")
     $timer -f "$fmt" odgi viz -i "$prefix_smoothed".smooth.og \
                     -o "$prefix_smoothed".smooth.og.viz_mqc.png \
-                    -x 1500 -y 500 -P 10 -p "$prefix_smoothed".smooth.original_paths.txt \
+                    -x 1500 -y 500 -P 10 -I $consensus_prefix \
                     2> >(tee -a "$log_file")
     rm -f "$prefix_smoothed".smooth.original_paths.txt 2> >(tee -a "$log_file")
 fi
