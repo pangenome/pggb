@@ -12,7 +12,7 @@ segment_length=false
 block_length=false
 mash_kmer=16
 min_match_length=19
-transclose_batch=1000000
+transclose_batch=10000000
 max_block_weight=10000000
 block_id_min=0
 block_ratio_min=0
@@ -124,7 +124,7 @@ then
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
     echo "    -k, --min-match-len N       ignore exact matches below this length [default: 19]"
-    echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 1000000]"
+    echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
     echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000000]"
     echo "    -d, --split-min-depth N     minimum POA block depth to trigger splitting [default: 2000]"
@@ -292,7 +292,10 @@ if [[ ! -s $prefix_seqwish.seqwish.gfa || $resume == false ]]; then
 fi
 
 if [[ $consensus_spec != false ]]; then
+    # for merging consensus (currently problematic) we should add "-M -J 1 -G 150" here
     consensus_params="-C "$prefix_smoothed".cons,"$consensus_spec
+else
+    consensus_params="-V"
 fi
 
 if [[ $write_maf != false ]]; then
@@ -305,9 +308,6 @@ if [[ ! -s $prefix_smoothed.smooth.gfa || $resume == false ]]; then
         -g "$prefix_seqwish".seqwish.gfa \
         -w $max_block_weight \
         -K \
-        -M \
-        -J 1 \
-        -G 150 \
         -d $split_min_depth \
         -I $block_id_min \
         -R $block_ratio_min \
