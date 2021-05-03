@@ -369,7 +369,7 @@ then
                      -c "$prefix_smoothed".smooth.og.lay \
                      -p "$prefix_smoothed".smooth.og.lay.draw_mqc.png \
                      -C -w 20 \
-                     -H 2000 \
+                     -H 1000 \
                      2> >(tee -a "$log_file")
 fi
 
