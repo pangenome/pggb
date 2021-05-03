@@ -201,7 +201,7 @@ prefix_smoothed="$prefix_seqwish".$(echo w$max_block_weight-G$target_poa_length-
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
-timer=/usr/bin/time
+timer=$(which time)
 
 if [[ "$output_dir" != "" ]]; then
 	if [ ! -e "$output_dir" ]; then
