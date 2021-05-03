@@ -355,21 +355,21 @@ fi
 if [[ $do_layout == true ]];
 then
     # the 2D layout is "smoother" when we chop the nodes of the graph to a fixed maximum length
-    $timer -f "$fmt" odgi chop -i "$prefix_smoothed".smooth.og -c 100 -o "$prefix_smoothed".smooth.chop.og \
-        2> >(tee -a "$log_file")
+    #$timer -f "$fmt" odgi chop -i "$prefix_smoothed".smooth.og -c 100 -o "$prefix_smoothed".smooth.chop.og \
+    #    2> >(tee -a "$log_file")
 
     # adding `-N g` to this call can help when rendering large, complex graphs that aren't globally linear
-    $timer -f "$fmt" odgi layout -i "$prefix_smoothed".smooth.chop.og \
-                       -o "$prefix_smoothed".smooth.chop.og.lay \
+    $timer -f "$fmt" odgi layout -i "$prefix_smoothed".smooth.og \
+                       -o "$prefix_smoothed".smooth.og.lay \
                        -t $threads -P \
                        2> >(tee -a "$log_file")
 
     # this can be configured to draw the graph in different ways, based on the same layout
-    $timer -f "$fmt" odgi draw -i "$prefix_smoothed".smooth.chop.og \
-                     -c "$prefix_smoothed".smooth.chop.og.lay \
-                     -p "$prefix_smoothed".smooth.chop.og.lay.draw_mqc.png \
+    $timer -f "$fmt" odgi draw -i "$prefix_smoothed".smooth.og \
+                     -c "$prefix_smoothed".smooth.og.lay \
+                     -p "$prefix_smoothed".smooth.og.lay.draw_mqc.png \
                      -C -w 20 \
-                     -H 1500 \
+                     -H 1000 \
                      2> >(tee -a "$log_file")
 fi
 
