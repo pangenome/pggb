@@ -365,6 +365,13 @@ then
                        2> >(tee -a "$log_file")
 
     # this can be configured to draw the graph in different ways, based on the same layout
+    # here we draw in default mode
+    $timer -f "$fmt" odgi draw -i "$prefix_smoothed".smooth.og \
+                     -c "$prefix_smoothed".smooth.og.lay \
+                     -p "$prefix_smoothed".smooth.og.lay.draw.png \
+                     -H 1000 \
+                     2> >(tee -a "$log_file")
+    # this attempts to add paths
     $timer -f "$fmt" odgi draw -i "$prefix_smoothed".smooth.og \
                      -c "$prefix_smoothed".smooth.og.lay \
                      -p "$prefix_smoothed".smooth.og.lay.draw_mqc.png \
