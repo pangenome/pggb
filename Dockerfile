@@ -36,6 +36,10 @@ RUN git clone --recursive https://github.com/ekg/wfmash \
     && sed -i 's/-march=native //g' CMakeLists.txt \
     && sed -i 's/-mcx16 //g' src/common/wflign/CMakeLists.txt \
     && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
+    && sed -i 's/-mcx16 //g' src/common/wflign/deps/WFA/CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/deps/WFA/CMakeLists.txt \
+    && sed -i 's/-mcx16 //g' src/common/wflign/deps/wflambda/CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/wflambda/WFA/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     && cd ../
