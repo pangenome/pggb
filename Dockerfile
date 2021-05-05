@@ -33,13 +33,13 @@ RUN git clone --recursive https://github.com/ekg/wfmash \
     && git checkout c4f2095 \
     && git submodule update --init --recursive \
     && sed -i 's/-mcx16 //g' CMakeLists.txt \
-    && sed -i 's/-march=native -g//g' CMakeLists.txt \
+    && sed -i 's/-march=native //g' CMakeLists.txt \
     && sed -i 's/-mcx16 //g' src/common/wflign/CMakeLists.txt \
-    && sed -i 's/-march=native -g//g' src/common/wflign/CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
     && sed -i 's/-mcx16 //g' src/common/wflign/deps/WFA/CMakeLists.txt \
-    && sed -i 's/-march=native -g//g' src/common/wflign/deps/WFA/CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/deps/WFA/CMakeLists.txt \
     && sed -i 's/-mcx16 //g' src/common/wflign/deps/wflambda/CMakeLists.txt \
-    && sed -i 's/-march=native -g//g' src/common/wflign/deps/wflambda/CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/deps/wflambda/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     && cd ../
