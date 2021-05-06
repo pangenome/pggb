@@ -58,8 +58,6 @@ RUN git clone --recursive https://github.com/ekg/smoothxg \
     && git pull \
     && git checkout 410e72d \
     && git submodule update --init --recursive \
-    && sed -i 's/-mcx16 //g' CMakeLists.txt \
-    && sed -i 's/-march=native //g' CMakeLists.txt \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && sed -i 's/-mcx16 //g' deps/WFA/CMakeLists.txt \
     && sed -i 's/-march=native //g' deps/WFA/CMakeLists.txt \
