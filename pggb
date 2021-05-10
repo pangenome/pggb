@@ -347,9 +347,20 @@ then
     # big problem: this assumes that there is no "Consensus_" in the input sequences
     $timer -f "$fmt" odgi viz -i "$prefix_smoothed".smooth.og \
                     -o "$prefix_smoothed".smooth.og.viz_mqc.png \
-                    -x 1500 -y 500 -P 10 -I $consensus_prefix \
+                    -x 1500 -y 500 -P 10 -b -I $consensus_prefix \
                     2> >(tee -a "$log_file")
-    rm -f "$prefix_smoothed".smooth.original_paths.txt 2> >(tee -a "$log_file")
+    $timer -f "$fmt" odgi viz -i "$prefix_smoothed".smooth.og \
+                    -o "$prefix_smoothed".smooth.og.viz_slide.png \
+                    -x 1500 -y 500 -P 10 -b -u -d -I $consensus_prefix \
+                    2> >(tee -a "$log_file")
+    $timer -f "$fmt" odgi viz -i "$prefix_smoothed".smooth.og \
+                    -o "$prefix_smoothed".smooth.og.viz_depth.png \
+                    -x 1500 -y 500 -P 10 -b -m -I $consensus_prefix \
+                    2> >(tee -a "$log_file")
+    $timer -f "$fmt" odgi viz -i "$prefix_smoothed".smooth.og \
+                    -o "$prefix_smoothed".smooth.og.viz_inv.png \
+                    -x 1500 -y 500 -P 10 -b -z -I $consensus_prefix \
+                    2> >(tee -a "$log_file")
 fi
 
 if [[ $do_layout == true ]];
