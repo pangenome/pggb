@@ -24,7 +24,8 @@ target_poa_length=2999,9929
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
 # - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
-poa_params="1,7,11,2,33,1"
+# between asm10 and asm20 ~ 1,7,11,2,33,1
+poa_params="1,19,39,3,81,1"
 do_viz=false
 do_layout=false
 threads=1
@@ -300,44 +301,57 @@ if [[ $write_maf != false ]]; then
     maf_params="-m "$prefix_smoothed".smooth.maf"
 fi
 
-if [[ ! -s $prefix_smoothed.smooth.0.gfa || $resume == false ]]; then
-    $timer -f "$fmt" smoothxg \
-        -t $threads \
-        -g "$prefix_seqwish".seqwish.gfa \
-        -w $max_block_weight \
-        -K \
-        -X 10 \
-        -d $split_min_depth \
-        -I $block_id_min \
-        -R $block_ratio_min \
-        -j $max_path_jump \
-        -e $max_edge_jump \
-        -l $(echo $target_poa_length | cut -f 1 -d, ) \
-        -p "$poa_params" \
-        -V \
-        -o "$prefix_smoothed".smooth.0.gfa \
-        2> >(tee -a "$log_file")
-fi
-if [[ ! -s $prefix_smoothed.smooth.gfa || $resume == false ]]; then
-    $timer -f "$fmt" smoothxg \
-        -t $threads \
-        -g "$prefix_smoothed".smooth.0.gfa \
-        -w $max_block_weight \
-        -K \
-        -X 10 \
-        -d $split_min_depth \
-        -I $block_id_min \
-        -R $block_ratio_min \
-        -j $max_path_jump \
-        -e $max_edge_jump \
-        -l $(echo $target_poa_length | cut -f 2 -d, ) \
-        -p "$poa_params" \
-        $maf_params \
-        -Q $consensus_prefix \
-        $consensus_params \
-        -o "$prefix_smoothed".smooth.gfa \
-        2> >(tee -a "$log_file")
-fi
+# how many times will we smooth?
+smooth_iterations=$(echo $target_poa_length | tr ',' '\n' | wc -l)
+
+for i in $(seq 1 $smooth_iterations);
+do
+    input_gfa="$prefix_seqwish".seqwish.gfa
+    if [[ $i != 1 ]]; then
+        input_gfa="$prefix_smoothed".smooth.$(echo $i - 1 | bc).gfa
+    fi
+    if [[ $i != $smooth_iterations ]]; then
+        if [[ ! -s $prefix_smoothed.smooth.$i.gfa || $resume == false ]]; then
+            $timer -f "$fmt" smoothxg \
+                   -t $threads \
+                   -g "$input_gfa" \
+                   -w $max_block_weight \
+                   -K \
+                   -X 10 \
+                   -d $split_min_depth \
+                   -I $block_id_min \
+                   -R $block_ratio_min \
+                   -j $max_path_jump \
+                   -e $max_edge_jump \
+                   -l $(echo $target_poa_length | cut -f $i -d, ) \
+                   -p "$poa_params" \
+                   -V \
+                   -o "$prefix_smoothed".smooth.$i.gfa \
+                   2> >(tee -a "$log_file")
+        fi
+    else
+        if [[ ! -s $prefix_smoothed.smooth.gfa || $resume == false ]]; then
+            $timer -f "$fmt" smoothxg \
+                   -t $threads \
+                   -g "$input_gfa" \
+                   -w $max_block_weight \
+                   -K \
+                   -X 10 \
+                   -d $split_min_depth \
+                   -I $block_id_min \
+                   -R $block_ratio_min \
+                   -j $max_path_jump \
+                   -e $max_edge_jump \
+                   -l $(echo $target_poa_length | cut -f $i -d, ) \
+                   -p "$poa_params" \
+                   $maf_params \
+                   -Q $consensus_prefix \
+                   $consensus_params \
+                   -o "$prefix_smoothed".smooth.gfa \
+                   2> >(tee -a "$log_file")
+        fi
+    fi
+done
 
 $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.gfa -o "$prefix_smoothed".smooth.og 2> >(tee -a "$log_file")
 
