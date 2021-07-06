@@ -19,12 +19,13 @@ block_ratio_min=0
 split_min_depth=2000
 max_path_jump=100
 max_edge_jump=0
-target_poa_length=5000
+target_poa_length=6733,9929
 # poa param suggestions from minimap2
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
 # - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
-poa_params="1,7,11,2,33,1"
+# between asm10 and asm20 ~ 1,7,11,2,33,1
+poa_params="1,19,39,3,81,1"
 do_viz=false
 do_layout=false
 threads=1
@@ -132,9 +133,9 @@ then
     echo "    -R, --block-ratio-min N     minimum small / large length ratio to cluster in a block [default: 0.0]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 100]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
-    echo "    -G, --poa-length-target N   target sequence length to put into POA [default: 5000]"
+    echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 6733,9929]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
-    echo "                                [default: 1,7,11,2,33,1]"
+    echo "                                [default: 1,19,39,3,81,1]"
     echo "    -F, --write-maf             write MAF output representing merged POA blocks [default: off]"
     echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
     echo "    -C, --consensus-spec SPEC   consensus graph specification: write consensus graphs to"
@@ -194,10 +195,8 @@ fi
 # Graph induction
 prefix_seqwish="$prefix_paf".$(echo k$min_match_length-B$transclose_batch | sha256sum | head -c 7)
 
-poa_params_display=$(echo "$poa_params" | tr "," "_")
-
 # Normalization
-prefix_smoothed="$prefix_seqwish".$(echo w$max_block_weight-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$split_min_depth-I$block_id_min-R$block_ratio_min-p"$poa_params_display" | sha256sum | head -c 7)
+prefix_smoothed="$prefix_seqwish".$(echo w$max_block_weight-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$split_min_depth-I$block_id_min-R$block_ratio_min-p$poa_params | sha256sum | head -c 7)
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
@@ -302,25 +301,57 @@ if [[ $write_maf != false ]]; then
     maf_params="-m "$prefix_smoothed".smooth.maf"
 fi
 
-if [[ ! -s $prefix_smoothed.smooth.gfa || $resume == false ]]; then
-    $timer -f "$fmt" smoothxg \
-        -t $threads \
-        -g "$prefix_seqwish".seqwish.gfa \
-        -w $max_block_weight \
-        -K \
-        -d $split_min_depth \
-        -I $block_id_min \
-        -R $block_ratio_min \
-        -j $max_path_jump \
-        -e $max_edge_jump \
-        -l $target_poa_length \
-        -p "$poa_params" \
-        $maf_params \
-        -Q $consensus_prefix \
-        $consensus_params \
-        -o "$prefix_smoothed".smooth.gfa \
-        2> >(tee -a "$log_file")
-fi
+# how many times will we smooth?
+smooth_iterations=$(echo $target_poa_length | tr ',' '\n' | wc -l)
+
+for i in $(seq 1 $smooth_iterations);
+do
+    input_gfa="$prefix_seqwish".seqwish.gfa
+    if [[ $i != 1 ]]; then
+        input_gfa="$prefix_smoothed".smooth.$(echo $i - 1 | bc).gfa
+    fi
+    if [[ $i != $smooth_iterations ]]; then
+        if [[ ! -s $prefix_smoothed.smooth.$i.gfa || $resume == false ]]; then
+            $timer -f "$fmt" smoothxg \
+                   -t $threads \
+                   -g "$input_gfa" \
+                   -w $max_block_weight \
+                   -K \
+                   -X 10 \
+                   -d $split_min_depth \
+                   -I $block_id_min \
+                   -R $block_ratio_min \
+                   -j $max_path_jump \
+                   -e $max_edge_jump \
+                   -l $(echo $target_poa_length | cut -f $i -d, ) \
+                   -p "$poa_params" \
+                   -V \
+                   -o "$prefix_smoothed".smooth.$i.gfa \
+                   2> >(tee -a "$log_file")
+        fi
+    else
+        if [[ ! -s $prefix_smoothed.smooth.gfa || $resume == false ]]; then
+            $timer -f "$fmt" smoothxg \
+                   -t $threads \
+                   -g "$input_gfa" \
+                   -w $max_block_weight \
+                   -K \
+                   -X 10 \
+                   -d $split_min_depth \
+                   -I $block_id_min \
+                   -R $block_ratio_min \
+                   -j $max_path_jump \
+                   -e $max_edge_jump \
+                   -l $(echo $target_poa_length | cut -f $i -d, ) \
+                   -p "$poa_params" \
+                   $maf_params \
+                   -Q $consensus_prefix \
+                   $consensus_params \
+                   -o "$prefix_smoothed".smooth.gfa \
+                   2> >(tee -a "$log_file")
+        fi
+    fi
+done
 
 $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.gfa -o "$prefix_smoothed".smooth.og 2> >(tee -a "$log_file")
 
