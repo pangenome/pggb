@@ -144,7 +144,7 @@ Four parameters passed to `wfmash` are essential for establishing the basic stru
 
 - `-s[N], --segment-length=[N]` is the length of the mapped and aligned segment
 - `-p[%], --map-pct-id=[%]` is the percentage identity minimum in the _mapping_ step
-- `-n[N], --n-secondary=[N]` is the maximum number of mappings (and alignments) to report for each segment
+- `-n[N], --n-mappings=[N]` is the maximum number of mappings (and alignments) to report for each segment
 
 Crucially, `--segment-length` provides a kind of minimum alignment length filter.
 The mashmap step in `wfmash` will only consider segments of this size, and require them to have an approximate pairwise identity of at least `--map-pct-id`.
@@ -223,21 +223,25 @@ Although its design represents efforts to scale these approaches to collections 
 It's straightforward to generate a pangenome graph by the all-pairs alignment of a set of input sequences.
 This can scale poorly, but it has ideal sensitivity.
 The mashmap/wfa alignment algorithm in `wfmash` is a very fast way to generate alignments between the sequences.
-Crucially, it is robust to repetitive sequences (the initial mash mapping step is linear in the space of the genome irrespective of its sequence context), and it can be adjusted using probabilistic thresholds for segment alignment identity.
-This allows us to define the base graph structure using a few free parameters: we consider the best-n candidate alignments for each N-bp segment, where the alignments must have at least a given identity threshold.
+Crucially, it is robust to repetitive sequences (the initial mash mapping step is linear in the space of the genome 
+irrespective of its sequence context), and it can be adjusted using probabilistic thresholds for segment alignment identity.
+This allows us to define the base graph structure using a few free parameters: we consider the best-n candidate alignments
+for each N-bp segment, where the alignments must have at least a given identity threshold.
 
 The edlib-based alignments can break down in the case of large indels, yielding ambiguous and difficult-to-interpret alignments.
 But, we should not use such regions of the alignments directly in the graph construction, as this can increase graph complexity.
 We ignore such regions by preventing `seqwish` from closing the graph through matches less than `-k, --min-match-len` bp.
-In effect, this filter to the input to `seqwish` forces structural variations and regions of very low identity to be represented as bubbles.
-This reduces the local topological complexity of the graph at the cost of increasing its redundancy.
+In effect, this filter to the input to `seqwish` forces structural variations and regions of very low identity to be 
+represented as bubbles. This reduces the local topological complexity of the graph at the cost of increasing its redundancy.
 
 The manifold nature of typical variation graphs means that they are very likely to look linear locally.
-By running a stochastic 1D layout algorithm that attempts to match graph distances (as given by paths) between nodes and their distances in the layout, we execute a kind of multi-dimensional scaling (MDS).
-In the aggregate, we see that regions that are linear (the chains of nodes and bubbles) in the graph tend to co-localize in the 1D sort.
-Applying an MSA algorithm (in this case, `abPOA` or `spoa`) to each of these chunks enforces a local linearity and homogenizes the alignment representation.
-This smoothing step thus yields a graph that is locally as we expect: partially ordered, and linear as the base DNA molecules are, but globally can represent large structural variation.
-The homogenization also rectifies issues with the initial edit-distance-based alignment.
+By running a stochastic 1D layout algorithm that attempts to match graph distances (as given by paths) between nodes and 
+their distances in the layout, we execute a kind of multi-dimensional scaling (MDS). In the aggregate, we see that 
+regions that are linear (the chains of nodes and bubbles) in the graph tend to co-localize in the 1D sort.
+Applying an MSA algorithm (in this case, `abPOA` or `spoa`) to each of these chunks enforces a local linearity and 
+homogenizes the alignment representation. This smoothing step thus yields a graph that is locally as we expect: partially
+ordered, and linear as the base DNA molecules are, but globally can represent large structural variation. The homogenization
+also rectifies issues with the initial edit-distance-based alignment.
 
 ## authors
 

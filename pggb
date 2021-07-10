@@ -7,7 +7,7 @@ input_fasta=false
 output_dir=""
 resume=false
 map_pct_id=false
-n_secondary=false
+n_mappings=false
 segment_length=false
 block_length=false
 mash_kmer=16
@@ -47,7 +47,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:Fe:t:vLhMSY:G:C:Q:d:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,n-secondary:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,write-maf,consensus-spec:,consensus-prefix:,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:Fe:t:vLhMSY:G:C:Q:d:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,write-maf,consensus-spec:,consensus-prefix:,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -56,7 +56,7 @@ while true ; do
         -i|--input-fasta) input_fasta=$2 ; shift 2 ;;
         -o|--output-dir) output_dir=$2 ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
-        -n|--n-secondary) n_secondary=$2 ; shift 2 ;;
+        -n|--n-mappings) n_mappings=$2 ; shift 2 ;;
         -s|--segment-length) segment_length=$2 ; shift 2 ;;
         -l|--block-length) block_length=$2 ; shift 2 ;;
         -M|--no-merge-segments) no_merge_segments=true ; shift ;;
@@ -93,7 +93,7 @@ done
 if [[
        "$input_fasta" == false
     || $map_pct_id == false
-    || $n_secondary == false
+    || $n_mappings == false
     || $segment_length == false
    ]];
 then
@@ -109,7 +109,7 @@ fi
 if [ $show_help ];
 then
     padding=`printf %${#0}s` # prints as many spaces as the length of $0
-    echo "usage: $0 -i <input-fasta> -s <segment-length> -n <n-secondary>"
+    echo "usage: $0 -i <input-fasta> -s <segment-length> -n <n-mappings>"
     echo "       $padding -p <map-pct-id> [options]"
     echo "options:"
     echo "   [alignment]"
@@ -119,7 +119,7 @@ then
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
     echo "    -M, --no-merge-segments     do not merge successive mappings"
     echo "    -p, --map-pct-id PCT        percent identity in the wfmash step"
-    echo "    -n, --n-secondary N         number of secondary mappings to retain in 'map' filter mode"
+    echo "    -n, --n-mappings N          number of mappings to retain for each segment"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
@@ -169,7 +169,7 @@ fi
 # Alignment
 mapper_letter='W'
 
-paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_secondary-K$mash_kmer
+paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings-K$mash_kmer
 
 if [[ $no_merge_segments == true ]];
 then
@@ -233,7 +233,7 @@ alignment:
   block-length:       $block_length
   no-merge-segments:  $no_merge_segments
   map-pct-id:         $map_pct_id
-  n-secondary:        $n_secondary
+  n-mappings:         $n_mappings
   mash-kmer:          $mash_kmer
   exclude-delim:      $exclude_delim
 seqwish:
@@ -270,7 +270,7 @@ if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
               $merge_cmd \
               $split_cmd \
               -p $map_pct_id \
-              -n $n_secondary \
+              -n $n_mappings \
               -k $mash_kmer \
               -t $threads \
               "$input_fasta" "$input_fasta" \
