@@ -317,7 +317,7 @@ do
                    -g "$input_gfa" \
                    -w $max_block_weight \
                    -K \
-                   -X 10 \
+                   -X 100 \
                    -d $split_min_depth \
                    -I $block_id_min \
                    -R $block_ratio_min \
@@ -336,7 +336,7 @@ do
                    -g "$input_gfa" \
                    -w $max_block_weight \
                    -K \
-                   -X 10 \
+                   -X 100 \
                    -d $split_min_depth \
                    -I $block_id_min \
                    -R $block_ratio_min \
