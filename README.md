@@ -21,11 +21,12 @@ By tracing the paths of the input sequences through the graph, it produces a var
 
 3. _[smoothxg](https://github.com/ekg/smoothxg)_: (*normalization*) -- The graph is then sorted with a form of multi-dimensional scaling in 1D, groomed, and topologically ordered locally.
 The 1D order is then broken into "blocks" which are "smoothed" using the partial order alignment (POA) algorithm implemented in [abPOA](https://github.com/yangao07/abPOA) or [spoa](https://github.com/rvaser/spoa).
-This normalizes their mutual alignment and remove artifacts of the edit-distance based alignment.
+This normalizes their mutual alignment and removes artifacts resulting from transitive ambiguities in the pairwise alignments.
 It ensures that the graph always has local partial order, which is essential for many applications and matches our prior expectations about small-scale variation in genomes.
 This step yields a rebuilt graph, a consensus subgraph, and a whole genome alignment in [MAF](http://www.bx.psu.edu/~dcking/man/maf.xhtml) format.
 
-Optional post-processing steps provide 1D and 2D diagnostic visualizations of the graph.
+Optional post-processing steps provide 1D and 2D diagnostic visualizations of the graph, basic graph metrics.
+The output graph (`*.smooth.gfa`) is suitable as input to `vg deconstruct` to obtain a VCF file relative to any set of reference sequences used in the construction, or for read mapping in `vg` or with `GraphAligner`.
 
 ## general usage
 
