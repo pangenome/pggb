@@ -19,7 +19,7 @@ block_ratio_min=0
 split_min_depth=2000
 max_path_jump=100
 max_edge_jump=0
-target_poa_length=6733,9929
+target_poa_length=10000,10000
 # poa param suggestions from minimap2
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
 # - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
@@ -317,7 +317,7 @@ do
                    -g "$input_gfa" \
                    -w $max_block_weight \
                    -K \
-                   -X 10 \
+                   -X 100 \
                    -d $split_min_depth \
                    -I $block_id_min \
                    -R $block_ratio_min \
@@ -336,7 +336,7 @@ do
                    -g "$input_gfa" \
                    -w $max_block_weight \
                    -K \
-                   -X 10 \
+                   -X 100 \
                    -d $split_min_depth \
                    -I $block_id_min \
                    -R $block_ratio_min \
