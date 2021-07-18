@@ -40,6 +40,7 @@ consensus_prefix=Consensus_
 no_splits=false
 multiqc=false
 pigz_compress=false
+normalize=false
 
 if [ $# -eq 0 ];
 then
@@ -48,7 +49,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:Fe:t:T:vLhMSY:G:C:Q:d:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,write-maf,consensus-spec:,consensus-prefix:,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:Fe:t:T:vLhMSY:G:C:Q:Ud:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,write-maf,consensus-spec:,consensus-prefix:,normalize,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -77,6 +78,7 @@ while true ; do
         -F|--write-maf) write_maf=true ; shift ;;
         -C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
         -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
+        -U|--normalize) normalize=true ; shift ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -T|--poa-threads) poa_threads=$2 ; shift 2 ;;
         -v|--do-viz) do_viz=true ; shift ;;
@@ -155,6 +157,7 @@ then
     echo "                                cons,100,1000:refs1.txt:n,1000:refs2.txt:y:2.3:1000000,10000"
     echo "                                [default: off]"
     echo "   [odgi]"
+    echo "    -U, --normalize             normalize and re-sort the output graph [default: off]"
     echo "    -v, --viz                   render a visualization of the graph in 1D [default: off]"
     echo "    -L, --layout                render a 2D layout of the graph [default: off]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
@@ -261,6 +264,7 @@ smoothxg:
   block-ratio-min:    $block_ratio_min
   poa_threads:        $poa_threads
 odgi:
+  normalize:          $normalize
   viz:                $do_viz
   layout:             $do_layout
   stats:              $do_stats
@@ -363,6 +367,14 @@ do
         fi
     fi
 done
+
+if [[ $normalize ]];
+then
+    $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.gfa -o - \
+        | odgi normalize -i - -o - -t $threads -P \
+        | odgi sort -P -p Ygs -t $threads -i - -o "$prefix_smoothed".smooth.og
+    odgi view -i "$prefix_smoothed".smooth.og -g >"$prefix_smoothed".smooth.gfa
+fi
 
 $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.gfa -o "$prefix_smoothed".smooth.og 2> >(tee -a "$log_file")
 
