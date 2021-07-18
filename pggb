@@ -13,13 +13,13 @@ block_length=false
 mash_kmer=16
 min_match_length=19
 transclose_batch=10000000
-max_block_weight=10000000
+max_block_weight=1000000
 block_id_min=0
 block_ratio_min=0
 split_min_depth=2000
 max_path_jump=100
 max_edge_jump=0
-target_poa_length=10000,10000
+target_poa_length=13219,15331
 # poa param suggestions from minimap2
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
 # - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
@@ -40,6 +40,8 @@ consensus_prefix=Consensus_
 no_splits=false
 multiqc=false
 pigz_compress=false
+normalize=false
+vcf_spec=false
 
 if [ $# -eq 0 ];
 then
@@ -48,7 +50,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:Fe:t:T:vLhMSY:G:C:Q:d:I:R:NrmZ --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,write-maf,consensus-spec:,consensus-prefix:,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:Fe:t:T:vLhMSY:G:C:Q:Ud:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,write-maf,consensus-spec:,consensus-prefix:,normalize,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -77,6 +79,7 @@ while true ; do
         -F|--write-maf) write_maf=true ; shift ;;
         -C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
         -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
+        -U|--normalize) normalize=true ; shift ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -T|--poa-threads) poa_threads=$2 ; shift 2 ;;
         -v|--do-viz) do_viz=true ; shift ;;
@@ -85,6 +88,7 @@ while true ; do
         -m|--multiqc) multiqc=true ; shift ;;
         -r|--resume) resume=true ; shift ;;
         -Z|--pigz) pigz_compress=true ; shift ;;
+        -V|--vcf-spec) vcf_spec=$2 ; shift 2 ;;
         -h|--help) show_help=true ; shift ;;
         #-d|--debug) debug=true ; shift ;;
         --) shift ; break ;;
@@ -155,9 +159,14 @@ then
     echo "                                cons,100,1000:refs1.txt:n,1000:refs2.txt:y:2.3:1000000,10000"
     echo "                                [default: off]"
     echo "   [odgi]"
+    echo "    -U, --normalize             normalize and re-sort the output graph [default: off]"
     echo "    -v, --viz                   render a visualization of the graph in 1D [default: off]"
     echo "    -L, --layout                render a 2D layout of the graph [default: off]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
+    echo "   [vg]"
+    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = [REF:SAMPLE_LIST_FILE,]*"
+    echo "                                the paths matching ^REF are used as a reference, while the samples are taken"
+    echo "                                one per line from the given SAMPLE_LIST_FILE (e.g. -V chm13:sample.list,grch38:sample.list)"
     echo "   [multiqc]"
     echo "    -m, --multiqc               generate MultiQC report of graphs' statistics and visualizations,"
     echo "                                automatically runs odgi stats [default: off]"
@@ -261,6 +270,7 @@ smoothxg:
   block-ratio-min:    $block_ratio_min
   poa_threads:        $poa_threads
 odgi:
+  normalize:          $normalize
   viz:                $do_viz
   layout:             $do_layout
   stats:              $do_stats
@@ -364,6 +374,14 @@ do
     fi
 done
 
+if [[ $normalize ]];
+then
+    ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.gfa -o - \
+        | $timer -f "$fmt" odgi normalize -i - -o - -t $threads -P -d \
+        | $timer -f "$fmt" odgi sort -P -p Ygs -t $threads -i - -o "$prefix_smoothed".smooth.og ) 2> >(tee -a "$log_file")
+    ( $timer -f "$fmt" odgi view -i "$prefix_smoothed".smooth.og -g >"$prefix_smoothed".smooth.gfa ) 2> >(tee -a "$log_file")
+fi
+
 $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.gfa -o "$prefix_smoothed".smooth.og 2> >(tee -a "$log_file")
 
 if [[ $multiqc == true ]];
@@ -451,12 +469,28 @@ then
     fi
 fi
 
+if [[ $vcf_spec != false ]];
+then
+    for s in $( echo "$vcf_spec" | tr ',' ' ' );
+    do
+        ref=$(echo "$s" | cut -f 1 -d: )
+        samples=$(echo "$s" | cut -f 2 -d: )
+        echo "[vg::deconstruct] making VCF with reference=$ref and samples=$samples" | tee -a "$log_file"
+        vcf="$prefix_smoothed".smooth.$(echo $ref | tr '/|' '_').$(echo $samples | tr '/|' '_').vcf
+        ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
+                 $(for i in $(cat $samples); do echo -n ' -A "'$i'"'; done) \
+                 -e -a -t $threads "$prefix_smoothed".smooth.gfa >"$vcf" ) 2> >(tee -a "$log_file")
+    done
+fi
+
 if [[ $pigz_compress == true ]];
 then
     pigz -q -p $threads "$prefix_paf"*.paf -v
     pigz -q -p $threads "$prefix_seqwish"*.{gfa,og} -v
-
     if [[ $write_maf != false ]]; then
       pigz -q -p $threads "$prefix_seqwish"*.maf -v
+    fi
+    if [[ $vcf_spec != false ]]; then
+      pigz -q -p $threads "$prefix_seqwish"*.vcf -v
     fi
 fi
