@@ -274,6 +274,8 @@ odgi:
   viz:                $do_viz
   layout:             $do_layout
   stats:              $do_stats
+vg:
+  deconstruct:        $vcf_spec  
 reporting:
   multiqc:            $multiqc
 EOT
@@ -477,6 +479,10 @@ then
         samples=$(echo "$s" | cut -f 2 -d: )
         echo "[vg::deconstruct] making VCF with reference=$ref and samples=$samples" | tee -a "$log_file"
         vcf="$prefix_smoothed".smooth.$(echo $ref | tr '/|' '_').$(echo $samples | tr '/|' '_').vcf
+        if [[ $consensus_spec ]];
+        then
+            sed -i "/$consensus_prefix/d" "$prefix_smoothed".smooth.gfa 
+        fi
         ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
                  $(for i in $(cat $samples); do echo -n ' -A "'$i'"'; done) \
                  -e -a -t $threads "$prefix_smoothed".smooth.gfa >"$vcf" ) 2> >(tee -a "$log_file")
@@ -485,12 +491,12 @@ fi
 
 if [[ $pigz_compress == true ]];
 then
-    pigz -q -p $threads "$prefix_paf"*.paf -v
-    pigz -q -p $threads "$prefix_seqwish"*.{gfa,og} -v
+    pigz -f -q -p $threads "$prefix_paf"*.paf -v
+    pigz -f -q -p $threads "$prefix_seqwish"*.{gfa,og} -v
     if [[ $write_maf != false ]]; then
-      pigz -q -p $threads "$prefix_seqwish"*.maf -v
+      pigz -f -q -p $threads "$prefix_seqwish"*.maf -v
     fi
     if [[ $vcf_spec != false ]]; then
-      pigz -q -p $threads "$prefix_seqwish"*.vcf -v
+      pigz -f -q -p $threads "$prefix_seqwish"*.vcf -v
     fi
 fi
