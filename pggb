@@ -479,12 +479,8 @@ then
         samples=$(echo "$s" | cut -f 2 -d: )
         echo "[vg::deconstruct] making VCF with reference=$ref and samples=$samples" | tee -a "$log_file"
         vcf="$prefix_smoothed".smooth.$(echo $ref | tr '/|' '_').$(echo $samples | tr '/|' '_').vcf
-        if [[ $consensus_spec ]];
-        then
-            sed -i "/$consensus_prefix/d" "$prefix_smoothed".smooth.gfa 
-        fi
         ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
-                 $(for i in $(cat $samples); do echo -n ' -A "'$i'"'; done) \
+                 $(for i in $(cat $samples); do echo -n ' -A '$i; done) \
                  -e -a -t $threads "$prefix_smoothed".smooth.gfa >"$vcf" ) 2> >(tee -a "$log_file")
     done
 fi
