@@ -358,6 +358,7 @@ do
                    -T $poa_threads \
                    -g "$input_gfa" \
                    -w $max_block_weight \
+                   -Z \
                    -K \
                    -X 100 \
                    -d $split_min_depth \
