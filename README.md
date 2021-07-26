@@ -183,20 +183,17 @@ Paths that only travers a given block for `-W[N], --min-subpath=[N]` bp are remo
 
 ### MultiQC
 
-Many thanks go to @Zethson and @Imipenem who implemented a MultiQC module for `odgi stats`. Using `-m, --multiqc` statistics are generated automatically, and summarized in a MultiQC report. If created, visualizations and layouts are integrated into the report, too. In the following an example excerpt:
+Many thanks go to [@Zethson](https://github.com/zethson) and [@Imipenem](https://github.com/Imipenem) who started to implemented a MultiQC module for `odgi stats`. Using `-m, --multiqc` statistics are generated automatically, and summarized in a MultiQC report. If created, visualizations and layouts are integrated into the report, too. In the following an example excerpt:
 
 ![MultiQC example report](./data/images/multiqc_report.png)
 
 #### installation
 
-As the MultiQC module is not part of a MultiQC release, yet, it can be installed as follows:
-
 ```sh
-git clone https://github.com/Imipenem/MultiQC
-cd MultiQC && git checkout module/odgi_stats && pip install . --user
+pip install multiqc --user
 ```
 
-The docker image already contains this version of MultiQC.
+The docker image already contains v1.11 of MultiQC.
 
 ## extension
 
