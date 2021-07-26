@@ -65,13 +65,7 @@ RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi
 
-RUN apt-get update && apt-get install -y pip
-
-RUN cd ../
-RUN git clone https://github.com/Imipenem/MultiQC
-RUN cd MultiQC \
-    && git checkout 5684a0c \
-    && pip install .
+RUN apt-get update && apt-get install -y pip && pip install multiqc
 
 RUN apt-get install wget && wget https://github.com/vgteam/vg/releases/download/v1.33.0/vg && chmod +x vg && cp vg /usr/local/bin/vg
 

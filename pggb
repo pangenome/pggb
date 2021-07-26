@@ -394,12 +394,12 @@ fi
 if [[ $do_stats == true ]];
 then
     $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_seqwish".seqwish.gfa -o "$prefix_seqwish".seqwish.og 2> >(tee -a "$log_file")
-    odgi stats -i "$prefix_seqwish".seqwish.og -S -s -l -d > "$prefix_seqwish".seqwish.og.stats 2>&1 | tee -a "$log_file"
-    odgi stats -i "$prefix_smoothed".smooth.og -S -s -l -d > "$prefix_smoothed".smooth.og.stats 2>&1 | tee -a "$log_file"
+    odgi stats -i "$prefix_seqwish".seqwish.og -y > "$prefix_seqwish".seqwish.og.stats.yaml 2>&1 | tee -a "$log_file"
+    odgi stats -i "$prefix_smoothed".smooth.og -y  > "$prefix_smoothed".smooth.og.stats.yaml 2>&1 | tee -a "$log_file"
     if [[ $consensus_spec != false ]]; then
         for consensus_graph in "$prefix_smoothed"*.cons*.gfa; do
             odgi build -t $threads -P -g "$consensus_graph" -o "$consensus_graph".og 2> >(tee -a "$log_file")
-            odgi stats -i "$consensus_graph".og -S -s -l -d >"$consensus_graph".og.stats 2>&1 | tee -a "$log_file"
+            odgi stats -i "$consensus_graph".og -y >"$consensus_graph".og.stats.yaml 2>&1 | tee -a "$log_file"
         done
     fi
 fi
@@ -455,18 +455,49 @@ fi
 
 multiqc_out_dir=$(dirname "$input_fasta")
 
+multiqc_config="# Report section config for nice titles and descriptions
+custom_data:
+  odgi_draw:
+    section_name: ODGI 2D graph visualization
+    description: The rendering shows a 2D layout of the graph.
+  odgi_viz:
+    section_name: ODGI 1D graph visualization
+    description: The rendering shows a 1D layout of the graph.
+
+# Custom search patterns to find the image outputs
+sp:
+  odgi_draw:
+    fn: \"*og.lay.draw_mqc.png\"
+  odgi_viz:
+    fn: \"*og.viz_mqc.png\"
+ignore_images: false
+
+# Make the custom content stuff come after the ODGI module output
+module_order:
+  - custom_content
+  - odgi
+
+# Set the order that the custom content plots should come in
+custom_content:
+  order:
+    - odgi_viz
+    - odgi_draw"
+
 if [[ $multiqc == true ]];
 then
+    echo "$multiqc_config" > "$output_dir"/multiqc_config.yaml
     if [[ $output_dir == "" ]];
     then
         $timer -f "$fmt" multiqc "$multiqc_out_dir" \
         -s \
         -o "$multiqc_out_dir" \
+        -c "$output_dir"/multiqc_config.yaml \
         2> >(tee -a "$log_file")
     else
         $timer -f "$fmt" multiqc "$output_dir" \
         -s \
         -o "$output_dir" \
+        -c "$output_dir"/multiqc_config.yaml \
         2> >(tee -a "$log_file")
     fi
 fi
