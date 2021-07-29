@@ -26,7 +26,7 @@ target_poa_length=13219,15331
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params="1,19,39,3,81,1"
-poa_padding=0.1
+poa_padding=0.01
 do_viz=false
 do_layout=false
 threads=1
@@ -149,7 +149,7 @@ then
     echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 6733,9929]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
     echo "                                [default: 1,19,39,3,81,1]"
-    echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.1]"
+    echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.01]"
     echo "    -F, --write-maf             write MAF output representing merged POA blocks [default: off]"
     echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
     echo "    -C, --consensus-spec SPEC   consensus graph specification: write consensus graphs to"
