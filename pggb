@@ -26,6 +26,7 @@ target_poa_length=13219,15331
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params="1,19,39,3,81,1"
+poa_padding=0.1
 do_viz=false
 do_layout=false
 threads=1
@@ -50,7 +51,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:Fe:t:T:vLhMSY:G:C:Q:Ud:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,write-maf,consensus-spec:,consensus-prefix:,normalize,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:O:Fe:t:T:vLhMSY:G:C:Q:Ud:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,normalize,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -76,6 +77,7 @@ while true ; do
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
         -G|--poa-length-target) target_poa_length=$2 ; shift 2 ;;
         -P|--poa-params) poa_params=$2 ; shift 2 ;;
+        -O|--poa-padding) poa_padding=$2 ; shift 2 ;;
         -F|--write-maf) write_maf=true ; shift ;;
         -C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
         -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
@@ -147,6 +149,7 @@ then
     echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 6733,9929]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
     echo "                                [default: 1,19,39,3,81,1]"
+    echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.1]"
     echo "    -F, --write-maf             write MAF output representing merged POA blocks [default: off]"
     echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
     echo "    -C, --consensus-spec SPEC   consensus graph specification: write consensus graphs to"
@@ -213,7 +216,7 @@ fi
 prefix_seqwish="$prefix_paf".$(echo k$min_match_length-B$transclose_batch | sha256sum | head -c 7)
 
 # Normalization
-prefix_smoothed="$prefix_seqwish".$(echo w$max_block_weight-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$split_min_depth-I$block_id_min-R$block_ratio_min-p$poa_params | sha256sum | head -c 7)
+prefix_smoothed="$prefix_seqwish".$(echo w$max_block_weight-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$split_min_depth-I$block_id_min-R$block_ratio_min-p$poa_params-O$poa_padding | sha256sum | head -c 7)
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
@@ -269,6 +272,7 @@ smoothxg:
   block-id-min:       $block_id_min
   block-ratio-min:    $block_ratio_min
   poa_threads:        $poa_threads
+  poa_padding:        $poa_padding
 odgi:
   normalize:          $normalize
   viz:                $do_viz
@@ -347,6 +351,7 @@ do
                    -e $max_edge_jump \
                    -l $(echo $target_poa_length | cut -f $i -d, ) \
                    -p "$poa_params" \
+                   -O $poa_padding \
                    -V \
                    -o "$prefix_smoothed".smooth.$i.gfa \
                    2> >(tee -a "$log_file")
@@ -367,6 +372,7 @@ do
                    -e $max_edge_jump \
                    -l $(echo $target_poa_length | cut -f $i -d, ) \
                    -p "$poa_params" \
+                   -O $poa_padding \
                    $maf_params \
                    -Q $consensus_prefix \
                    $consensus_params \

@@ -30,7 +30,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout d1f3cb6 \
+    && git checkout 318a9c6 \
     && git submodule update --init --recursive \
     && sed -i 's/-mcx16 //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' CMakeLists.txt \
@@ -47,7 +47,7 @@ RUN git clone --recursive https://github.com/ekg/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout d29ea57 \
+    && git checkout 51d806a \
     && git submodule update --init --recursive \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
@@ -56,7 +56,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout e1d5548 \
+    && git checkout 7aca25c \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && sed -i 's/-mcx16 //g' deps/WFA/CMakeLists.txt \
