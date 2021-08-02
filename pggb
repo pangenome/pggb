@@ -384,8 +384,8 @@ done
 
 if [[ $normalize ]];
 then
-    ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.gfa -o - \
-        | $timer -f "$fmt" odgi normalize -i - -o - -t $threads -P -d \
+    gfaffix "$prefix_smoothed".smooth.gfa -o "$prefix_smoothed".smooth.fix.gfa | gzip >"$prefix_smoothed".smooth.fix.affixes.tsv.gz
+    ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.fix.gfa -o - -O \
         | $timer -f "$fmt" odgi sort -P -p Ygs -t $threads -i - -o "$prefix_smoothed".smooth.og ) 2> >(tee -a "$log_file")
     ( $timer -f "$fmt" odgi view -i "$prefix_smoothed".smooth.og -g >"$prefix_smoothed".smooth.gfa ) 2> >(tee -a "$log_file")
 fi

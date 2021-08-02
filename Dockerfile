@@ -65,6 +65,20 @@ RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi
 
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+
+RUN git clone https://github.com/chfi/rs-handlegraph.git \
+    && cd rs-handlegraph \
+    && git pull \
+    && git checkout 03af2ea \
+    && cd - \
+    && cargo build --manifest-path rs-handlegraph/Cargo.toml --release \
+    && git clone https://github.com/marschall-lab/GFAffix.git \
+    && cd GFAffix \
+    && git pull \
+    && git checkout a0d504a \
+    && cargo install --force --path .
+
 RUN apt-get update && apt-get install -y pip && pip install multiqc
 
 RUN apt-get install wget && wget https://github.com/vgteam/vg/releases/download/v1.33.0/vg && chmod +x vg && cp vg /usr/local/bin/vg
