@@ -25,6 +25,7 @@ RUN apt-get update \
                        libjemalloc-dev \
                        build-essential \
                        time \
+                       curl \
                        pigz
                         
 RUN git clone --recursive https://github.com/ekg/wfmash \
