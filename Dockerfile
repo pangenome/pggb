@@ -67,9 +67,10 @@ RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi
 
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN cargo --help
 
-RUN source $HOME/.cargo/env \
-    && git clone https://github.com/chfi/rs-handlegraph.git \
+RUN git clone https://github.com/chfi/rs-handlegraph.git \
     && cd rs-handlegraph \
     && git pull \
     && git checkout 03af2ea \
