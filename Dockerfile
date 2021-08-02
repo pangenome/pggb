@@ -25,21 +25,22 @@ RUN apt-get update \
                        libjemalloc-dev \
                        build-essential \
                        time \
+                       curl \
                        pigz
                         
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout d1f3cb6 \
+    && git checkout e4d0c0c \
     && git submodule update --init --recursive \
     && sed -i 's/-mcx16 //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' CMakeLists.txt \
     && sed -i 's/-mcx16 //g' src/common/wflign/CMakeLists.txt \
     && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
-    && sed -i 's/-mcx16 //g' src/common/wflign/deps/WFA/CMakeLists.txt \
-    && sed -i 's/-march=native //g' src/common/wflign/deps/WFA/CMakeLists.txt \
-    && sed -i 's/-mcx16 //g' src/common/wflign/deps/wflambda/CMakeLists.txt \
-    && sed -i 's/-march=native //g' src/common/wflign/deps/wflambda/CMakeLists.txt \
+    && sed -i 's/-mcx16 //g' src/common/wflign/deps/WFAv2/CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/deps/WFAv2/CMakeLists.txt \
+    && sed -i 's/-mcx16 //g' src/common/wflign/deps/wflambdav2/CMakeLists.txt \
+    && sed -i 's/-march=native //g' src/common/wflign/deps/wflambdav2/CMakeLists.txt \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     && cd ../
@@ -47,7 +48,7 @@ RUN git clone --recursive https://github.com/ekg/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout d29ea57 \
+    && git checkout 6da2102 \
     && git submodule update --init --recursive \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
@@ -56,7 +57,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout e1d5548 \
+    && git checkout 9ad1d76 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && sed -i 's/-mcx16 //g' deps/WFA/CMakeLists.txt \
@@ -64,6 +65,22 @@ RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi
+
+RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
+ENV PATH="/root/.cargo/bin:${PATH}"
+RUN cargo --help
+
+RUN git clone https://github.com/chfi/rs-handlegraph.git \
+    && cd rs-handlegraph \
+    && git pull \
+    && git checkout 03af2ea \
+    && cd - \
+    && cargo build --manifest-path rs-handlegraph/Cargo.toml --release \
+    && git clone https://github.com/marschall-lab/GFAffix.git \
+    && cd GFAffix \
+    && git pull \
+    && git checkout a0d504a \
+    && cargo install --force --path .
 
 RUN apt-get update && apt-get install -y pip && pip install multiqc
 
