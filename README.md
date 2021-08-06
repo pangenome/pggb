@@ -67,9 +67,8 @@ Although it makes for a nice example, the settings for this small, highly-divers
 
 In practice, we usually need to set `-s` much higher, up to 50000 or 100000 depending on context, to ensure that the resulting graphs maintain a structure reflective of the underlying homology of large regions of the genome, and not spurious matches caused by small repeats.
 
-To ensure that we only get high-quality alignments, we might need to set `-p` and `-a` higher, near the expected pairwise diversity of the sequences we're using (including structural variants in the diversity metric).
-Setting `-n`
-In general, increasing `-s`, `-p`, and `-a` decreases runtime and memory usage.
+To ensure that we only get high-quality alignments, we might need to set `-p` higher, near the expected pairwise diversity of the sequences we're using (including structural variants in the diversity metric).
+In general, increasing `-s`, and `-p` decreases runtime and memory usage.
 
 For instance, a good setting for 10-20 genomes from the same species, with diversity from 1-5% would be `-s 100000 -p 90 -n 10`.
 However, if we wanted to include genomes from another species with higher divergence (say 20%), we might use `-s 100000 -p 70 -n 10`.
