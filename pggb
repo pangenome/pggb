@@ -125,7 +125,7 @@ then
     echo "usage: $0 -i <input-fasta> -s <segment-length> -n <n-mappings>"
     echo "       $padding -p <map-pct-id> [options]"
     echo "options:"
-    echo "   [alignment]"
+    echo "   [wfmash]"
     echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
     echo "    -s, --segment-length N      segment length for mapping"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 3*segment-length]"
