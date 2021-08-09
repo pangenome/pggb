@@ -70,17 +70,11 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN cargo --help
 
-RUN git clone https://github.com/chfi/rs-handlegraph.git \
-    && cd rs-handlegraph \
-    && git pull \
-    && git checkout 03af2ea \
-    && cd - \
-    && cargo build --manifest-path rs-handlegraph/Cargo.toml --release \
-    && git clone https://github.com/marschall-lab/GFAffix.git \
+RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout a0d504a \
-    && cargo install --force --path .
+    && git checkout b75302b \
+    && cargo install --force --path . && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix
 
 RUN apt-get update && apt-get install -y pip && pip install multiqc
 
