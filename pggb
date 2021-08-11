@@ -13,13 +13,13 @@ block_length=false
 mash_kmer=16
 min_match_length=19
 transclose_batch=10000000
-max_block_weight=1000000
+n_haps=false
 block_id_min=0
 block_ratio_min=0
 split_min_depth=2000
 max_path_jump=100
 max_edge_jump=0
-target_poa_length=13219,15331
+target_poa_length=13117,13219
 # poa param suggestions from minimap2
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
 # - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
@@ -51,7 +51,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:w:j:P:O:Fe:t:T:vLhMSY:G:C:Q:Ud:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,block-weight-max:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,normalize,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:H:j:P:O:Fe:t:T:vLhMSY:G:C:Q:Ud:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,normalize,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -69,7 +69,7 @@ while true ; do
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
-        -w|--block-weight-max) max_block_weight=$2 ; shift 2 ;;
+        -H|--n-haps) n_haps=$2 ; shift 2 ;;
         -d|--split-min-depth) split_min_depth=$2 ; shift 2 ;;
         -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
         -R|--block-ratio-min) block_ratio_min=$2 ; shift 2 ;;
@@ -119,6 +119,11 @@ then
     block_length=$(echo $segment_length '*' 3 | bc)
 fi
 
+if [[ $n_haps == false ]];
+then
+    n_haps=$n_mappings
+fi
+
 if [ $show_help ];
 then
     padding=`printf %${#0}s` # prints as many spaces as the length of $0
@@ -140,7 +145,7 @@ then
     echo "    -k, --min-match-len N       ignore exact matches below this length [default: 19]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
-    echo "    -w, --block-weight-max N    maximum seed sequence in block [default: 10000000]"
+    echo "    -H, --n-haps N              number of haplotypes, if different than that set with -n [default: n-mappings]"
     echo "    -d, --split-min-depth N     minimum POA block depth to trigger splitting [default: 2000]"
     echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0.0]"
     echo "    -R, --block-ratio-min N     minimum small / large length ratio to cluster in a block [default: 0.0]"
@@ -216,7 +221,7 @@ fi
 prefix_seqwish="$prefix_paf".$(echo k$min_match_length-B$transclose_batch | sha256sum | head -c 7)
 
 # Normalization
-prefix_smoothed="$prefix_seqwish".$(echo w$max_block_weight-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$split_min_depth-I$block_id_min-R$block_ratio_min-p$poa_params-O$poa_padding | sha256sum | head -c 7)
+prefix_smoothed="$prefix_seqwish".$(echo h$n_haps-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$split_min_depth-I$block_id_min-R$block_ratio_min-p$poa_params-O$poa_padding | sha256sum | head -c 7)
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
@@ -260,7 +265,7 @@ seqwish:
   min-match-len:      $min_match_length
   transclose-batch:   $transclose_batch
 smoothxg:
-  block-weight-max:   $max_block_weight
+  n-haps:             $n_haps
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
   poa-length-target:  $target_poa_length
@@ -337,11 +342,12 @@ do
     fi
     if [[ $i != $smooth_iterations ]]; then
         if [[ ! -s $prefix_smoothed.smooth.$i.gfa || $resume == false ]]; then
+            poa_length=$(echo $target_poa_length | cut -f $i -d, )
             $timer -f "$fmt" smoothxg \
                    -t $threads \
                    -T $poa_threads \
                    -g "$input_gfa" \
-                   -w $max_block_weight \
+                   -w $(echo "$poa_length * $n_haps" | bc) \
                    -K \
                    -X 100 \
                    -d $split_min_depth \
@@ -349,7 +355,7 @@ do
                    -R $block_ratio_min \
                    -j $max_path_jump \
                    -e $max_edge_jump \
-                   -l $(echo $target_poa_length | cut -f $i -d, ) \
+                   -l $poa_length \
                    -p "$poa_params" \
                    -O $poa_padding \
                    -V \
@@ -358,11 +364,12 @@ do
         fi
     else
         if [[ ! -s $prefix_smoothed.smooth.gfa || $resume == false ]]; then
+            poa_length=$(echo $target_poa_length | cut -f $i -d, )
             $timer -f "$fmt" smoothxg \
                    -t $threads \
                    -T $poa_threads \
                    -g "$input_gfa" \
-                   -w $max_block_weight \
+                   -w $(echo "$poa_length * $n_haps" | bc) \
                    -K \
                    -X 100 \
                    -d $split_min_depth \
@@ -370,7 +377,7 @@ do
                    -R $block_ratio_min \
                    -j $max_path_jump \
                    -e $max_edge_jump \
-                   -l $(echo $target_poa_length | cut -f $i -d, ) \
+                   -l $poa_length \
                    -p "$poa_params" \
                    -O $poa_padding \
                    $maf_params \
