@@ -26,7 +26,7 @@ target_poa_length=13117,13219
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params="1,19,39,3,81,1"
-poa_padding=0.03
+poa_padding=0.001
 do_viz=false
 do_layout=false
 threads=1
