@@ -167,10 +167,11 @@ then
     echo "                                cons,100,1000:refs1.txt:n,1000:refs2.txt:y:2.3:1000000,10000"
     echo "                                [default: off]"
     echo "   [odgi]"
-    echo "    -U, --normalize             normalize and re-sort the output graph [default: off]"
     echo "    -v, --viz                   render a visualization of the graph in 1D [default: off]"
     echo "    -L, --layout                render a 2D layout of the graph [default: off]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
+    echo "   [gfaffix]"
+    echo "    -U, --normalize             normalize and re-sort the output graph [default: off]"
     echo "   [vg]"
     echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = [REF:SAMPLE_LIST_FILE,]*"
     echo "                                the paths matching ^REF are used as a reference, while the samples are taken"
@@ -279,10 +280,11 @@ smoothxg:
   poa_threads:        $poa_threads
   poa_padding:        $poa_padding
 odgi:
-  normalize:          $normalize
   viz:                $do_viz
   layout:             $do_layout
   stats:              $do_stats
+gfaffix:
+  normalize:          $normalize
 vg:
   deconstruct:        $vcf_spec  
 reporting:
