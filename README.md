@@ -38,7 +38,7 @@ Using a test from the `data/HLA` directory in this repo:
 ```sh
 git clone --recursive https://github.com/pangenome/pggb
 cd pggb
-./pggb -i data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 5000 -I 0 -p 80 -n 10 -k 8 -t 16 -v -L -o out
+./pggb -i data/HLA/DRB1-3123.fa.gz -N -s 5000 -I 0 -p 80 -n 10 -k 8 -t 16 -v -L -o out
 ```
 
 This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, a series of consensus graphs at different levels of variant resolution, and several diagnostic images (all in the directory `out/`).
@@ -101,7 +101,7 @@ cd pggb
 you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 5000 -I 0 -p 80 -n 10 -k 8 -t 2 -v -L -o /data/out -m"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -s 5000 -I 0 -p 80 -n 10 -k 8 -t 2 -v -L -o /data/out -m"
 ```
 
 The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
@@ -115,7 +115,7 @@ docker build --target binary -t ${USER}/pggb:latest .
 Staying in the `pggb` directory, we can run `pggb` with the locally build image:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -w 50000 -s 5000 -I 0 -p 80 -n 10 -k 8 -t 2 -v -L -o /data/out -m"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -s 5000 -I 0 -p 80 -n 10 -k 8 -t 2 -v -L -o /data/out -m"
 ```
 
 #### AVX
