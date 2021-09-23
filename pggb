@@ -11,13 +11,13 @@ n_mappings=false
 segment_length=false
 block_length=false
 mash_kmer=16
-min_match_length=19
+min_match_length=29
 transclose_batch=10000000
 n_haps=false
 block_id_min=0
 block_ratio_min=0
 split_min_depth=2000
-max_path_jump=100
+max_path_jump=0
 max_edge_jump=0
 target_poa_length=13117,13219
 # poa param suggestions from minimap2
@@ -26,7 +26,7 @@ target_poa_length=13117,13219
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params="1,19,39,3,81,1"
-poa_padding=0.001
+poa_padding=0.03
 do_viz=false
 do_layout=false
 threads=1
@@ -142,14 +142,14 @@ then
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
-    echo "    -k, --min-match-len N       ignore exact matches below this length [default: 19]"
+    echo "    -k, --min-match-len N       filter exact matches below this length [default: 29]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
     echo "    -H, --n-haps N              number of haplotypes, if different than that set with -n [default: n-mappings]"
     echo "    -d, --split-min-depth N     minimum POA block depth to trigger splitting [default: 2000]"
     echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0.0]"
     echo "    -R, --block-ratio-min N     minimum small / large length ratio to cluster in a block [default: 0.0]"
-    echo "    -j, --path-jump-max         maximum path jump to include in block [default: 100]"
+    echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
     echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 13117,13219]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
@@ -173,9 +173,10 @@ then
     echo "   [gfaffix]"
     echo "    -U, --normalize             normalize and re-sort the output graph [default: off]"
     echo "   [vg]"
-    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = [REF:SAMPLE_LIST_FILE,]*"
-    echo "                                the paths matching ^REF are used as a reference, while the samples are taken"
-    echo "                                one per line from the given SAMPLE_LIST_FILE (e.g. -V chm13:sample.list,grch38:sample.list)"
+    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[,REF:DELIM]*"
+    echo "                                the paths matching ^REF are used as a reference, while the sample haplotypes"
+    echo "                                are derived from path names, e.g. when DELIM=# and with `-V chm13:#`,"
+    echo "                                a path named HG002#1#ctg would be assigned to sample HG002 phase 1 [default: off]"
     echo "   [multiqc]"
     echo "    -m, --multiqc               generate MultiQC report of graphs' statistics and visualizations,"
     echo "                                automatically runs odgi stats [default: off]"
@@ -522,12 +523,11 @@ then
     for s in $( echo "$vcf_spec" | tr ',' ' ' );
     do
         ref=$(echo "$s" | cut -f 1 -d: )
-        samples=$(echo "$s" | cut -f 2 -d: )
-        echo "[vg::deconstruct] making VCF with reference=$ref and samples=$samples" | tee -a "$log_file"
-        vcf="$prefix_smoothed".smooth.$(echo $ref | tr '/|' '_').$(echo $samples | tr '/|' '_').vcf
+        delim=$(echo "$s" | cut -f 2 -d: )
+        echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
+        vcf="$prefix_smoothed".smooth.$(echo $ref | tr '/|' '_').vcf
         ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
-                 $(for i in $(cat $samples); do echo -n ' -A '$i; done) \
-                 -e -a -t $threads "$prefix_smoothed".smooth.gfa >"$vcf" ) 2> >(tee -a "$log_file")
+                 -H $delim -e -a -t $threads "$prefix_smoothed".smooth.gfa >"$vcf" ) 2> >(tee -a "$log_file")
     done
 fi
 
