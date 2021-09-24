@@ -78,7 +78,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
 
 RUN apt-get update && apt-get install -y pip && pip install multiqc
 
-RUN apt-get install wget && wget http://hypervolu.me/~erik/vg/vg-03efd3b.gz && zcat vg-03efd3b.gz >vg && chmod +x vg && cp vg /usr/local/bin/vg
+RUN apt-get install wget && wget http://hypervolu.me/~erik/vg/vg-97abe67.gz && zcat vg-97abe67.gz >vg && chmod +x vg && cp vg /usr/local/bin/vg
 
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb
