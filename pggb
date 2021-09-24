@@ -175,7 +175,7 @@ then
     echo "   [vg]"
     echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[,REF:DELIM]*"
     echo "                                the paths matching ^REF are used as a reference, while the sample haplotypes"
-    echo "                                are derived from path names, e.g. when DELIM=# and with `-V chm13:#`,"
+    echo "                                are derived from path names, e.g. when DELIM=# and with '-V chm13:#',"
     echo "                                a path named HG002#1#ctg would be assigned to sample HG002 phase 1 [default: off]"
     echo "   [multiqc]"
     echo "    -m, --multiqc               generate MultiQC report of graphs' statistics and visualizations,"
