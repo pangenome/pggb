@@ -361,6 +361,7 @@ do
                    -l $poa_length \
                    -p "$poa_params" \
                    -O $poa_padding \
+                   -Y $(echo "100 * $n_haps" | bc) \
                    -V \
                    -o "$prefix_smoothed".smooth.$i.gfa \
                    2> >(tee -a "$log_file")
@@ -383,6 +384,7 @@ do
                    -l $poa_length \
                    -p "$poa_params" \
                    -O $poa_padding \
+                   -Y $(echo "100 * $n_haps" | bc) \
                    $maf_params \
                    -Q $consensus_prefix \
                    $consensus_params \
