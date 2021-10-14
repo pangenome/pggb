@@ -8,7 +8,7 @@ This pangenome graph construction pipeline renders a collection of sequences int
 Its goal is to build a graph that is locally directed and acyclic while preserving large-scale variation.
 Maintaining local linearity is important for the interpretation, visualization, and reuse of pangenome variation graphs.
 
-It uses three phases:
+It's core implementation uses three phases:
 
 1. _[wfmash](https://github.com/ekg/wfmash)_: (*alignment*) -- `wfmash` uses a modified version of mashmap to obtain approximate mappings, and then applies a [wavefront-guided global alignment algorithm for long sequences](https://github.com/ekg/wflign) to derive an alignment for each mapping.  `wfmash` uses the [wavefront alignment algorithm](https://github.com/smarco/WFA) for base-level alignment. This mapper is used to scaffold the pangenome, using genome segments of a given length with a specified maximum level of sequence divergence.
 All segments in the input are mapped to all others.
@@ -25,8 +25,9 @@ This normalizes their mutual alignment and removes artifacts resulting from tran
 It ensures that the graph always has local partial order, which is essential for many applications and matches our prior expectations about small-scale variation in genomes.
 This step yields a rebuilt graph, a consensus subgraph, and a whole genome alignment in [MAF](http://www.bx.psu.edu/~dcking/man/maf.xhtml) format.
 
-Optional post-processing steps provide 1D and 2D diagnostic visualizations of the graph, basic graph metrics.
-The output graph (`*.smooth.gfa`) is suitable as input to `vg deconstruct` to obtain a VCF file relative to any set of reference sequences used in the construction, or for read mapping in `vg` or with `GraphAligner`.
+Optional post-processing steps provide 1D and 2D diagnostic visualizations of the graph, basic graph metrics. The pipeline supports identification and collapse of redundant structure with [GFAffix](https://github.com/marschall-lab/GFAffix). Variant calling is also possible with `vg deconstruct` to obtain a VCF file relative to any set of reference sequences used in the construction. It utilizes a [path jaccard](https://github.com/vgteam/vg/pull/3416) concept to correctly localize variants in segmental duplications and variable number tandem repeats. In the HPRC data, this greatly improved variant calling performance.
+
+The output graph (`*.smooth.gfa`) is suitable for read mapping in [vg](https://github.com/vgteam/vg) or with [GraphAligner](https://github.com/maickrau/GraphAligner). For more downstream processing steps see [downstream](##downstream).
 
 ## general usage
 
@@ -38,13 +39,14 @@ Using a test from the `data/HLA` directory in this repo:
 ```sh
 git clone --recursive https://github.com/pangenome/pggb
 cd pggb
-./pggb -i data/HLA/DRB1-3123.fa.gz -N -s 5000 -I 0 -p 80 -n 10 -k 8 -t 16 -v -L -o out
+./pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -L -U -V 'gi|568815561:#' -o out -F -C cons,100,1000,10000
 ```
 
 This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, a series of consensus graphs at different levels of variant resolution, and several diagnostic images (all in the directory `out/`).
 By default, the outputs are named according to the input file and the construction parameters.
 Adding `-v` and `-L` render 1D and 2D diagnostic images of the graph.
 (These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-L` can take a while.)
+`-U` collapses redundant structure in the graph. We also call variants with `-V` with respect to the reference `gi|568815561:#`.
 
 ### 1D graph visualization
 
@@ -74,6 +76,8 @@ For instance, a good setting for 10-20 genomes from the same species, with diver
 However, if we wanted to include genomes from another species with higher divergence (say 20%), we might use `-s 100000 -p 70 -n 10`.
 The exact configuration depends on the application, and testing must be used to determine what is appropriate for a given study.
 
+When `abpoa` digests very complex and deep blocks, it might consume a huge amount of memory. This can be addressed with `-T` to specifically control the number of threads during the POA step. This leads to a lower memory consumption.
+
 ## installation
 
 ### docker
@@ -101,7 +105,7 @@ cd pggb
 you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -N -s 5000 -I 0 -p 80 -n 10 -k 8 -t 2 -v -L -o /data/out -m"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -L -U -V 'gi|568815561:#' -o /data/out -F -C cons,100,1000,10000 -m"
 ```
 
 The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
@@ -115,7 +119,7 @@ docker build --target binary -t ${USER}/pggb:latest .
 Staying in the `pggb` directory, we can run `pggb` with the locally build image:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -N -s 5000 -I 0 -p 80 -n 10 -k 8 -t 2 -v -L -o /data/out -m"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -L -U -V 'gi|568815561:#' -o /data/out -F -C cons,100,1000,10000 -m"
 ```
 
 #### AVX
@@ -140,7 +144,7 @@ We may require different settings to obtain useful graphs for particular applica
 
 ### defining the base alignment with wfmash
 
-Four parameters passed to `wfmash` are essential for establishing the basic structure of the pangenome:
+Three parameters passed to `wfmash` are essential for establishing the basic structure of the pangenome:
 
 - `-s[N], --segment-length=[N]` is the length of the mapped and aligned segment
 - `-p[%], --map-pct-id=[%]` is the percentage identity minimum in the _mapping_ step
@@ -150,7 +154,7 @@ Crucially, `--segment-length` provides a kind of minimum alignment length filter
 The mashmap step in `wfmash` will only consider segments of this size, and require them to have an approximate pairwise identity of at least `--map-pct-id`.
 For small pangenome graphs, or where there are few repeats, `--segment-length` can be set low (such as 3000 in the example above).
 However, for larger contexts, with repeats, it can be very important to set this high (for instance 100000 in the case of human genomes).
-A long segment length ensures that we represent long collinear regions of the input sequences in the structure of the graph.
+A long segment length ensures that we represent long collinear regions of the input sequences in the structure of the graph. As a general rule of thump, `-n` should be set to the number of haplotypes given in the input sequences. Because that's the maximum number of secondary mappings and alignments that we expect.
 
 ### generating the initial graph with seqwish
 
@@ -168,15 +172,22 @@ This depends on a sorting pipeline implemented in _[odgi](https://github.com/vgt
 `smoothxg` greedily extends candidate blocks until they contain `-w[N], --max-block-weight=[N]` bp of sequence in the embedded paths.
 The `--max-block-weight` parameter thus determines the average size of these blocks.
 We expect their length in graph space to be approximately `max-block-weight` / `average_path_depth`.
-Thus, it may be necessary to change this setting when the pangenome path depth (the number of genome sequences covering the average graph node) is higher or lower.
-In effect, setting `--max-block-weight` higher will make the size of the blocks given to the POA algorithm larger, and this will result in larger regions of the graph having guaranteed local partial order.
-Setting it higher can greatly increase runtime, because the POA algorithm is quadratic in the length of the longest sequence and graph that it aligns, but it also tends to produce cleaner resulting graphs.
+Thus, we set the `max-block-weight` to `-G, --poa-length-target` times the number of `-n, --n-mappings` or `-H, --n-haps`. It may be necessary to change this setting when the pangenome path depth (the number of genome sequences covering the average graph node) is higher or lower.
+In effect, setting `--poa-length-target` and therefore `--max-block-weight` higher will make the size of the blocks given to the POA algorithm larger, and this will result in larger regions of the graph having guaranteed local partial order.
+Setting it higher can greatly increase runtime, because the POA algorithm is quadratic in the length of the longest sequence and graph that it aligns, but it also tends to produce cleaner resulting graphs. \
+When forming each block, `smoothxg` pads each end of the sequence in the POA step with `N*longest_poa_seq` bp. This tries to ensure that at the boundaries of blocks, we smooth, too. During our trials with the HPRC data, a default of `0.03` crystallized. But this could vary dependent on the data set.
+The POA parameters will determine how well the sequence can be aligned in a block given their assumed divergence. The current default of `1,19,39,3,81,1` is for ~0.1% divergence, as suggested by `minimap2`:
+
+| asm mode  | `--poa-params` | divergence in % |
+| ------------- | ------------- | ------------- |
+| asm5  | 1,19,39,3,81,1  | ~0.1 |
+| asm10  | 1,9,16,2,41,1  | ~1 |
+| asm20  | 1,4,6,2,26,1 | ~5 |
 
 Other parameters to `smoothxg` help to shape the scope and boundaries of the blocks.
 In particular, `-e[N], --max-edge-jump=[N]` breaks a growing block when an edge in the graph jumps more than the given distance `N` in the sort order of the graph.
 This is designed to encourage blocks to stop near the boundaries of structural variation.
 When a path leaves and returns to a given block, we can pull in the sequence that lies outside the block if it is less than `-j[N], --max-path-jump=[N]`.
-Paths that only travers a given block for `-W[N], --min-subpath=[N]` bp are removed from the block.
 
 ## reporting
 
@@ -192,7 +203,19 @@ Many thanks go to [@Zethson](https://github.com/zethson) and [@Imipenem](https:/
 pip install multiqc --user
 ```
 
-The docker image already contains v1.11 of MultiQC.
+The docker image already contains v1.11 of `MultiQC`.
+
+## example parameter settings by organism
+
+### human
+
+For the HPRCy1 data we currently run `pggb` with the following parameters on all chromosomes:
+
+`pggb -i chr'$i'.pan.fa -o chr'$i'.pan -t 48 -p 98 -s 100000 -n 90 -k 311 -O 0.03 -T 48 -U -v -L -V chm13:#,grch38:# -Z`
+
+### other organisms
+
+If you are building graphs with `pggb` using other organisms, please report back to us. We are happy to find the best parameter settings for your experiment and help out!
 
 ## extension
 
@@ -205,7 +228,7 @@ You might have a validation process based on alignment of sequences to the graph
 
 ## downstream
 
-The resulting graph can then be manipulated with `odgi` for visualization and interrogation.
+The resulting graph can then be manipulated with `odgi` for transformation, analysis, simplification, validation, interrogation, and visualization.
 It can also be loaded into any of the GFA-based mapping tools, including _[vg](https://github.com/vgteam/vg)_ `map`, `mpmap`, `giraffe`, and _[GraphAligner](https://github.com/maickrau/GraphAligner)_.
 Alignments to the graph can be used to make variant calls (`vg call`) and coverage vectors over the pangenome, which can be useful for phylogeny and association analyses.
 Using `odgi matrix`, we can render the graph in a sparse matrix format suitable for direct use in a variety of statistical frameworks, including phylogenetic tree construction, PCA, or association studies.
@@ -225,7 +248,7 @@ irrespective of its sequence context), and it can be adjusted using probabilisti
 This allows us to define the base graph structure using a few free parameters: we consider the best-n candidate alignments
 for each N-bp segment, where the alignments must have at least a given identity threshold.
 
-The edlib-based alignments can break down in the case of large indels, yielding ambiguous and difficult-to-interpret alignments.
+The wfa-based alignments can break down in the case of large indels, yielding ambiguous and difficult-to-interpret alignments.
 But, we should not use such regions of the alignments directly in the graph construction, as this can increase graph complexity.
 We ignore such regions by preventing `seqwish` from closing the graph through matches less than `-k, --min-match-len` bp.
 In effect, this filter to the input to `seqwish` forces structural variations and regions of very low identity to be 
