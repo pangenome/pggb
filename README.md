@@ -261,7 +261,7 @@ regions that are linear (the chains of nodes and bubbles) in the graph tend to c
 Applying an MSA algorithm (in this case, `abPOA` or `spoa`) to each of these chunks enforces a local linearity and 
 homogenizes the alignment representation. This smoothing step thus yields a graph that is locally as we expect: partially
 ordered, and linear as the base DNA molecules are, but globally can represent large structural variation. The homogenization
-also rectifies issues with the initial edit-distance-based alignment.
+also rectifies issues with the initial wfa-based alignment.
 
 ## authors
 
