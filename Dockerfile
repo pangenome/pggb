@@ -73,7 +73,7 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout b75302b \
+    && git checkout ec4f1a2 \
     && cargo install --force --path . && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix
 
 RUN apt-get update && apt-get install -y pip && pip install multiqc
