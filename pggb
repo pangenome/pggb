@@ -11,13 +11,13 @@ n_mappings=false
 segment_length=false
 block_length=false
 mash_kmer=16
-min_match_length=19
+min_match_length=29
 transclose_batch=10000000
 n_haps=false
-block_id_min=0
+block_id_min=0.95
 block_ratio_min=0
-split_min_depth=2000
-max_path_jump=100
+pad_max_depth=100
+max_path_jump=0
 max_edge_jump=0
 target_poa_length=13117,13219
 # poa param suggestions from minimap2
@@ -26,7 +26,7 @@ target_poa_length=13117,13219
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params="1,19,39,3,81,1"
-poa_padding=0.001
+poa_padding=0.03
 do_viz=false
 do_layout=false
 threads=1
@@ -51,7 +51,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:H:j:P:O:Fe:t:T:vLhMSY:G:C:Q:Ud:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,normalize,split-min-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:H:j:P:O:Fe:t:T:vLhMSY:G:C:Q:Ud:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,normalize,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -70,7 +70,7 @@ while true ; do
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
         -H|--n-haps) n_haps=$2 ; shift 2 ;;
-        -d|--split-min-depth) split_min_depth=$2 ; shift 2 ;;
+        -d|--pad-max-depth) pad_max_depth=$2 ; shift 2 ;;
         -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
         -R|--block-ratio-min) block_ratio_min=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
@@ -142,19 +142,19 @@ then
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
-    echo "    -k, --min-match-len N       ignore exact matches below this length [default: 19]"
+    echo "    -k, --min-match-len N       filter exact matches below this length [default: 29]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
     echo "    -H, --n-haps N              number of haplotypes, if different than that set with -n [default: n-mappings]"
-    echo "    -d, --split-min-depth N     minimum POA block depth to trigger splitting [default: 2000]"
-    echo "    -I, --block-id-min N        split blocks into groups connected by this identity threshold [default: 0.0]"
+    echo "    -I, --block-id-min N        split deep blocks (>= -d) into groups connected by this identity threshold [default: 0.95]"
     echo "    -R, --block-ratio-min N     minimum small / large length ratio to cluster in a block [default: 0.0]"
-    echo "    -j, --path-jump-max         maximum path jump to include in block [default: 100]"
+    echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
     echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 13117,13219]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
     echo "                                [default: 1,19,39,3,81,1]"
     echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.03]"
+    echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: 100]"
     echo "    -F, --write-maf             write MAF output representing merged POA blocks [default: off]"
     echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
     echo "    -C, --consensus-spec SPEC   consensus graph specification: write consensus graphs to"
@@ -173,9 +173,10 @@ then
     echo "   [gfaffix]"
     echo "    -U, --normalize             normalize and re-sort the output graph [default: off]"
     echo "   [vg]"
-    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = [REF:SAMPLE_LIST_FILE,]*"
-    echo "                                the paths matching ^REF are used as a reference, while the samples are taken"
-    echo "                                one per line from the given SAMPLE_LIST_FILE (e.g. -V chm13:sample.list,grch38:sample.list)"
+    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[,REF:DELIM]*"
+    echo "                                the paths matching ^REF are used as a reference, while the sample haplotypes"
+    echo "                                are derived from path names, e.g. when DELIM=# and with '-V chm13:#',"
+    echo "                                a path named HG002#1#ctg would be assigned to sample HG002 phase 1 [default: off]"
     echo "   [multiqc]"
     echo "    -m, --multiqc               generate MultiQC report of graphs' statistics and visualizations,"
     echo "                                automatically runs odgi stats [default: off]"
@@ -222,7 +223,7 @@ fi
 prefix_seqwish="$prefix_paf".$(echo k$min_match_length-B$transclose_batch | sha256sum | head -c 7)
 
 # Normalization
-prefix_smoothed="$prefix_seqwish".$(echo h$n_haps-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$split_min_depth-I$block_id_min-R$block_ratio_min-p$poa_params-O$poa_padding | sha256sum | head -c 7)
+prefix_smoothed="$prefix_seqwish".$(echo h$n_haps-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$pad_max_depth-I$block_id_min-R$block_ratio_min-p$poa_params-O$poa_padding | sha256sum | head -c 7)
 
 
 fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
@@ -274,7 +275,7 @@ smoothxg:
   write-maf:          $write_maf
   consensus-prefix:   $consensus_prefix
   consensus-spec:     $consensus_spec
-  split-min-depth:    $split_min_depth
+  pad-max-depth:      $pad_max_depth
   block-id-min:       $block_id_min
   block-ratio-min:    $block_ratio_min
   poa_threads:        $poa_threads
@@ -352,7 +353,6 @@ do
                    -w $(echo "$poa_length * $n_haps" | bc) \
                    -K \
                    -X 100 \
-                   -d $split_min_depth \
                    -I $block_id_min \
                    -R $block_ratio_min \
                    -j $max_path_jump \
@@ -360,6 +360,8 @@ do
                    -l $poa_length \
                    -p "$poa_params" \
                    -O $poa_padding \
+                   -Y $(echo "$pad_max_depth * $n_haps" | bc) \
+                   -d 0 -D 0 \
                    -V \
                    -o "$prefix_smoothed".smooth.$i.gfa \
                    2> >(tee -a "$log_file")
@@ -374,7 +376,6 @@ do
                    -w $(echo "$poa_length * $n_haps" | bc) \
                    -K \
                    -X 100 \
-                   -d $split_min_depth \
                    -I $block_id_min \
                    -R $block_ratio_min \
                    -j $max_path_jump \
@@ -382,6 +383,8 @@ do
                    -l $poa_length \
                    -p "$poa_params" \
                    -O $poa_padding \
+                   -Y $(echo "$pad_max_depth * $n_haps" | bc) \
+                   -d 0 -D 0 \
                    $maf_params \
                    -Q $consensus_prefix \
                    $consensus_params \
@@ -409,12 +412,12 @@ fi
 if [[ $do_stats == true ]];
 then
     $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_seqwish".seqwish.gfa -o "$prefix_seqwish".seqwish.og 2> >(tee -a "$log_file")
-    odgi stats -i "$prefix_seqwish".seqwish.og -y > "$prefix_seqwish".seqwish.og.stats.yaml 2>&1 | tee -a "$log_file"
-    odgi stats -i "$prefix_smoothed".smooth.og -y  > "$prefix_smoothed".smooth.og.stats.yaml 2>&1 | tee -a "$log_file"
+    odgi stats -i "$prefix_seqwish".seqwish.og -m > "$prefix_seqwish".seqwish.og.stats.yaml 2>&1 | tee -a "$log_file"
+    odgi stats -i "$prefix_smoothed".smooth.og -m  > "$prefix_smoothed".smooth.og.stats.yaml 2>&1 | tee -a "$log_file"
     if [[ $consensus_spec != false ]]; then
         for consensus_graph in "$prefix_smoothed"*.cons*.gfa; do
             odgi build -t $threads -P -g "$consensus_graph" -o "$consensus_graph".og 2> >(tee -a "$log_file")
-            odgi stats -i "$consensus_graph".og -y >"$consensus_graph".og.stats.yaml 2>&1 | tee -a "$log_file"
+            odgi stats -i "$consensus_graph".og -m >"$consensus_graph".og.stats.yaml 2>&1 | tee -a "$log_file"
         done
     fi
 fi
@@ -522,12 +525,11 @@ then
     for s in $( echo "$vcf_spec" | tr ',' ' ' );
     do
         ref=$(echo "$s" | cut -f 1 -d: )
-        samples=$(echo "$s" | cut -f 2 -d: )
-        echo "[vg::deconstruct] making VCF with reference=$ref and samples=$samples" | tee -a "$log_file"
-        vcf="$prefix_smoothed".smooth.$(echo $ref | tr '/|' '_').$(echo $samples | tr '/|' '_').vcf
+        delim=$(echo "$s" | cut -f 2 -d: )
+        echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
+        vcf="$prefix_smoothed".smooth.$(echo $ref | tr '/|' '_').vcf
         ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
-                 $(for i in $(cat $samples); do echo -n ' -A '$i; done) \
-                 -e -a -t $threads "$prefix_smoothed".smooth.gfa >"$vcf" ) 2> >(tee -a "$log_file")
+                 -H $delim -e -a -t $threads "$prefix_smoothed".smooth.gfa >"$vcf" ) 2> >(tee -a "$log_file")
     done
 fi
 
