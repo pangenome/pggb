@@ -52,7 +52,7 @@ pggb \
 The final process output will be called `outdir/input.fa*smooth.gfa`.
 By default, several intermediate files are produced.
 We add `-U -v -L` to remove redundancy from the graph with `gfaffix` (`-U`) and render 1D (`-v`) and 2D (`-L`) visualizations of the graph with `odgi`.
-These are generally useful but do require some processing time.
+These are generally useful but do require some processing time, so they are not currently done by default.
 
 ## establishing parameters
 
