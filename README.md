@@ -31,7 +31,7 @@ The output graph (`*.smooth.gfa`) is suitable for read mapping in [vg](https://g
 
 ## quick start
 
-First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Docker, guix, or manually.
+First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Docker, guix, or by manually building its dependencies.
 
 Put your sequences in one FASTA file and index it with `samtools faidx`.
 If you have many genomes, we suggest using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
@@ -41,7 +41,7 @@ To build a graph from `input.fa`, in directory `output`, which contains 9 haplot
 ```
 pggb \ 
     -i input.fa \
-    -o scrubmhc2 \
+    -o output \
     -t 16 \
     -p 90 \
     -s 5000 \
