@@ -29,10 +29,84 @@ Optional post-processing steps provide 1D and 2D diagnostic visualizations of th
 
 The output graph (`*.smooth.gfa`) is suitable for read mapping in [vg](https://github.com/vgteam/vg) or with [GraphAligner](https://github.com/maickrau/GraphAligner). For more downstream processing steps see [downstream](##downstream).
 
-## general usage
+## quick start
 
-`pggb` requires at least an input sequence `-i`, a segment length `-s`, and a mapping identity minimum `-p`.
-Other parameters may help in specific instances to shape the alignment set.
+First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Docker, guix, or manually.
+
+Put your sequences in one FASTA file and index it with `samtools faidx`.
+If you have many genomes, we suggest using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
+
+To build a graph from `input.fa`, in directory `output`, which contains 9 haplotypes, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing:
+
+```
+pggb \ 
+    -i input.fa \
+    -o scrubmhc2 \
+    -t 16 \
+    -p 90 \
+    -s 5000 \
+    -n 9 \
+    -U -v -L
+```
+
+The final process output will be called `outdir/input.fa*smooth.gfa`.
+By default, several intermediate files are produced.
+We add `-U -v -L` to remove redundancy from the graph with `gfaffix` (`-U`) and render 1D (`-v`) and 2D (`-L`) visualizations of the graph with `odgi`.
+These are generally useful but do require some processing time.
+
+## establishing parameters
+
+### essential
+
+`pggb` requires that the user set a mapping identity minimum `-p`, a segment length `-s`, and a number of mappings `-n` per segment.
+These 3 key parameters define most of the structure of the pangenome graph.
+They can be set using some prior information about the sequences that you're using.
+
+_Estimate divergence_:
+First, use `mash dist` or `mash triangle` to establish a typical level of divergence between the sequences in your input.
+Convert this to an approximate percent identity and provide it as `-p, --map-pct-id PCT`.
+
+_Define a homology scale_:
+Select a segment length for the initial mapping `-s, --segment-length LENGTH`.
+This will structure the alignments and the resulting graph.
+In general, this should at least be larger than transposon and other common repeats in your pangenome.
+A filter `-l, --block-length BLOCK` by default requires that mappings be made of at least 3 segments, or else they are filtered.
+
+_Set a target number of alignments per segment and haplotype count_: 
+The `pggb` graph is defined by the number of mappings per segment of each genome `-n, --n-mappings N`.
+Ideally, you should set this to equal the number of haplotypes in the pangenome.
+Keep in mind that the total work of alignment is proportional to `N*N`, and these multimappings can be highly redundant.
+If you provide a `N` that is not equal to the number of haplotypes, provide the actual number of haplotypes to `-H`, which helps `smoothxg` determine the right POA problem size.
+
+### optional
+
+_Set a match filter_:
+Graph induction with `seqwish` often works better when we filter very short matches out of the input alignments.
+This underalignment is then resolved in the final `smoothxg` step.
+Removing short matches can simplify the graph and remove spurious relationships caused by short repeated homologies.
+The default setting of `-k 29` is optimal for around 5% divergence, and we suggest lowering it for higher divergence and increasing it for lower divergence (values up to `-k 311` work well for human haplotypes).
+
+_Define a partial order alignment (POA) target length_:
+The last step in `pggb` refines the graph by running a partial order alignment across segments.
+The length of these sub-problems greatly affects the total time and memory requirements of `pggb`, and is defined by `-G, --poa-length-target N,M`.
+Two passes of refinement are defined by lengths `N` and `M`.
+Ideally, this target can be set above the length of transposon repeats in the pangenome, and base-level graph quality tends to improve as it is set higher.
+The default setting of `-G 13117,13219` makes sense for lower-diversity pangenomes, but can require several GB of RAM per thread.
+A setting like `-G 3079,3559` will be significantly faster.
+
+Always set `-t` to the desired number of parallel threads.
+
+## suggested settings for different organisms
+
+Human, whole genome, 90 haplotypes: `pggb -p 98 -s 100000 -n 90 -k 311 -G 13117,13219 ...`
+
+15 helicobacter genomes, 5% divergence: `-p 90 -s 20000 -n 15 -H 15 -k 79 -G 7919,8069 ...`, and 15 at higher (10%) divergence `pggb -p 90 -s 20000 -n 15 -k 19 -P 1,7,11,2,33,1 -G 4457,4877,5279 ...`
+
+Yeast genomes, 5% divergence: `pggb -p 95 -s 20000 -n 7 -k 29 -G 7919,8069 ...`
+
+Aligning 9 MHC class II assemblies from vertebrate genomes (5-10% divergence): `pggb -p 90 -s 5000 -n 9 -k 29 -G 3079,3559 ...`
+
+## example build using MHC class II ALTs from GRCh38
 
 Using a test from the `data/HLA` directory in this repo:
 
@@ -79,6 +153,20 @@ The exact configuration depends on the application, and testing must be used to 
 When `abpoa` digests very complex and deep blocks, it might consume a huge amount of memory. This can be addressed with `-T` to specifically control the number of threads during the POA step. This leads to a lower memory consumption.
 
 ## installation
+
+### manual-mode
+
+You'll need `wfmash`, `seqwish`, `smoothxg`, `odgi`, `gfaffix`, and `vg` in your shell's `PATH`.
+These can be individually built and installed.
+Then, put the `pggb` bash script in your path to complete installation.
+
+### guix
+
+```
+git clone https://github.com/ekg/guix-genomics
+cd guix-genomics
+GUIX_PACKAGE_PATH=. guix package -i pggb
+```
 
 ### docker
 
