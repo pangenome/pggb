@@ -47,12 +47,12 @@ pggb \
     -p 90 \
     -s 5000 \
     -n 9 \
-    -v -L
+    -v
 ```
 
 The final process output will be called `outdir/input.fa*smooth.gfa`.
 By default, several intermediate files are produced.
-We add `-v -L` to render 1D (`-v`) and 2D (`-L`) visualizations of the graph with `odgi`.
+We add `-v` to render 1D and 2D visualizations of the graph with `odgi`.
 These are generally useful but do require some processing time, so they are not currently done by default.
 
 ## establishing parameters
@@ -114,13 +114,13 @@ Using a test from the `data/HLA` directory in this repo:
 ```sh
 git clone --recursive https://github.com/pangenome/pggb
 cd pggb
-./pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -L -V 'gi|568815561:#' -o out -F -C cons,100,1000,10000
+./pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -V 'gi|568815561:#' -o out -F -C cons,100,1000,10000
 ```
 
 This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, a series of consensus graphs at different levels of variant resolution, and several diagnostic images (all in the directory `out/`).
 By default, the outputs are named according to the input file and the construction parameters.
-Adding `-v` and `-L` render 1D and 2D diagnostic images of the graph.
-(These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-L` can take a while.)
+Adding `-v` render 1D and 2D diagnostic images of the graph.
+(These are not enabled by default because they sometimes require manual configuration. Additionally, the 2D layout can take a while.)
 By default, redundant structures in the graph are collapsed by applying [GFAffix](https://github.com/marschall-lab/GFAffix).
 We also call variants with `-V` with respect to the reference `gi|568815561:#`.
 
@@ -195,7 +195,7 @@ cd pggb
 you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -L -V 'gi|568815561:#' -o /data/out -F -C cons,100,1000,10000 -m"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -F -C cons,100,1000,10000 -m"
 ```
 
 The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
@@ -209,7 +209,7 @@ docker build --target binary -t ${USER}/pggb:latest .
 Staying in the `pggb` directory, we can run `pggb` with the locally build image:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -L -V 'gi|568815561:#' -o /data/out -F -C cons,100,1000,10000 -m"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -F -C cons,100,1000,10000 -m"
 ```
 
 #### AVX
@@ -301,7 +301,7 @@ The docker image already contains v1.11 of `MultiQC`.
 
 For the HPRCy1 data we currently run `pggb` with the following parameters on all chromosomes:
 
-`pggb -i chr'$i'.pan.fa -o chr'$i'.pan -t 48 -p 98 -s 100000 -n 90 -k 311 -O 0.03 -T 48 -v -L -V chm13:#,grch38:# -Z`
+`pggb -i chr'$i'.pan.fa -o chr'$i'.pan -t 48 -p 98 -s 100000 -n 90 -k 311 -O 0.03 -T 48 -v -V chm13:#,grch38:# -Z`
 
 ### other organisms
 
