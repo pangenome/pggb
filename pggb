@@ -41,7 +41,7 @@ consensus_prefix=Consensus_
 no_splits=false
 multiqc=false
 pigz_compress=false
-normalize=false
+normalize=true
 vcf_spec=false
 
 if [ $# -eq 0 ];
@@ -81,7 +81,6 @@ while true ; do
         -F|--write-maf) write_maf=true ; shift ;;
         -C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
         -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
-        -U|--normalize) normalize=true ; shift ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -T|--poa-threads) poa_threads=$2 ; shift 2 ;;
         -v|--do-viz) do_viz=true ; shift ;;
@@ -170,8 +169,6 @@ then
     echo "    -v, --viz                   render a visualization of the graph in 1D [default: off]"
     echo "    -L, --layout                render a 2D layout of the graph [default: off]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
-    echo "   [gfaffix]"
-    echo "    -U, --normalize             normalize and re-sort the output graph [default: off]"
     echo "   [vg]"
     echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[,REF:DELIM]*"
     echo "                                the paths matching ^REF are used as a reference, while the sample haplotypes"
