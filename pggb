@@ -62,7 +62,6 @@ while true ; do
         -n|--n-mappings) n_mappings=$2 ; shift 2 ;;
         -s|--segment-length) segment_length=$2 ; shift 2 ;;
         -l|--block-length) block_length=$2 ; shift 2 ;;
-        -M|--no-merge-segments) no_merge_segments=true ; shift ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
@@ -131,7 +130,6 @@ then
     echo "    -s, --segment-length N      segment length for mapping"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 3*segment-length]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
-    echo "    -M, --no-merge-segments     do not merge successive mappings"
     echo "    -p, --map-pct-id PCT        percent identity in the wfmash step"
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
     echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
