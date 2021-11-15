@@ -14,7 +14,6 @@ mash_kmer=16
 min_match_length=29
 transclose_batch=10000000
 n_haps=false
-block_id_min=0.95
 block_ratio_min=0
 pad_max_depth=100
 max_path_jump=0
@@ -71,7 +70,6 @@ while true ; do
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
         -H|--n-haps) n_haps=$2 ; shift 2 ;;
         -d|--pad-max-depth) pad_max_depth=$2 ; shift 2 ;;
-        -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
         -R|--block-ratio-min) block_ratio_min=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
@@ -144,7 +142,6 @@ then
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
     echo "    -H, --n-haps N              number of haplotypes, if different than that set with -n [default: n-mappings]"
-    echo "    -I, --block-id-min N        split deep blocks (>= -d) into groups connected by this identity threshold [default: 0.95]"
     echo "    -R, --block-ratio-min N     minimum small / large length ratio to cluster in a block [default: 0.0]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
@@ -218,6 +215,7 @@ fi
 prefix_seqwish="$prefix_paf".$(echo k$min_match_length-B$transclose_batch | sha256sum | head -c 7)
 
 # Normalization
+block_id_min=$(echo "scale=4; $map_pct_id / 100.0" | bc)
 prefix_smoothed="$prefix_seqwish".$(echo h$n_haps-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$pad_max_depth-I$block_id_min-R$block_ratio_min-p$poa_params-O$poa_padding | sha256sum | head -c 7)
 
 
@@ -248,7 +246,7 @@ general:
   resume:             $resume
   pigz-compress:      $pigz_compress
   threads:            $threads
-alignment:
+wfmash:
   mapping-tool:       $mapper
   no-splits:          $no_splits
   segment-length:     $segment_length
@@ -263,6 +261,7 @@ seqwish:
   transclose-batch:   $transclose_batch
 smoothxg:
   n-haps:             $n_haps
+  block_id_min:       $block_id_min
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
   poa-length-target:  $target_poa_length
