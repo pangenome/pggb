@@ -26,7 +26,7 @@ target_poa_length=13117,13219
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params="1,19,39,3,81,1"
 poa_padding=0.03
-do_viz=falsedo_layout
+do_viz=false
 do_layout=false
 threads=1
 poa_threads=0
@@ -69,7 +69,6 @@ while true ; do
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
         -H|--n-haps) n_haps=$2 ; shift 2 ;;
         -d|--pad-max-depth) pad_max_depth=$2 ; shift 2 ;;
-        -R|--block-ratio-min) block_ratio_min=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
         -G|--poa-length-target) target_poa_length=$2 ; shift 2 ;;
@@ -87,7 +86,6 @@ while true ; do
         -Z|--pigz) pigz_compress=true ; shift ;;
         -V|--vcf-spec) vcf_spec=$2 ; shift 2 ;;
         -h|--help) show_help=true ; shift ;;
-        #-d|--debug) debug=true ; shift ;;
         --) shift ; break ;;
         *) echo "$2" "Internal error!" ; exit 1 ;;
     esac
@@ -130,9 +128,9 @@ then
     echo "    -s, --segment-length N      segment length for mapping"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 3*segment-length]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
-    echo "    -p, --map-pct-id PCT        percent identity in the wfmash step"
+    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment"
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
-    echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
+    echo "    -K, --mash-kmer N           kmer size for mapping [default: 16]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
@@ -140,7 +138,6 @@ then
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
     echo "    -H, --n-haps N              number of haplotypes, if different than that set with -n [default: n-mappings]"
-    echo "    -R, --block-ratio-min N     minimum small / large length ratio to cluster in a block [default: 0.0]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
     echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 13117,13219]"

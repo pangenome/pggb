@@ -10,7 +10,8 @@ Maintaining local linearity is important for the interpretation, visualization, 
 
 It's core implementation uses three phases:
 
-1. _[wfmash](https://github.com/ekg/wfmash)_: (*alignment*) -- `wfmash` uses a modified version of mashmap to obtain approximate mappings, and then applies a [wavefront-guided global alignment algorithm for long sequences](https://github.com/ekg/wflign) to derive an alignment for each mapping.  `wfmash` uses the [wavefront alignment algorithm](https://github.com/smarco/WFA) for base-level alignment. This mapper is used to scaffold the pangenome, using genome segments of a given length with a specified maximum level of sequence divergence.
+1. _[wfmash](https://github.com/ekg/wfmash)_: (*alignment*) -- `wfmash` uses a modified version of mashmap to obtain approximate mappings, and then applies a [wavefront-guided global alignment algorithm for long sequences](https://github.com/ekg/wflign) to derive an alignment for each mapping.
+`wfmash` uses the [wavefront alignment algorithm](https://github.com/smarco/WFA) for base-level alignment. This mapper is used to scaffold the pangenome, using genome segments of a given length with a specified maximum level of sequence divergence.
 All segments in the input are mapped to all others.
 This step yields alignments represented in the [PAF](https://github.com/lh3/miniasm/blob/master/PAF.md) output format, with cigars describing their base-exact alignment.
 
@@ -37,7 +38,7 @@ First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Do
 Put your sequences in one FASTA file and index it with `samtools faidx`.
 If you have many genomes, we suggest using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
 
-To build a graph from `input.fa`, in directory `output`, which contains 9 haplotypes, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing:
+To build a graph from `input.fa`, which contains 9 haplotypes, in the directory `output`, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
 
 ```
 pggb \ 
