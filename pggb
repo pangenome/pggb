@@ -39,6 +39,7 @@ consensus_spec=false
 consensus_prefix=Consensus_
 no_splits=false
 multiqc=false
+keep_intermediate_files=false
 pigz_compress=false
 normalize=true
 vcf_spec=false
@@ -50,7 +51,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:H:j:P:O:Fe:t:T:vLhMSY:G:C:Q:Ud:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,normalize,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:H:j:P:O:Fe:t:T:vhASY:G:C:Q:Ud:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,normalize,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -83,6 +84,7 @@ while true ; do
         -S|--do-stats) do_stats=true ; shift ;;
         -m|--multiqc) multiqc=true ; shift ;;
         -r|--resume) resume=true ; shift ;;
+        -A|--keep-temp-files) keep_intermediate_files=true ; shift ;;
         -Z|--pigz) pigz_compress=true ; shift ;;
         -V|--vcf-spec) vcf_spec=$2 ; shift 2 ;;
         -h|--help) show_help=true ; shift ;;
@@ -173,6 +175,7 @@ then
     echo "                                [default: start pipeline from scratch in a new directory]"
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
     echo "    -T, --poa-threads N         number of compute threads to use during POA (set lower if you OOM during smoothing)"
+    echo "    -A, --keep-temp-files       keep intermediate graphs"
     echo "    -Z, --pigz-compress         compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz"
     echo "    -h, --help                  this text"
     echo
@@ -326,6 +329,11 @@ fi
 # how many times will we smooth?
 smooth_iterations=$(echo $target_poa_length | tr ',' '\n' | wc -l)
 
+keep_temp=""
+if [[ $keep_intermediate_files == true ]]; then
+    keep_temp="-K"
+fi
+
 for i in $(seq 1 $smooth_iterations);
 do
     input_gfa="$prefix_seqwish".seqwish.gfa
@@ -340,7 +348,7 @@ do
                    -T $poa_threads \
                    -g "$input_gfa" \
                    -w $(echo "$poa_length * $n_haps" | bc) \
-                   -K \
+                   $keep_temp \
                    -X 100 \
                    -I $block_id_min \
                    -R $block_ratio_min \
@@ -363,7 +371,7 @@ do
                    -T $poa_threads \
                    -g "$input_gfa" \
                    -w $(echo "$poa_length * $n_haps" | bc) \
-                   -K \
+                   $keep_temp \
                    -X 100 \
                    -I $block_id_min \
                    -R $block_ratio_min \
@@ -383,7 +391,7 @@ do
     fi
 done
 
-if [[ $normalize ]];
+if [[ $normalize == true ]];
 then
     prefix_final_graph="$prefix_smoothed".smooth.fix
 
@@ -525,6 +533,16 @@ then
         ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
                  -H $delim -e -a -t $threads "$prefix_final_graph".gfa >"$vcf" ) 2> >(tee -a "$log_file")
     done
+fi
+
+if [[ $keep_intermediate_files != true ]];
+then
+  rm -f "$prefix_seqwish".seqwish.{gfa,og}
+
+  if [[ $normalize == true ]] && [[ $write_maf == false ]];
+  then
+    rm -f "$prefix_smoothed".smooth.{gfa,og}
+  fi
 fi
 
 if [[ $pigz_compress == true ]];
