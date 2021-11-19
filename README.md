@@ -1,6 +1,7 @@
 # pggb
 
 ![Publish container to github container registry](https://github.com/pangenome/pggb/workflows/Publish%20container%20to%20github%20container%20registry/badge.svg)
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/pggb)
 
 ## the pangenome graph builder
 
@@ -162,6 +163,15 @@ When `abpoa` digests very complex and deep blocks, it might consume a huge amoun
 You'll need `wfmash`, `seqwish`, `smoothxg`, `odgi`, `gfaffix`, and `vg` in your shell's `PATH`.
 These can be individually built and installed.
 Then, put the `pggb` bash script in your path to complete installation.
+
+### Bioconda
+
+`pggb` recipes for Bioconda are available at https://anaconda.org/bioconda/pggb.
+To install the latest version using `Conda` execute:
+
+``` bash
+conda install -c bioconda pggb
+```
 
 ### guix
 
