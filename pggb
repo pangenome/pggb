@@ -11,20 +11,20 @@ n_mappings=false
 segment_length=false
 block_length=false
 mash_kmer=16
-min_match_length=29
+min_match_length=47
 transclose_batch=10000000
 n_haps=false
 block_ratio_min=0
 pad_max_depth=100
 max_path_jump=0
 max_edge_jump=0
-target_poa_length=13117,13219
+target_poa_length=4001,4507
 # poa param suggestions from minimap2
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
 # - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
 # between asm10 and asm20 ~ 1,7,11,2,33,1
-poa_params="1,19,39,3,81,1"
+poa_params="1,9,16,2,41,1"
 poa_padding=0.03
 do_viz=false
 do_layout=false
