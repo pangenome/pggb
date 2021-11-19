@@ -10,6 +10,6 @@ jobs:
       - name: Build the Docker image
         run: docker build . --file Dockerfile --target binary --tag pggb
       - name: Run a test on the DRB1-3123 dataset (wfmash)
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o drib1 -m -C cons,10,100,1000,10000"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 2 -v -V 'gi|568815561:#' -o drib1 -M -m -C cons,10,100,1000,10000"
       - name: Run a test on the LPA dataset (wfmash)
         run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/LPA/LPA.fa.gz -p 95 -s 50000 -l 10000 -G 5000,5500 -n 90 -k 79 -t 2 -v -Z -C 10,100,1000,10000 -O 0.001 -m"
