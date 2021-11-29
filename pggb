@@ -473,6 +473,20 @@ then
                      2> >(tee -a "$log_file")
 fi
 
+if [[ $vcf_spec != false ]];
+then
+    for s in $( echo "$vcf_spec" | tr ',' ' ' );
+    do
+        ref=$(echo "$s" | cut -f 1 -d: )
+        delim=$(echo "$s" | cut -f 2 -d: )
+        echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
+        vcf="$prefix_final_graph".$(echo $ref | tr '/|' '_').vcf
+        ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
+                 -H $delim -e -a -t $threads "$prefix_final_graph".gfa >"$vcf" ) 2> >(tee -a "$log_file")
+        bcftools stats "$vcf" > "$vcf".stats
+    done
+fi
+
 multiqc_out_dir=$(dirname "$input_fasta")
 
 multiqc_config="# Report section config for nice titles and descriptions
@@ -521,7 +535,9 @@ custom_content:
     - odgi_viz_pos
     - odgi_viz_inv
     - odgi_viz_depth
-    - odgi_draw"
+    - odgi_draw
+fn_clean_exts:
+  - \".gfa\""
 
 if [[ $multiqc == true ]];
 then
@@ -540,19 +556,6 @@ then
         -c "$output_dir"/multiqc_config.yaml \
         2> >(tee -a "$log_file")
     fi
-fi
-
-if [[ $vcf_spec != false ]];
-then
-    for s in $( echo "$vcf_spec" | tr ',' ' ' );
-    do
-        ref=$(echo "$s" | cut -f 1 -d: )
-        delim=$(echo "$s" | cut -f 2 -d: )
-        echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
-        vcf="$prefix_final_graph".$(echo $ref | tr '/|' '_').vcf
-        ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
-                 -H $delim -e -a -t $threads "$prefix_final_graph".gfa >"$vcf" ) 2> >(tee -a "$log_file")
-    done
 fi
 
 if [[ $keep_intermediate_files != true ]];
