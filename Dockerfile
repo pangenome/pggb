@@ -76,7 +76,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && git checkout ec4f1a2 \
     && cargo install --force --path . && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix
 
-RUN apt-get update && apt-get install -y pip && pip install multiqc && apt-get install bcftools
+RUN apt-get update && apt-get install -y pip && pip install multiqc && apt-get install -y bcftools
 
 RUN apt-get install wget && wget http://hypervolu.me/~erik/vg/vg-e5be425.gz && zcat vg-e5be425.gz >vg && chmod +x vg && cp vg /usr/local/bin/vg
 
