@@ -428,19 +428,19 @@ if [[ $do_viz == true ]];
 then
     # big problem: this assumes that there is no "Consensus_" in the input sequences
     $timer -f "$fmt" odgi viz -i "$prefix_final_graph".og \
-                    -o "$prefix_final_graph".og.viz_mqc.png \
+                    -o "$prefix_final_graph".og.viz_multiqc.png \
                     -x 1500 -y 500 -a 10 -I $consensus_prefix \
                     2> >(tee -a "$log_file")
     $timer -f "$fmt" odgi viz -i "$prefix_final_graph".og \
-                    -o "$prefix_final_graph".og.viz_slide.png \
+                    -o "$prefix_final_graph".og.viz_pos_multiqc.png \
                     -x 1500 -y 500 -a 10 -u -d -I $consensus_prefix \
                     2> >(tee -a "$log_file")
     $timer -f "$fmt" odgi viz -i "$prefix_final_graph".og \
-                    -o "$prefix_final_graph".og.viz_depth.png \
+                    -o "$prefix_final_graph".og.viz_depth_multiqc.png \
                     -x 1500 -y 500 -a 10 -m -I $consensus_prefix \
                     2> >(tee -a "$log_file")
     $timer -f "$fmt" odgi viz -i "$prefix_final_graph".og \
-                    -o "$prefix_final_graph".og.viz_inv.png \
+                    -o "$prefix_final_graph".og.viz_inv_multiqc.png \
                     -x 1500 -y 500 -a 10 -z -I $consensus_prefix \
                     2> >(tee -a "$log_file")
 fi
@@ -467,7 +467,7 @@ then
     # this attempts to add paths
     $timer -f "$fmt" odgi draw -i "$prefix_final_graph".og \
                      -c "$prefix_final_graph".og.lay \
-                     -p "$prefix_final_graph".og.lay.draw_mqc.png \
+                     -p "$prefix_final_graph".og.lay.draw_multiqc.png \
                      -C -w 20 \
                      -H 1000 \
                      2> >(tee -a "$log_file")
@@ -477,30 +477,50 @@ multiqc_out_dir=$(dirname "$input_fasta")
 
 multiqc_config="# Report section config for nice titles and descriptions
 custom_data:
-  odgi_draw:
-    section_name: ODGI 2D graph visualization
-    description: The rendering shows a 2D layout of the graph.
   odgi_viz:
-    section_name: ODGI 1D graph visualization
-    description: The rendering shows a 1D layout of the graph.
+    section_name: ODGI 1D visualization
+    description: This image shows a 1D rendering of the built pangenome graph. The graph nodes are arranged from left to right, forming the pangenome sequence. The colored bars represent the paths versus the pangenome sequence in a binary matrix. The path names are placed on the left. The black lines under the paths are the links, which represent the graph topology.
+  odgi_viz_pos:
+    section_name: ODGI 1D visualization by path position
+    description: This shows a 1D rendering of the built pangenome graph where the paths are colored according to their nucleotide position. Light grey means a low path position, black is the highest path position.
+  odgi_viz_inv:
+    section_name: ODGI 1D visualization by path orientation
+    description: This image shows a 1D rendering of the built pangenome graph where the paths are colored by orientation. Forward is black, reverse is red.
+  odgi_viz_depth:
+    section_name: ODGI 1D visualization by node depth
+    description: This shows a 1D rendering of the built pangenome graph where the paths are colored according to path depth. Using the Spectra color palette with 4 levels of path depths, white indicates no depth, while grey, red, and yellow indicate depth 1, 2, and greater than or equal to 3, respectively.
+  odgi_draw:
+    section_name: ODGI 2D drawing
+    description: This image shows a 2D rendering of the built pangenome graph.    
 
 # Custom search patterns to find the image outputs
 sp:
   odgi_draw:
-    fn: \"*og.lay.draw_mqc.png\"
+    fn: \"*draw_multiqc.png\"
   odgi_viz:
-    fn: \"*og.viz_mqc.png\"
+    fn: \"*viz_multiqc.png\"
+  odgi_viz_pos:
+    fn: \"*viz_pos_multiqc.png\"
+  odgi_viz_inv:
+    fn: \"*viz_inv_multiqc.png\"
+  odgi_viz_depth:
+    fn: \"*viz_depth_multiqc.png\"
+  testing_name:
+    fn: \"*draw.png\"    
 ignore_images: false
 
 # Make the custom content stuff come after the ODGI module output
 module_order:
-  - custom_content
   - odgi
+  - custom_content
 
 # Set the order that the custom content plots should come in
 custom_content:
   order:
     - odgi_viz
+    - odgi_viz_pos
+    - odgi_viz_inv
+    - odgi_viz_depth
     - odgi_draw"
 
 if [[ $multiqc == true ]];
