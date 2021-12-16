@@ -23,6 +23,7 @@ RUN apt-get update \
                        zlib1g-dev \
                        libzstd-dev \
                        libjemalloc-dev \
+                       libhts-dev \
                        build-essential \
                        time \
                        curl \
