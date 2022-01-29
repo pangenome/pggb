@@ -23,6 +23,7 @@ RUN apt-get update \
                        zlib1g-dev \
                        libzstd-dev \
                        libjemalloc-dev \
+                       libhts-dev \
                        build-essential \
                        time \
                        curl \
@@ -31,7 +32,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout fedf0a0d69ec8cd8511fc22dda6598630d23437c \
+    && git checkout 948f1683d14927745aef781cdabeb66ac6c7880b \
     && git submodule update --init --recursive \
     && sed -i 's/-mcx16 //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' CMakeLists.txt \
@@ -48,7 +49,7 @@ RUN git clone --recursive https://github.com/ekg/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout 2ab95d76094a7386c158a337d38238bbc3de2cef \
+    && git checkout 51ee55079ccb89402fdb50999268f3382678b083 \
     && git submodule update --init --recursive \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
@@ -57,7 +58,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 8dab5215c7eafa06020360758fd86833377a345c \
+    && git checkout 0f383e5033c6af18d95f5d8dca0a6e17e5dbf524 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && sed -i 's/-mcx16 //g' deps/WFA/CMakeLists.txt \
@@ -73,10 +74,10 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout ec4f1a2 \
+    && git checkout a22e828 \
     && cargo install --force --path . && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix
 
-RUN apt-get update && apt-get install -y pip && pip install multiqc
+RUN apt-get update && apt-get install -y pip && pip install multiqc && apt-get install -y bcftools
 
 RUN apt-get install wget && wget http://hypervolu.me/~erik/vg/vg-e5be425.gz && zcat vg-e5be425.gz >vg && chmod +x vg && cp vg /usr/local/bin/vg
 

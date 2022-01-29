@@ -11,15 +11,14 @@ n_mappings=false
 segment_length=false
 block_length=false
 mash_kmer=16
-min_match_length=29
+min_match_length=47
 transclose_batch=10000000
 n_haps=false
-block_id_min=0.95
 block_ratio_min=0
 pad_max_depth=100
 max_path_jump=0
 max_edge_jump=0
-target_poa_length=13117,13219
+target_poa_length=4001,4507
 # poa param suggestions from minimap2
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
 # - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
@@ -40,8 +39,9 @@ consensus_spec=false
 consensus_prefix=Consensus_
 no_splits=false
 multiqc=false
+keep_intermediate_files=false
 pigz_compress=false
-normalize=false
+normalize=true
 vcf_spec=false
 
 if [ $# -eq 0 ];
@@ -51,7 +51,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:H:j:P:O:Fe:t:T:vLhMSY:G:C:Q:Ud:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,normalize,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:H:j:P:O:Me:t:T:vhASY:G:C:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -63,7 +63,6 @@ while true ; do
         -n|--n-mappings) n_mappings=$2 ; shift 2 ;;
         -s|--segment-length) segment_length=$2 ; shift 2 ;;
         -l|--block-length) block_length=$2 ; shift 2 ;;
-        -M|--no-merge-segments) no_merge_segments=true ; shift ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
@@ -71,28 +70,24 @@ while true ; do
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
         -H|--n-haps) n_haps=$2 ; shift 2 ;;
         -d|--pad-max-depth) pad_max_depth=$2 ; shift 2 ;;
-        -I|--block-id-min) block_id_min=$2 ; shift 2 ;;
-        -R|--block-ratio-min) block_ratio_min=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
         -G|--poa-length-target) target_poa_length=$2 ; shift 2 ;;
         -P|--poa-params) poa_params=$2 ; shift 2 ;;
         -O|--poa-padding) poa_padding=$2 ; shift 2 ;;
-        -F|--write-maf) write_maf=true ; shift ;;
+        -M|--write-maf) write_maf=true ; shift ;;
         -C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
         -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
-        -U|--normalize) normalize=true ; shift ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -T|--poa-threads) poa_threads=$2 ; shift 2 ;;
-        -v|--do-viz) do_viz=true ; shift ;;
-        -L|--do-layout) do_layout=true ; shift ;;
+        -v|--do-visualization) do_viz=true ; do_layout=true; shift ;;
         -S|--do-stats) do_stats=true ; shift ;;
         -m|--multiqc) multiqc=true ; shift ;;
         -r|--resume) resume=true ; shift ;;
+        -A|--keep-temp-files) keep_intermediate_files=true ; shift ;;
         -Z|--pigz) pigz_compress=true ; shift ;;
         -V|--vcf-spec) vcf_spec=$2 ; shift 2 ;;
         -h|--help) show_help=true ; shift ;;
-        #-d|--debug) debug=true ; shift ;;
         --) shift ; break ;;
         *) echo "$2" "Internal error!" ; exit 1 ;;
     esac
@@ -135,27 +130,24 @@ then
     echo "    -s, --segment-length N      segment length for mapping"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 3*segment-length]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
-    echo "    -M, --no-merge-segments     do not merge successive mappings"
-    echo "    -p, --map-pct-id PCT        percent identity in the wfmash step"
+    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment"
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
-    echo "    -K, --mash-kmer N           kmer size for mashmap [default: 16]"
+    echo "    -K, --mash-kmer N           kmer size for mapping [default: 16]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
-    echo "    -k, --min-match-len N       filter exact matches below this length [default: 29]"
+    echo "    -k, --min-match-len N       filter exact matches below this length [default: 47]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
     echo "    -H, --n-haps N              number of haplotypes, if different than that set with -n [default: n-mappings]"
-    echo "    -I, --block-id-min N        split deep blocks (>= -d) into groups connected by this identity threshold [default: 0.95]"
-    echo "    -R, --block-ratio-min N     minimum small / large length ratio to cluster in a block [default: 0.0]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
-    echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 13117,13219]"
+    echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 4001,4507]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
     echo "                                [default: 1,19,39,3,81,1]"
     echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.03]"
     echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: 100]"
-    echo "    -F, --write-maf             write MAF output representing merged POA blocks [default: off]"
+    echo "    -M, --write-maf             write MAF output representing merged POA blocks [default: off]"
     echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
     echo "    -C, --consensus-spec SPEC   consensus graph specification: write consensus graphs to"
     echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a min_len parameter"
@@ -167,11 +159,8 @@ then
     echo "                                cons,100,1000:refs1.txt:n,1000:refs2.txt:y:2.3:1000000,10000"
     echo "                                [default: off]"
     echo "   [odgi]"
-    echo "    -v, --viz                   render a visualization of the graph in 1D [default: off]"
-    echo "    -L, --layout                render a 2D layout of the graph [default: off]"
+    echo "    -v, --viz                   render visualizations of the graph in 1D and 2D [default: off]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
-    echo "   [gfaffix]"
-    echo "    -U, --normalize             normalize and re-sort the output graph [default: off]"
     echo "   [vg]"
     echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[,REF:DELIM]*"
     echo "                                the paths matching ^REF are used as a reference, while the sample haplotypes"
@@ -186,6 +175,7 @@ then
     echo "                                [default: start pipeline from scratch in a new directory]"
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
     echo "    -T, --poa-threads N         number of compute threads to use during POA (set lower if you OOM during smoothing)"
+    echo "    -A, --keep-temp-files       keep intermediate graphs"
     echo "    -Z, --pigz-compress         compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz"
     echo "    -h, --help                  this text"
     echo
@@ -223,6 +213,7 @@ fi
 prefix_seqwish="$prefix_paf".$(echo k$min_match_length-B$transclose_batch | sha256sum | head -c 7)
 
 # Normalization
+block_id_min=$(echo "scale=4; $map_pct_id / 100.0" | bc)
 prefix_smoothed="$prefix_seqwish".$(echo h$n_haps-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$pad_max_depth-I$block_id_min-R$block_ratio_min-p$poa_params-O$poa_padding | sha256sum | head -c 7)
 
 
@@ -253,7 +244,7 @@ general:
   resume:             $resume
   pigz-compress:      $pigz_compress
   threads:            $threads
-alignment:
+wfmash:
   mapping-tool:       $mapper
   no-splits:          $no_splits
   segment-length:     $segment_length
@@ -268,6 +259,7 @@ seqwish:
   transclose-batch:   $transclose_batch
 smoothxg:
   n-haps:             $n_haps
+  block_id_min:       $block_id_min
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
   poa-length-target:  $target_poa_length
@@ -337,6 +329,11 @@ fi
 # how many times will we smooth?
 smooth_iterations=$(echo $target_poa_length | tr ',' '\n' | wc -l)
 
+keep_temp=""
+if [[ $keep_intermediate_files == true ]]; then
+    keep_temp="-K"
+fi
+
 for i in $(seq 1 $smooth_iterations);
 do
     input_gfa="$prefix_seqwish".seqwish.gfa
@@ -351,7 +348,7 @@ do
                    -T $poa_threads \
                    -g "$input_gfa" \
                    -w $(echo "$poa_length * $n_haps" | bc) \
-                   -K \
+                   $keep_temp \
                    -X 100 \
                    -I $block_id_min \
                    -R $block_ratio_min \
@@ -374,7 +371,7 @@ do
                    -T $poa_threads \
                    -g "$input_gfa" \
                    -w $(echo "$poa_length * $n_haps" | bc) \
-                   -K \
+                   $keep_temp \
                    -X 100 \
                    -I $block_id_min \
                    -R $block_ratio_min \
@@ -394,15 +391,20 @@ do
     fi
 done
 
-if [[ $normalize ]];
+if [[ $normalize == true ]];
 then
-    gfaffix "$prefix_smoothed".smooth.gfa -o "$prefix_smoothed".smooth.fix.gfa | gzip >"$prefix_smoothed".smooth.fix.affixes.tsv.gz
-    ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.fix.gfa -o - -O \
-        | $timer -f "$fmt" odgi sort -P -p Ygs -t $threads -i - -o "$prefix_smoothed".smooth.og ) 2> >(tee -a "$log_file")
-    ( $timer -f "$fmt" odgi view -i "$prefix_smoothed".smooth.og -g >"$prefix_smoothed".smooth.gfa ) 2> >(tee -a "$log_file")
-fi
+    prefix_final_graph="$prefix_smoothed".smooth.fix
 
-$timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".smooth.gfa -o "$prefix_smoothed".smooth.og 2> >(tee -a "$log_file")
+    # Remove redundancy and sort
+    gfaffix "$prefix_smoothed".smooth.gfa -o "$prefix_final_graph".gfa | pigz >"$prefix_final_graph".affixes.tsv.gz
+    ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_final_graph".gfa -o - -O \
+        | $timer -f "$fmt" odgi sort -P -p Ygs -t $threads -i - -o "$prefix_final_graph".og ) 2> >(tee -a "$log_file")
+    ( $timer -f "$fmt" odgi view -i "$prefix_final_graph".og -g >"$prefix_final_graph".gfa ) 2> >(tee -a "$log_file")
+else
+    prefix_final_graph="$prefix_smoothed".smooth
+
+    $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_final_graph".gfa -o "$prefix_final_graph".og 2> >(tee -a "$log_file")
+fi
 
 if [[ $multiqc == true ]];
 then
@@ -413,7 +415,7 @@ if [[ $do_stats == true ]];
 then
     $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_seqwish".seqwish.gfa -o "$prefix_seqwish".seqwish.og 2> >(tee -a "$log_file")
     odgi stats -i "$prefix_seqwish".seqwish.og -m > "$prefix_seqwish".seqwish.og.stats.yaml 2>&1 | tee -a "$log_file"
-    odgi stats -i "$prefix_smoothed".smooth.og -m  > "$prefix_smoothed".smooth.og.stats.yaml 2>&1 | tee -a "$log_file"
+    odgi stats -i "$prefix_final_graph".og -m  > "$prefix_final_graph".og.stats.yaml 2>&1 | tee -a "$log_file"
     if [[ $consensus_spec != false ]]; then
         for consensus_graph in "$prefix_smoothed"*.cons*.gfa; do
             odgi build -t $threads -P -g "$consensus_graph" -o "$consensus_graph".og 2> >(tee -a "$log_file")
@@ -425,20 +427,20 @@ fi
 if [[ $do_viz == true ]];
 then
     # big problem: this assumes that there is no "Consensus_" in the input sequences
-    $timer -f "$fmt" odgi viz -i "$prefix_smoothed".smooth.og \
-                    -o "$prefix_smoothed".smooth.og.viz_mqc.png \
+    $timer -f "$fmt" odgi viz -i "$prefix_final_graph".og \
+                    -o "$prefix_final_graph".og.viz_multiqc.png \
                     -x 1500 -y 500 -a 10 -I $consensus_prefix \
                     2> >(tee -a "$log_file")
-    $timer -f "$fmt" odgi viz -i "$prefix_smoothed".smooth.og \
-                    -o "$prefix_smoothed".smooth.og.viz_slide.png \
+    $timer -f "$fmt" odgi viz -i "$prefix_final_graph".og \
+                    -o "$prefix_final_graph".og.viz_pos_multiqc.png \
                     -x 1500 -y 500 -a 10 -u -d -I $consensus_prefix \
                     2> >(tee -a "$log_file")
-    $timer -f "$fmt" odgi viz -i "$prefix_smoothed".smooth.og \
-                    -o "$prefix_smoothed".smooth.og.viz_depth.png \
+    $timer -f "$fmt" odgi viz -i "$prefix_final_graph".og \
+                    -o "$prefix_final_graph".og.viz_depth_multiqc.png \
                     -x 1500 -y 500 -a 10 -m -I $consensus_prefix \
                     2> >(tee -a "$log_file")
-    $timer -f "$fmt" odgi viz -i "$prefix_smoothed".smooth.og \
-                    -o "$prefix_smoothed".smooth.og.viz_inv.png \
+    $timer -f "$fmt" odgi viz -i "$prefix_final_graph".og \
+                    -o "$prefix_final_graph".og.viz_inv_multiqc.png \
                     -x 1500 -y 500 -a 10 -z -I $consensus_prefix \
                     2> >(tee -a "$log_file")
 fi
@@ -446,60 +448,96 @@ fi
 if [[ $do_layout == true ]];
 then
     # the 2D layout is "smoother" when we chop the nodes of the graph to a fixed maximum length
-    #$timer -f "$fmt" odgi chop -i "$prefix_smoothed".smooth.og -c 100 -o "$prefix_smoothed".smooth.chop.og \
+    #$timer -f "$fmt" odgi chop -i "$prefix_final_graph".og -c 100 -o ""$prefix_final_graph".chop.og \
     #    2> >(tee -a "$log_file")
 
     # adding `-N g` to this call can help when rendering large, complex graphs that aren't globally linear
-    $timer -f "$fmt" odgi layout -i "$prefix_smoothed".smooth.og \
-                       -o "$prefix_smoothed".smooth.og.lay \
+    $timer -f "$fmt" odgi layout -i "$prefix_final_graph".og \
+                       -o "$prefix_final_graph".og.lay \
                        -t $threads -P \
                        2> >(tee -a "$log_file")
 
     # this can be configured to draw the graph in different ways, based on the same layout
     # here we draw in default mode
-    $timer -f "$fmt" odgi draw -i "$prefix_smoothed".smooth.og \
-                     -c "$prefix_smoothed".smooth.og.lay \
-                     -p "$prefix_smoothed".smooth.og.lay.draw.png \
+    $timer -f "$fmt" odgi draw -i "$prefix_final_graph".og \
+                     -c "$prefix_final_graph".og.lay \
+                     -p "$prefix_final_graph".og.lay.draw.png \
                      -H 1000 \
                      2> >(tee -a "$log_file")
     # this attempts to add paths
-    $timer -f "$fmt" odgi draw -i "$prefix_smoothed".smooth.og \
-                     -c "$prefix_smoothed".smooth.og.lay \
-                     -p "$prefix_smoothed".smooth.og.lay.draw_mqc.png \
+    $timer -f "$fmt" odgi draw -i "$prefix_final_graph".og \
+                     -c "$prefix_final_graph".og.lay \
+                     -p "$prefix_final_graph".og.lay.draw_multiqc.png \
                      -C -w 20 \
                      -H 1000 \
                      2> >(tee -a "$log_file")
+fi
+
+if [[ $vcf_spec != false ]];
+then
+    for s in $( echo "$vcf_spec" | tr ',' ' ' );
+    do
+        ref=$(echo "$s" | cut -f 1 -d: )
+        delim=$(echo "$s" | cut -f 2 -d: )
+        echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
+        vcf="$prefix_final_graph".$(echo $ref | tr '/|' '_').vcf
+        ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
+                 -H $delim -e -a -t $threads "$prefix_final_graph".gfa >"$vcf" ) 2> >(tee -a "$log_file")
+        bcftools stats "$vcf" > "$vcf".stats
+    done
 fi
 
 multiqc_out_dir=$(dirname "$input_fasta")
 
 multiqc_config="# Report section config for nice titles and descriptions
 custom_data:
-  odgi_draw:
-    section_name: ODGI 2D graph visualization
-    description: The rendering shows a 2D layout of the graph.
   odgi_viz:
-    section_name: ODGI 1D graph visualization
-    description: The rendering shows a 1D layout of the graph.
+    section_name: ODGI 1D visualization
+    description: This image shows a 1D rendering of the built pangenome graph. The graph nodes are arranged from left to right, forming the pangenome sequence. The colored bars represent the paths versus the pangenome sequence in a binary matrix. The path names are placed on the left. The black lines under the paths are the links, which represent the graph topology.
+  odgi_viz_pos:
+    section_name: ODGI 1D visualization by path position
+    description: This shows a 1D rendering of the built pangenome graph where the paths are colored according to their nucleotide position. Light grey means a low path position, black is the highest path position.
+  odgi_viz_inv:
+    section_name: ODGI 1D visualization by path orientation
+    description: This image shows a 1D rendering of the built pangenome graph where the paths are colored by orientation. Forward is black, reverse is red.
+  odgi_viz_depth:
+    section_name: ODGI 1D visualization by node depth
+    description: This shows a 1D rendering of the built pangenome graph where the paths are colored according to path depth. Using the Spectra color palette with 4 levels of path depths, white indicates no depth, while grey, red, and yellow indicate depth 1, 2, and greater than or equal to 3, respectively.
+  odgi_draw:
+    section_name: ODGI 2D drawing
+    description: This image shows a 2D rendering of the built pangenome graph.    
 
 # Custom search patterns to find the image outputs
 sp:
   odgi_draw:
-    fn: \"*og.lay.draw_mqc.png\"
+    fn: \"*draw_multiqc.png\"
   odgi_viz:
-    fn: \"*og.viz_mqc.png\"
+    fn: \"*viz_multiqc.png\"
+  odgi_viz_pos:
+    fn: \"*viz_pos_multiqc.png\"
+  odgi_viz_inv:
+    fn: \"*viz_inv_multiqc.png\"
+  odgi_viz_depth:
+    fn: \"*viz_depth_multiqc.png\"
+  testing_name:
+    fn: \"*draw.png\"    
 ignore_images: false
 
 # Make the custom content stuff come after the ODGI module output
 module_order:
-  - custom_content
   - odgi
+  - custom_content
 
 # Set the order that the custom content plots should come in
 custom_content:
   order:
     - odgi_viz
-    - odgi_draw"
+    - odgi_viz_pos
+    - odgi_viz_inv
+    - odgi_viz_depth
+    - odgi_draw
+fn_clean_exts:
+  - \".gfa\""
 
 if [[ $multiqc == true ]];
 then
@@ -520,17 +558,14 @@ then
     fi
 fi
 
-if [[ $vcf_spec != false ]];
+if [[ $keep_intermediate_files != true ]];
 then
-    for s in $( echo "$vcf_spec" | tr ',' ' ' );
-    do
-        ref=$(echo "$s" | cut -f 1 -d: )
-        delim=$(echo "$s" | cut -f 2 -d: )
-        echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
-        vcf="$prefix_smoothed".smooth.$(echo $ref | tr '/|' '_').vcf
-        ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
-                 -H $delim -e -a -t $threads "$prefix_smoothed".smooth.gfa >"$vcf" ) 2> >(tee -a "$log_file")
-    done
+  rm -f "$prefix_seqwish".seqwish.{gfa,og}
+
+  if [[ $normalize == true ]] && [[ $write_maf == false ]];
+  then
+    rm -f "$prefix_smoothed".smooth.{gfa,og}
+  fi
 fi
 
 if [[ $pigz_compress == true ]];

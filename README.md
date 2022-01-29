@@ -11,7 +11,8 @@ Maintaining local linearity is important for the interpretation, visualization, 
 
 It's core implementation uses three phases:
 
-1. _[wfmash](https://github.com/ekg/wfmash)_: (*alignment*) -- `wfmash` uses a modified version of mashmap to obtain approximate mappings, and then applies a [wavefront-guided global alignment algorithm for long sequences](https://github.com/ekg/wflign) to derive an alignment for each mapping.  `wfmash` uses the [wavefront alignment algorithm](https://github.com/smarco/WFA) for base-level alignment. This mapper is used to scaffold the pangenome, using genome segments of a given length with a specified maximum level of sequence divergence.
+1. _[wfmash](https://github.com/ekg/wfmash)_: (*alignment*) -- `wfmash` uses a modified version of mashmap to obtain approximate mappings, and then applies a [wavefront-guided global alignment algorithm for long sequences](https://github.com/ekg/wflign) to derive an alignment for each mapping.
+`wfmash` uses the [wavefront alignment algorithm](https://github.com/smarco/WFA) for base-level alignment. This mapper is used to scaffold the pangenome, using genome segments of a given length with a specified maximum level of sequence divergence.
 All segments in the input are mapped to all others.
 This step yields alignments represented in the [PAF](https://github.com/lh3/miniasm/blob/master/PAF.md) output format, with cigars describing their base-exact alignment.
 
@@ -26,9 +27,10 @@ This normalizes their mutual alignment and removes artifacts resulting from tran
 It ensures that the graph always has local partial order, which is essential for many applications and matches our prior expectations about small-scale variation in genomes.
 This step yields a rebuilt graph, a consensus subgraph, and a whole genome alignment in [MAF](http://www.bx.psu.edu/~dcking/man/maf.xhtml) format.
 
-Optional post-processing steps provide 1D and 2D diagnostic visualizations of the graph, basic graph metrics. The pipeline supports identification and collapse of redundant structure with [GFAffix](https://github.com/marschall-lab/GFAffix). Variant calling is also possible with `vg deconstruct` to obtain a VCF file relative to any set of reference sequences used in the construction. It utilizes a [path jaccard](https://github.com/vgteam/vg/pull/3416) concept to correctly localize variants in segmental duplications and variable number tandem repeats. In the HPRC data, this greatly improved variant calling performance.
+Moreover, the pipeline supports identification and collapse of redundant structure with [GFAffix](https://github.com/marschall-lab/GFAffix).
+Optional post-processing steps provide 1D and 2D diagnostic visualizations of the graph, basic graph metrics. Variant calling is also possible with `vg deconstruct` to obtain a VCF file relative to any set of reference sequences used in the construction. It utilizes a [path jaccard](https://github.com/vgteam/vg/pull/3416) concept to correctly localize variants in segmental duplications and variable number tandem repeats. In the HPRC data, this greatly improved variant calling performance.
 
-The output graph (`*.smooth.gfa`) is suitable for read mapping in [vg](https://github.com/vgteam/vg) or with [GraphAligner](https://github.com/maickrau/GraphAligner). For more downstream processing steps see [downstream](##downstream).
+The output graph (`*.smooth.gfa`) is suitable for read mapping in [vg](https://github.com/vgteam/vg) or with [GraphAligner](https://github.com/maickrau/GraphAligner). For more downstream processing steps see [downstream](#downstream).
 
 ## quick start
 
@@ -37,7 +39,7 @@ First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Do
 Put your sequences in one FASTA file and index it with `samtools faidx`.
 If you have many genomes, we suggest using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
 
-To build a graph from `input.fa`, in directory `output`, which contains 9 haplotypes, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing:
+To build a graph from `input.fa`, which contains 9 haplotypes, in the directory `output`, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
 
 ```
 pggb \ 
@@ -47,12 +49,12 @@ pggb \
     -p 90 \
     -s 5000 \
     -n 9 \
-    -U -v -L
+    -v
 ```
 
 The final process output will be called `outdir/input.fa*smooth.gfa`.
 By default, several intermediate files are produced.
-We add `-U -v -L` to remove redundancy from the graph with `gfaffix` (`-U`) and render 1D (`-v`) and 2D (`-L`) visualizations of the graph with `odgi`.
+We add `-v` to render 1D and 2D visualizations of the graph with `odgi`.
 These are generally useful but do require some processing time, so they are not currently done by default.
 
 ## establishing parameters
@@ -114,14 +116,15 @@ Using a test from the `data/HLA` directory in this repo:
 ```sh
 git clone --recursive https://github.com/pangenome/pggb
 cd pggb
-./pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -L -U -V 'gi|568815561:#' -o out -F -C cons,100,1000,10000
+./pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o out -M -C cons,100,1000,10000
 ```
 
 This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, a series of consensus graphs at different levels of variant resolution, and several diagnostic images (all in the directory `out/`).
 By default, the outputs are named according to the input file and the construction parameters.
-Adding `-v` and `-L` render 1D and 2D diagnostic images of the graph.
-(These are not enabled by default because they sometimes require manual configuration. Additionally, 2D layout via `-L` can take a while.)
-`-U` collapses redundant structure in the graph. We also call variants with `-V` with respect to the reference `gi|568815561:#`.
+Adding `-v` render 1D and 2D diagnostic images of the graph.
+(These are not enabled by default because they sometimes require manual configuration. Additionally, the 2D layout can take a while.)
+By default, redundant structures in the graph are collapsed by applying [GFAffix](https://github.com/marschall-lab/GFAffix).
+We also call variants with `-V` with respect to the reference `gi|568815561:#`.
 
 ### 1D graph visualization
 
@@ -203,7 +206,7 @@ cd pggb
 you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -L -U -V 'gi|568815561:#' -o /data/out -F -C cons,100,1000,10000 -m"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -C cons,100,1000,10000 -m"
 ```
 
 The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
@@ -217,7 +220,7 @@ docker build --target binary -t ${USER}/pggb:latest .
 Staying in the `pggb` directory, we can run `pggb` with the locally build image:
 
 ```sh
-docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 20000 -n 10 -t 16 -v -L -U -V 'gi|568815561:#' -o /data/out -F -C cons,100,1000,10000 -m"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -C cons,100,1000,10000 -m"
 ```
 
 #### AVX
@@ -309,7 +312,7 @@ The docker image already contains v1.11 of `MultiQC`.
 
 For the HPRCy1 data we currently run `pggb` with the following parameters on all chromosomes:
 
-`pggb -i chr'$i'.pan.fa -o chr'$i'.pan -t 48 -p 98 -s 100000 -n 90 -k 311 -O 0.03 -T 48 -U -v -L -V chm13:#,grch38:# -Z`
+`pggb -i chr'$i'.pan.fa -o chr'$i'.pan -t 48 -p 98 -s 100000 -n 90 -k 311 -O 0.03 -T 48 -v -V chm13:#,grch38:# -Z`
 
 ### other organisms
 
