@@ -26,8 +26,8 @@ target_poa_length=4001,4507
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params="1,19,39,3,81,1"
 poa_padding=0.03
-do_viz=false
-do_layout=false
+do_viz=true
+do_layout=true
 threads=1
 poa_threads=0
 mapper=wfmash
@@ -51,7 +51,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:H:j:P:O:Me:t:T:vhASY:G:C:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,do-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:p:n:s:l:K:k:B:H:j:P:O:Me:t:T:vhASY:G:C:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -80,7 +80,7 @@ while true ; do
         -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -T|--poa-threads) poa_threads=$2 ; shift 2 ;;
-        -v|--do-visualization) do_viz=true ; do_layout=true; shift ;;
+        -v|--skip-viz) do_viz=false ; do_layout=false; shift ;;
         -S|--do-stats) do_stats=true ; shift ;;
         -m|--multiqc) multiqc=true ; shift ;;
         -r|--resume) resume=true ; shift ;;
@@ -159,7 +159,7 @@ then
     echo "                                cons,100,1000:refs1.txt:n,1000:refs2.txt:y:2.3:1000000,10000"
     echo "                                [default: off]"
     echo "   [odgi]"
-    echo "    -v, --viz                   render visualizations of the graph in 1D and 2D [default: off]"
+    echo "    -v, --skip-viz              don't render visualizations of the graph in 1D and 2D [default: make them]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
     echo "   [vg]"
     echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[,REF:DELIM]*"
