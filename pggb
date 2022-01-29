@@ -454,6 +454,7 @@ then
     # adding `-N g` to this call can help when rendering large, complex graphs that aren't globally linear
     $timer -f "$fmt" odgi layout -i "$prefix_final_graph".og \
                        -o "$prefix_final_graph".og.lay \
+                       -T "$prefix_final_graph".og.lay.tsv \
                        -t $threads -P \
                        2> >(tee -a "$log_file")
 
@@ -577,5 +578,8 @@ then
     fi
     if [[ $vcf_spec != false ]]; then
       pigz -f -q -p $threads "$prefix_seqwish"*.vcf -v
+    fi
+    if [[ $do_layout == true ]]; then
+        pigz -f -q -p $threads "$prefix_final_graph".og.lay.tsv -v
     fi
 fi
