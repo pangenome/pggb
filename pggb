@@ -109,9 +109,11 @@ then
     poa_threads=$threads
 fi
 
+block_length_cmd=""
 if [[ $block_length == false ]];
 then
     block_length=$(echo $segment_length '*' 3 | bc)
+    block_length_cmd="-l $block_length"
 fi
 
 if [[ $n_haps == false ]];
@@ -291,7 +293,7 @@ if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
           ($timer -f "$fmt" wfmash \
               $exclude_cmd \
               -s $segment_length \
-              -l $block_length \
+              $block_length_cmd \
               $merge_cmd \
               $split_cmd \
               -p $map_pct_id \
