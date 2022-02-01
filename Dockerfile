@@ -58,7 +58,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 0f15c4ec6c88879092e0e85483eb6e893d889641 \
+    && git checkout 3cfb7b8205f68607d24a1bf561585716d1a37ba4 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && sed -i 's/-mcx16 //g' deps/WFA/CMakeLists.txt \
