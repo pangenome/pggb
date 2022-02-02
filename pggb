@@ -120,11 +120,11 @@ fi
 poa_params_cmd=""
 if [[ $poa_params == false ]];
 then
-   if (( $map_pct_id >= 99.9 )); then
+   if (( $map_pct_id >= 98 )); then
        poa_params_cmd="-P 1,19,39,3,81,1,"
-   elif (( $map_pct_id >= 99 )); then
-       poa_params_cmd="-P 1,9,16,2,41,1"
    elif (( $map_pct_id >= 95 )); then
+       poa_params_cmd="-P 1,9,16,2,41,1"
+   elif (( $map_pct_id >= 90 )); then
        poa_params_cmd="-P 1,8,14,2,36,1"
    else
        poa_params_cmd="-P 1,7,11,2,33,1"
