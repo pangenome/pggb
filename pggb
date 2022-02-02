@@ -19,12 +19,7 @@ pad_max_depth=100
 max_path_jump=0
 max_edge_jump=0
 target_poa_length=4001,4507
-# poa param suggestions from minimap2
-# - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
-# - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
-# - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
-# between asm10 and asm20 ~ 1,7,11,2,33,1
-poa_params="1,19,39,3,81,1"
+poa_params=false
 poa_padding=0.03
 do_viz=true
 do_layout=true
@@ -110,10 +105,32 @@ then
 fi
 
 block_length_cmd=""
-if [[ $block_length == false ]];
+if [[ $block_length != false ]];
 then
-    block_length=$(echo $segment_length '*' 3 | bc)
     block_length_cmd="-l $block_length"
+fi
+# n.b. by default wfmash auto-sets our block length based on its parameters
+
+# our partial order alignment parameters
+# poa param suggestions from minimap2
+# - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
+# - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
+# - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
+# between asm10 and asm20 ~ 1,7,11,2,33,1
+poa_params_cmd=""
+if [[ $poa_params == false ]];
+then
+   if (( $map_pct_id >= 99.9 )); then
+       poa_params_cmd="-P 1,19,39,3,81,1,"
+   elif (( $map_pct_id >= 99 )); then
+       poa_params_cmd="-P 1,9,16,2,41,1"
+   elif (( $map_pct_id >= 95 )); then
+       poa_params_cmd="-P 1,8,14,2,36,1"
+   else
+       poa_params_cmd="-P 1,7,11,2,33,1"
+   fi
+else
+    poa_params_cmd="-P $poa_params"
 fi
 
 if [[ $n_haps == false ]];
@@ -265,7 +282,7 @@ smoothxg:
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
   poa-length-target:  $target_poa_length
-  poa-params:         $poa_params
+  poa-params:         $poa_params_cmd
   write-maf:          $write_maf
   consensus-prefix:   $consensus_prefix
   consensus-spec:     $consensus_spec
@@ -357,7 +374,7 @@ do
                    -j $max_path_jump \
                    -e $max_edge_jump \
                    -l $poa_length \
-                   -p "$poa_params" \
+                   $poa_params_cmd \
                    -O $poa_padding \
                    -Y $(echo "$pad_max_depth * $n_haps" | bc) \
                    -d 0 -D 0 \
@@ -380,7 +397,7 @@ do
                    -j $max_path_jump \
                    -e $max_edge_jump \
                    -l $poa_length \
-                   -p "$poa_params" \
+                   $poa_params_cmd \
                    -O $poa_padding \
                    -Y $(echo "$pad_max_depth * $n_haps" | bc) \
                    -d 0 -D 0 \
