@@ -10,7 +10,7 @@ map_pct_id=false
 n_mappings=false
 segment_length=false
 block_length=false
-mash_kmer=16
+mash_kmer=false
 min_match_length=47
 transclose_batch=10000000
 n_haps=false
@@ -109,7 +109,14 @@ if [[ $block_length != false ]];
 then
     block_length_cmd="-l $block_length"
 fi
-# n.b. by default wfmash auto-sets our block length based on its parameters
+# wfmash auto-sets our block length based on its parameters
+
+mash_kmer_cmd=""
+if [[ $mash_kmer != false ]];
+then
+    mash_kmer_cmd="-k $mash_kmer"
+fi
+# wfmash auto-sets our kmer length based on its parameters
 
 # our partial order alignment parameters
 # poa param suggestions from minimap2
@@ -313,9 +320,9 @@ if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
               $block_length_cmd \
               $merge_cmd \
               $split_cmd \
+              $mash_kmer_cmd \
               -p $map_pct_id \
               -n $n_mappings \
-              -k $mash_kmer \
               -t $threads \
               "$input_fasta" "$input_fasta" \
               > "$prefix_paf".$mapper.paf) 2> >(tee -a "$log_file")
