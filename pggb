@@ -6,9 +6,9 @@ set -eo pipefail
 input_fasta=false
 output_dir=""
 resume=false
-map_pct_id=false
+map_pct_id=95
 n_mappings=false
-segment_length=false
+segment_length=5000
 block_length=false
 mash_kmer=false
 min_match_length=47
@@ -90,13 +90,11 @@ done
 
 if [[
        "$input_fasta" == false
-    || $map_pct_id == false
     || $n_mappings == false
-    || $segment_length == false
    ]];
 then
     show_help=true
-    >&2 echo "Mandatory arguments -i, -s, -n, -p"
+    >&2 echo "Mandatory arguments -i, -n"
 fi
 
 if [[ $poa_threads == 0 ]];
@@ -150,15 +148,14 @@ fi
 if [ $show_help ];
 then
     padding=`printf %${#0}s` # prints as many spaces as the length of $0
-    echo "usage: $0 -i <input-fasta> -s <segment-length> -n <n-mappings>"
-    echo "       $padding -p <map-pct-id> [options]"
+    echo "usage: $0 -i <input-fasta> -n <n-mappings> [options]"
     echo "options:"
     echo "   [wfmash]"
     echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
-    echo "    -s, --segment-length N      segment length for mapping"
+    echo "    -s, --segment-length N      segment length for mapping [default: 5k]"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 3*segment-length]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
-    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment"
+    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 95]"
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: 16]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
