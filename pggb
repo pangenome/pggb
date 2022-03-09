@@ -127,17 +127,19 @@ fi
 poa_params_cmd=""
 if [[ $poa_params == false ]];
 then
-   if (( $map_pct_id >= 95 )); then
-       poa_params_cmd="-P 1,19,39,3,81,1,"
-   elif (( $map_pct_id >= 90 )); then
-       poa_params_cmd="-P 1,9,16,2,41,1"
-   elif (( $map_pct_id >= 80 )); then
-       poa_params_cmd="-P 1,8,14,2,36,1"
-   else
-       poa_params_cmd="-P 1,7,11,2,33,1"
-   fi
+    poa_params_cmd="-P 1,19,39,3,81,1"
 else
-    poa_params_cmd="-P $poa_params"
+    if [[ $poa_params == "asm5" ]]; then
+        poa_params_cmd="-P 1,19,39,3,81,1"
+    elif [[ $poa_params == "asm10" ]]; then
+        poa_params_cmd="-P 1,9,16,2,41,1"
+    elif [[ $poa_params == "asm15" ]]; then
+        poa_params_cmd="-P 1,7,11,2,33,1"
+    elif [[ $poa_params == "asm20" ]]; then
+        poa_params_cmd="-P 1,4,6,2,26,1"
+    else
+        poa_params_cmd="-P $poa_params"
+    fi
 fi
 
 if [[ $n_haps == false ]];
@@ -170,7 +172,8 @@ then
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
     echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 4001,4507]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
-    echo "                                [default: 1,19,39,3,81,1]"
+    echo "                                may also be given as presets: asm5, asm10, asm15, asm20"
+    echo "                                [default: 1,19,39,3,81,1 = asm5]"
     echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.03]"
     echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: 100]"
     echo "    -M, --write-maf             write MAF output representing merged POA blocks [default: off]"
