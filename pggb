@@ -5,6 +5,7 @@ set -eo pipefail
 
 input_fasta=false
 output_dir=""
+input_paf=false
 resume=false
 map_pct_id=false
 n_mappings=false
@@ -51,7 +52,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:p:n:s:l:K:k:B:H:j:P:O:Me:t:T:vhASY:G:C:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:a:p:n:s:l:K:k:B:H:j:P:O:Me:t:T:vhASY:G:C:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -59,6 +60,7 @@ while true ; do
     case "$1" in
         -i|--input-fasta) input_fasta=$2 ; shift 2 ;;
         -o|--output-dir) output_dir=$2 ; shift 2 ;;
+        -a|--input-paf) input_paf=$2 ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
         -n|--n-mappings) n_mappings=$2 ; shift 2 ;;
         -s|--segment-length) segment_length=$2 ; shift 2 ;;
@@ -92,6 +94,16 @@ while true ; do
         *) echo "$2" "Internal error!" ; exit 1 ;;
     esac
 done
+
+# if a PAF is given as input, we set the segment_length by to an arbitrary number, since we will skip the wfmash alignment process
+if [[ $input_paf != false ]];
+then
+    if [[ $segment_length == false ]];
+    then
+        segment_length=42
+    fi
+    mapper=EXTERNAL
+fi
 
 if [[
        "$input_fasta" == false
@@ -171,6 +183,7 @@ then
     echo "                                automatically runs odgi stats [default: off]"
     echo "   [general]"
     echo "    -o, --output-dir PATH       output directory"
+    echo "    -a, --input-paf FILE        input PAF file; the wfmash alignment step is skipped"
     echo "    -r, --resume PATH           do not overwrite existing output from wfmash, seqwish, smoothxg in given directory"
     echo "                                [default: start pipeline from scratch in a new directory]"
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
@@ -185,7 +198,6 @@ fi
 
 # Alignment
 mapper_letter='W'
-
 paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings-K$mash_kmer
 
 if [[ $no_merge_segments == true ]];
@@ -201,6 +213,10 @@ then
 fi
 
 prefix_paf="$input_fasta".$(echo $paf_spec | sha256sum | head -c 7)
+if [[ $input_paf != false ]];
+then
+    prefix_paf=$input_paf
+fi
 
 if [[ $exclude_delim != false ]];
 then
@@ -303,11 +319,17 @@ if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
   fi
 fi
 
+# correct prefix_paf and ajdust input here accordingly
+seqwish_paf="$prefix_paf".$mapper.paf
+if [[ $input_paf != false ]];
+then
+    seqwish_paf=$input_paf
+fi
 if [[ ! -s $prefix_seqwish.seqwish.gfa || $resume == false ]]; then
     $timer -f "$fmt" seqwish \
         -t $threads \
         -s "$input_fasta" \
-        -p "$prefix_paf".$mapper.paf \
+        -p "$seqwish_paf" \
         -k $min_match_length \
         -g "$prefix_seqwish".seqwish.gfa \
         -B $transclose_batch \
@@ -571,7 +593,10 @@ fi
 
 if [[ $pigz_compress == true ]];
 then
-    pigz -f -q -p $threads "$prefix_paf"*.paf -v
+    if [[ $input_paf == false ]];
+    then
+        pigz -f -q -p $threads "$prefix_paf"*.paf -v
+    fi
     pigz -f -q -p $threads "$prefix_seqwish"*.{gfa,og} -v
     if [[ $write_maf != false ]]; then
       pigz -f -q -p $threads "$prefix_seqwish"*.maf -v
