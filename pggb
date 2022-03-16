@@ -198,11 +198,6 @@ fi
 
 # Alignment
 mapper_letter='W'
-# adjust prefix when we directly input the PAF
-if [[ $input_paf != false ]];
-then
-    mapper_letter='E'
-fi
 paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings-K$mash_kmer
 
 if [[ $no_merge_segments == true ]];
