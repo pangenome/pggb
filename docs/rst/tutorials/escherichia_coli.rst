@@ -41,7 +41,7 @@ To change the sequence names according to `PanSN-spec <https://github.com/pangen
         sample_name=$(echo $f | cut -f 1,2 -d '_');
         echo ${sample_name}
         # 'cut -f 1' to trim the headers
-        fastix -p "${sample_name}#1" <(zcat $f | cut -f 1) | bgzip -@ 48 -c > ${sample_name}.fa.gz;
+        fastix -p "${sample_name}#1#" <(zcat $f | cut -f 1) | bgzip -@ 48 -c > ${sample_name}.fa.gz;
         samtools faidx ${sample_name}.fa.gz
     done
 
