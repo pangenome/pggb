@@ -20,13 +20,13 @@ sys.path.insert(0, os.path.abspath('../lib/'))
 # -- Project information -----------------------------------------------------
 
 project = u'pggb'
-copyright = '2022, Erik Garrison, .... Revision v0.2.0-99d470a'
-author = u'Erik Garrison, ...'
+copyright = '2022, Andrea Guarracino, Simon Heumos, Erik Garrison, ..., Revision v0.2.0-9392572'
+author = u'Andrea Guarracino, Simon Heumos, Erik Garrison, ...'
 
 # The short X.Y version
 version = 'v0.2.0'
 # The full version, including alpha/beta/rc tags
-release = '99d470a'
+release = '9392572'
 
 
 # -- General configuration ---------------------------------------------------
