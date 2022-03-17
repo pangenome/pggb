@@ -12,9 +12,9 @@ Manual-mode
    <br />
 
 You'll need `wfmash <https://github.com/ekg/wfmash>`_, `seqwish <https://github.com/ekg/seqwish>`_, `smoothxg <https://github.com/pangenome/smoothxg>`_, 
-`odgi <https://github.com/pangenome/odgi>`_, `gfaffix <https://github.com/marschall-lab/GFAffix>`_, and `vg <https://github.com/vgteam/vg>`_ 
+`odgi <https://github.com/pangenome/odgi>`_, `gfaffix <https://github.com/marschall-lab/GFAffix>`_, `bcftools <https://github.com/samtools/bcftools>`_ and `vg <https://github.com/vgteam/vg>`_ 
 in your shell's ``PATH``. They can be build from source, or installed via Bioconda.
-Then, add the ``pggb`` bash script in your ``PATH`` to complete the installation. 
+Then, add the ``pggb`` bash script to your ``PATH`` to complete the installation. 
 `How to add a binary to my path? <https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/>`_ |br|
 Optionally, install `MultiQC <https://multiqc.info/>`_ for reporting or `pigz <https://zlib.net/pigz/>`_ to compress the output files of the pipeline.
 
@@ -58,10 +58,10 @@ Or if you want to pull a specific snapshot from `https://github.com/orgs/pangeno
 
 Going in the ``pggb`` directory
 
-```sh
-git clone --recursive https://github.com/pangenome/pggb.git
-cd pggb
-```
+.. code-block:: bash
+
+    git clone --recursive https://github.com/pangenome/pggb.git
+    cd pggb
 
 You can run the container using the human leukocyte antigen (HLA) data provided in this repo:
 
@@ -88,7 +88,7 @@ Staying in the ``pggb`` directory, we can run ``pggb`` with the locally build im
     docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -C cons,100,1000,10000 -m"
 
 --------------------------
-docker and AVX
+Docker and AVX
 --------------------------
 
 ``abPOA`` of ``pggb`` uses SIMD instructions which require AVX.
@@ -98,7 +98,7 @@ If you have a processor that supports AVX512, it is recommended to rebuild the d
 
 .. code-block:: bash
 
-    && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
+    sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt
 
 
 from the ``Dockerfile``. This can lead to better performance in the ``abPOA`` step on machines which have AVX512 support.
@@ -108,4 +108,5 @@ Nextflow
 
 A Nextflow DSL2 port of ``pggb`` is actively developed by the `nf-core <https://nf-co.re/>`_ community.
 See `nf-core/pangenome <https://github.com/nf-core/pangenome>`_ for more details. The aim is to implement a cluster-scalable version of ``pggb``. 
-The Nextflow version can already run the precise base-level alignment step of ``wfmash`` in parallel across the nodes of a cluster.
+The Nextflow version can run the precise base-level alignment step of ``wfmash`` in parallel across the nodes of a cluster. 
+This makes it already faster than this `bash` implementation.
