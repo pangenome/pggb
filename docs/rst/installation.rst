@@ -46,6 +46,7 @@ To simplify installation and versioning, we have an automated GitHub action that
 To use it, first pull the actual image:
 
 .. code-block:: bash
+
     docker pull ghcr.io/pangenome/pggb:latest
 
 
