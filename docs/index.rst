@@ -81,6 +81,22 @@ This pipeline presents an implementation that scales better on a cluster.
     rst/quick_start
     rst/tutorials
     rst/faqs
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Parameters
+    :hidden:
+
+    rst/essential_parameters
+    rst/optional_parameters
+    rst/organism_example_parameters
+    rst/larger_pangenomes_parameters
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Core Packages
+    :hidden:
+
     rst/wfmash
     rst/seqwish
     rst/smoothxg

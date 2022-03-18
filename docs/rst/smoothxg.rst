@@ -1,8 +1,8 @@
 .. _smoothxg:
 
-===========
+########
 smoothxg
-===========
+########
 
 .. toctree::
     :maxdepth: 1

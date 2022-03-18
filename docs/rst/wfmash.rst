@@ -1,8 +1,8 @@
 .. _wfmash:
 
-===========
+######
 wfmash
-===========
+######
 
 .. toctree::
     :maxdepth: 1

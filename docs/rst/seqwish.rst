@@ -1,8 +1,8 @@
 .. _seqwish:
 
-===========
+#######
 seqwish
-===========
+#######
 
 .. toctree::
     :maxdepth: 1
