@@ -27,13 +27,14 @@ execute:
 
     mkdir -p assemblies/e_coli
     cd assemblies/e_coli
-    cat ../docs/data/ecoli.urls | parallel -j 16 'wget -q {} && echo got {}'
+    cat ../../docs/data/ecoli.urls | parallel -j 4 'wget -q {} && echo got {}'
 
 -------------------------
 Pangenome Sequence Naming
 -------------------------
 
-To change the sequence names according to `PanSN-spec <https://github.com/pangenome/PanSN-spec>`_, we use `fastix <https://github.com/ekg/fastix>`_:
+To change the sequence names according to `PanSN-spec <https://github.com/pangenome/PanSN-spec>`_,
+we use `fastix <https://github.com/ekg/fastix>`_:
 
 .. code-block:: bash
 
@@ -41,8 +42,7 @@ To change the sequence names according to `PanSN-spec <https://github.com/pangen
         sample_name=$(echo $f | cut -f 1,2 -d '_');
         echo ${sample_name}
         # 'cut -f 1' to trim the headers
-        fastix -p "${sample_name}#1#" <(zcat $f | cut -f 1) | bgzip -@ 48 -c > ${sample_name}.fa.gz;
-        samtools faidx ${sample_name}.fa.gz
+        fastix -p "${sample_name}#1#" <(zcat $f | cut -f 1) | bgzip -@ 4 -c > ${sample_name}.fa.gz
     done
 
 We specify ``haplotype_id`` equals to ``1`` for all the assemblies.

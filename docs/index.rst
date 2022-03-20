@@ -38,7 +38,6 @@ This pipeline presents an implementation that scales better on a cluster.
     Welcome <self>
     rst/installation
     rst/quick_start
-    rst/sequence_clustering
     rst/tutorials
     rst/faqs
 
