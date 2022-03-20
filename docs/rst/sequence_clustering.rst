@@ -19,7 +19,6 @@ For example, the communities can represent the different chromosomes of the inpu
 
 	If you know in advance that your sequences present particular rearrangements (like rare chromosome translocations), you might consider skipping this step or tuning it accordingly to your biological questions.
 
-
 =====
 Steps
 =====
