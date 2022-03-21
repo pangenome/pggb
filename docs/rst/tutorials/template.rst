@@ -1,7 +1,7 @@
-.. _tutorial-one:
+.. _template:
 
 ####################
-Tutorial one
+Tutorial
 ####################
 
 ========
