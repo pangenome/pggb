@@ -13,9 +13,9 @@ Each pangenome is different. We may require different settings to obtain useful 
 ``pggb`` requires that the user sets a mapping identity minimum ``-p``, a segment length ``-s``, and a number of secondary mappings ``-n`` per segment. 
 These three parameters passed to wfmash are essential for establishing the basic structure of the pangenome:
 
-    - ``s[N], --segment-length=[N]`` is the length of the mapped and aligned segment
-    - ``p[%], --map-pct-id=[%]`` is the percentage identity minimum in the mapping step
-    - ``n[N], --n-mappings=[N]`` is the maximum number of mappings and alignments to report for each segment
+    - ``-s[N], --segment-length=[N]`` length of the mapped and aligned segment
+    - ``-p[%], --map-pct-id=[%]`` percentage identity minimum in the mapping step
+    - ``-n[N], --n-mappings=[N]`` maximum number of mappings and alignments reported for each segment
 
 Crucially, ``--segment-length`` provides a kind of minimum alignment length filter. The ``mashmap`` step in ``wfmash`` will only consider segments of this size, 
 and require them to have an approximate pairwise identity of at least ``--map-pct-id``. For small pangenome graphs, or where there are few repeats, ``--segment-length``
