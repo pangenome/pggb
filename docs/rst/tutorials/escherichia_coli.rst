@@ -16,6 +16,7 @@ Here we study `E. coli` genomic diversity by analyzing a pangenome graph made wi
 Steps
 =====
 
+
 -------------------------
 Download the assemblies
 -------------------------
@@ -28,6 +29,7 @@ execute:
     mkdir -p assemblies/e_coli
     cd assemblies/e_coli
     cat ../../docs/data/ecoli.urls | parallel -j 4 'wget -q {} && echo got {}'
+
 
 -------------------------
 Pangenome Sequence Naming
@@ -47,4 +49,3 @@ we use `fastix <https://github.com/ekg/fastix>`_:
 
 We specify ``haplotype_id`` equals to ``1`` for all the assemblies.
 Indeed, most bacteria in general, including `E. coli`, contain one homolog of their single chromosome, and therefore are considered to be haploid.
-

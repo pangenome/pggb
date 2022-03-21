@@ -1,7 +1,7 @@
-.. _sequence_clustering:
+.. _sequence_partitioning:
 
 ####################
-Sequence clustering
+Sequence partitioning
 ####################
 
 ========
@@ -26,6 +26,7 @@ Steps
 Here we show how to detect the communities of 7 `Saccharomyces cerevisiae` assemblies (`Yue et al., 2016 <https://doi.org/10.1038/ng.3847>`_)
 from the `Yeast Population Reference Panel (YPRP) <https://yjx1217.github.io/Yeast_PacBio_2016/welcome/>`_.
 
+
 -------------------------
 Install the dependencies
 -------------------------
@@ -37,6 +38,7 @@ the ``leidenalg`` `package <https://github.com/vtraag/leidenalg>`_:
 
     pip3 install leidenalg
     pip3 install pycairo # Only needed for visualization
+
 
 -------------------------
 Download the assemblies
@@ -60,6 +62,7 @@ For each sample, to put genome and mitochondrial sequences together, execute:
         zcat $f.* > $f.fa
     done
 
+
 -------------------------
 Pangenome Sequence Naming
 -------------------------
@@ -78,6 +81,7 @@ we use `fastix <https://github.com/ekg/fastix>`_:
     samtools faidx scerevisiae7.fasta.gz
 
 We specify ``haplotype_id`` equals to ``1`` for all the assemblies, as they are all haploid.
+
 
 -------------------------
 Community detection
@@ -113,11 +117,9 @@ To identity the communities, execute:
     python3 ../../scripts/net2communities.py \
         -e scerevisiae7.mapping.paf.edges.list.txt \
         -w scerevisiae7.mapping.paf.edges.weights.txt \
-        -n scerevisiae7.mapping.paf.vertices.id2name.txt \
-        --plot
+        -n scerevisiae7.mapping.paf.vertices.id2name.txt
 
-The ``paf2net.py`` script creates a set of `*.community.*.txt` files, one for each of the 15 communities detected, and the
-``scerevisiae7.mapping.paf.edges.list.txt.communities.pdf`` file as a visualization of the result.
+The ``paf2net.py`` script creates a set of `*.community.*.txt` files one for each of the 15 communities detected.
 Each ``txt`` file lists the sequences that belong to the same community. For example, to see the sequences in the first community,
 execute:
 
@@ -171,12 +173,23 @@ samples (`Yue et al., 2016 <https://doi.org/10.1038/ng.3847>`_). To see the chro
     community 13 --> chrMT
     community 14 --> chrXVI
 
-Here is a visualization of the two communities that depict the structural rearrangements (from the
-``scerevisiae7.mapping.paf.edges.list.txt.communities.pdf`` file):
+The ``paf2net.py`` script can also generate a visualization of the communities detected. To request such a visualization,
+run the script by specifying the ``--plot`` flag (it can be slow with big datasets):
+
+.. code-block:: bash
+
+    python3 ../../scripts/net2communities.py \
+        -e scerevisiae7.mapping.paf.edges.list.txt \
+        -w scerevisiae7.mapping.paf.edges.weights.txt \
+        -n scerevisiae7.mapping.paf.vertices.id2name.txt \
+        --plot
+
+The visualization is written in the ``scerevisiae7.mapping.paf.edges.list.txt.communities.pdf`` file.
+Here is the visualization of a few communities, including the two ones that depict the structural rearrangements (in red and green):
 
 .. image:: /img/scerevisiae7.zoom_in_communities.png
 
-Vertices represent the contigs, colored by community. Arrows represet the mappings between contigs: the black ones
+Vertices represent the contigs, colored by community. Arrows represent the mappings between contigs: the black ones
 indicate mappings between contig of the same community, while gray indicates links between different communities.
 
 

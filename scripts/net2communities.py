@@ -28,7 +28,7 @@ g = ig.read( filename=args.edge_list, format='edgelist')# todo It breaks the plo
 partition = la.find_partition(
     g,
     la.ModularityVertexPartition,
-    n_iterations=-1 if args.accurate else 20, # -1 indicates to iterate until convergence
+    n_iterations=-1 if args.accurate else 30, # -1 indicates to iterate until convergence
     weights=weight_list,
     seed=42
 )
@@ -36,7 +36,7 @@ partition = la.find_partition(
 # todo try igraph community detection algorithm, it is faster. It needs 'directed=False'
 # partition2 = g.community_leiden(
 #     objective_function='modularity',
-#     n_iterations=-1 if args.accurate else 20, # -1 indicates to iterate until convergence
+#     n_iterations=-1 if args.accurate else 30, # -1 indicates to iterate until convergence
 #     weights=weight_list
 # )
 
@@ -57,6 +57,8 @@ for id_community, id_members in enumerate(partition):
 
 
 if args.plot:
+    print('Plotting on PDF')
+
     # Take contig names (it assumes PanSN naming)
     name_list = [x.split(' ')[-1].split('#')[-1] for x in id_2_name_dict.values()]
 
