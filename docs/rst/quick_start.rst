@@ -40,6 +40,8 @@ To build a graph from a 9-haplotype ``input.fa``, in the directory ``output``, s
 
 The final process output will be called ``outdir/input.fa*smooth.fix.gfa``. By default, several intermediate files are produced.
 
+.. _quick_start_example:
+
 -----------------------------------------
 Example - Building an MHC Pangenome Graph
 -----------------------------------------
