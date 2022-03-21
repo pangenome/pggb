@@ -22,16 +22,23 @@ import leidenalg as la
 weight_list = [float(x) for x in open(args.edge_weights).read().strip().split('\n')]
 
 # Read the edge list and inizialite the network
-G = ig.read( filename=args.edge_list, format='edgelist')# todo It breaks, directed=False)
+g = ig.read( filename=args.edge_list, format='edgelist')# todo It breaks the plotting, directed=False)
 
 # Detect the communities
 partition = la.find_partition(
-    G,
+    g,
     la.ModularityVertexPartition,
     n_iterations=-1 if args.accurate else 20, # -1 indicates to iterate until convergence
     weights=weight_list,
     seed=42
 )
+
+# todo try igraph community detection algorithm, it is faster. It needs 'directed=False'
+# partition2 = g.community_leiden(
+#     objective_function='modularity',
+#     n_iterations=-1 if args.accurate else 20, # -1 indicates to iterate until convergence
+#     weights=weight_list
+# )
 
 print(f'Detected {len(partition)} communities.')
 
@@ -44,7 +51,7 @@ with open(args.vertice_names) as f:
         id_2_name_dict[int(id)] = name
 
 for id_community, id_members in enumerate(partition):
-    with open(f'{args.edge_weights}.{id_community}.community.txt', 'w') as fw:
+    with open(f'{args.edge_weights}.community.{id_community}.txt', 'w') as fw:
         for id in id_members:
             fw.write(f'{id_2_name_dict[id]}\n')
 
@@ -63,7 +70,7 @@ if args.plot:
         #vertex_color=['blue', 'red', 'green', 'yellow'],
         vertex_label=name_list,
         vertex_label_size=20,
-        vertex_label_color='darkgrey',
+        #vertex_label_color='black',
         edge_width=[x/max_weight for x in weight_list],
         #edge_color=['black', 'grey'],
         bbox=(2000, 2000),

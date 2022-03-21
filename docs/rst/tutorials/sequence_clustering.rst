@@ -116,14 +116,14 @@ To identity the communities, execute:
         -n scerevisiae7.mapping.paf.vertices.id2name.txt \
         --plot
 
-The ``paf2net.py`` script creates a set of `*.community.txt` files, one for each of the 15 communities detected, and the
+The ``paf2net.py`` script creates a set of `*.community.*.txt` files, one for each of the 15 communities detected, and the
 ``scerevisiae7.mapping.paf.edges.list.txt.communities.pdf`` file as a visualization of the result.
 Each ``txt`` file lists the sequences that belong to the same community. For example, to see the sequences in the first community,
 execute:
 
 .. code-block:: bash
 
-    cat scerevisiae7.mapping.paf.edges.weights.txt.0.community.txt
+    cat scerevisiae7.mapping.paf.edges.weights.txt.community.0.txt
 
 .. code-block:: none
 
@@ -148,6 +148,13 @@ samples (`Yue et al., 2016 <https://doi.org/10.1038/ng.3847>`_). To see the chro
 
 .. code-block:: bash
 
+    seq 0 14 | while read i; do
+        chromosomes=$(cat scerevisiae7.mapping.paf.edges.weights.txt.community.$i.txt | cut -f 3 -d '#' | sort | uniq | tr '\n' ' ');
+        echo "community $i --> $chromosomes";
+    done
+
+.. code-block:: none
+
     community 0 --> chrVII chrVIII
     community 1 --> chrX chrXIII
     community 2 --> chrVI
@@ -164,10 +171,32 @@ samples (`Yue et al., 2016 <https://doi.org/10.1038/ng.3847>`_). To see the chro
     community 13 --> chrMT
     community 14 --> chrXVI
 
-Here a visualization of the two communities that depict the structural rearrangements (from the
+Here is a visualization of the two communities that depict the structural rearrangements (from the
 ``scerevisiae7.mapping.paf.edges.list.txt.communities.pdf`` file):
 
 .. image:: /img/scerevisiae7.zoom_in_communities.png
 
 Vertices represent the contigs, colored by community. Arrows represet the mappings between contigs: the black ones
 indicate mappings between contig of the same community, while gray indicates links between different communities.
+
+
+-------------------------
+Data partitioning
+-------------------------
+
+Each community can be managed by ``pggb`` independently of the others. To partition the communities, execute:
+
+.. code-block:: bash
+
+    seq 0 14 | while read i; do
+        echo "community $i"
+        samtools faidx scerevisiae7.fasta.gz $(cat scerevisiae7.mapping.paf.edges.weights.txt.community.$i.txt) | \
+        bgzip -@ 4 -c > scerevisiae7.community.$i.fa.gz
+        samtools faidx scerevisiae7.community.$i.fa.gz
+    done
+
+All ``scerevisiae7.community.*.fa.gz`` files are ready to be processed separately with ``pggb``.
+
+.. note::
+
+	If you need to join all ``pggb``'s partitioned graphs again, you can use ``odgi squeeze`` (see its `documentation <https://odgi.readthedocs.io/en/latest/rst/commands/odgi_squeeze.html>`_).
