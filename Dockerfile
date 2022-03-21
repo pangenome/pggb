@@ -25,6 +25,7 @@ RUN apt-get update \
                        libjemalloc-dev \
                        libhts-dev \
                        build-essential \
+                       pkg-config \
                        time \
                        curl \
                        pigz
