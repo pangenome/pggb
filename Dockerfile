@@ -28,7 +28,8 @@ RUN apt-get update \
                        pkg-config \
                        time \
                        curl \
-                       pigz
+                       pigz \
+                       tabix
                         
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \

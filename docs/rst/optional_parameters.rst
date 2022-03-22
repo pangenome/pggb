@@ -1,0 +1,93 @@
+.. _optional_parameters:
+
+###################
+Optional Parameters
+###################
+
+.. toctree::
+    :maxdepth: 1
+
+Refining the Pangenome Structure
+--------------------------------
+
+    - ``-k[N], --min-match-len=[N]`` filter exact matches below this length during graph induction
+    - ``-G[%], --poa-length-target=[N,M]`` target sequence length for POA step
+    - ``-P[N], --poa-params=[PARAMS]`` score parameters for POA 
+    - ``-O[N], --poa-padding=[N]`` padding length of each sequence in POA 
+
+Graph induction with ``seqwish`` often works better when we filter very short matches out of the input alignments. 
+In practice, these often occur in regions of low alignment quality, which are typical of areas with large indels and structural variations in the ``wfmash`` alignments.
+This underalignment is then resolved in the final ``smoothxg step``. Removing short matches can simplify the graph and remove spurious 
+relationships caused by short repeated homologies. The default setting of ``-k 47`` is optimal for around 5% divergence, and we suggest 
+lowering it for higher divergence and increasing it for lower divergence. Values up to ``-k 311`` work well for human haplotypes.
+In effect, setting ``-k`` to ``N`` means that we can tolerate a local pairwise difference rate of no more than ``1/N``. Thus, indels which may be represented by complex series of 
+edit operations will be opened into `bubbles <https://www.liebertpub.com/doi/10.1089/cmb.2017.0251>`_ in the induced graph, and alignment regions with very low identity will be ignored. Using affine-gapped alignment 
+(such as with `minimap2 <https://github.com/lh3/minimap2>`_) 
+may reduce the impact of this step by representing large indels more precisely in the input alignments. However, it remains important due to local inconsistency in alignments in low-complexity sequence.
+
+Define a partial order alignment (POA) target length: The last step in ``pggb`` refines the graph by running a partial order alignment 
+across segments, so called blocks. The length of these sub-problems greatly affects the total time and memory requirements of ``pggb``, and is defined 
+by ``-G, --poa-length-target N,M``. Two passes of refinement are defined by lengths ``N`` and ``M``. Ideally, this target can be set above the length 
+of transposon repeats in the pangenome, and base-level graph quality tends to improve as it is set higher. The default setting of 
+``-G 13117,13219`` makes sense for lower-diversity pangenomes, but can require several GB of RAM per thread. A setting like ``-G 3079,3559` will be significantly faster
+and memory friendlier.
+
+The POA parameters will determine how well the sequence can be aligned in a block given their assumed divergence. The current default of ``1,19,39,3,81,1`` is for ``~0.1%`` divergence, as suggested by ``minimap2``:
+
+.. list-table:: 
+   :widths: 25 25 50
+   :header-rows: 1
+
+   * - asm mode
+     - ``--poa-params``
+     - divergence in %
+   * - asm5
+     - 1,19,39,3,81,1
+     - ~0.1
+   * - asm10
+     - 1,9,16,2,41,1
+     - ~1
+   * - asm20 
+     - 1,4,6,2,26,1
+     - ~5 
+
+When forming each block, ``smoothxg`` pads each end of the sequence in the POA step with ``N*longest_poa_seq`` bp. This tries to ensure that at the boundaries of blocks, we smooth, too. 
+During our trials with the HPRC data, a default of ``0.03`` crystallized. But this could vary dependent on the data set. 
+
+
+Variant Calling
+---------------
+
+    - ``-V[SPEC], --vcf-spec[SPEC]`` specify a set of references for variant calling with ``REF:DELIM[,REF:DELIM]*``
+
+The paths matching ``^REF`` are used as a reference, while the sample haplotypes are derived from path names, e.g. when ``DELIM=#`` and with ``'-V chm13:#'``, 
+a path named ``HG002#1#ctg`` would be assigned to sample HG002 phase 1. Another example can be found at :ref:`quick_start_example`.
+
+
+
+Reporting
+---------
+
+    - ``-S, --stats`` generate graph statistics
+    - ``-m, --multiqc`` generate MultiQC report 
+
+Graph features can highlight variation in the graph. ``-S, --stats`` generates general graph statistics using `odgi stats <https://odgi.readthedocs.io/en/latest/rst/commands/odgi_stats.html>`_.
+MultiQC's ODGI module can process these graph stastics and present them in a nice report. If ``-v, --skip-viz`` was not set, then the created 1D and 2D visualizations are incorporated in the report, too.
+
+Parallelization
+---------------
+
+Always set `-t` to the desired number of parallel threads. If the POA step of ```smoothxg`` blows up your memory, you can set the POA threads with ``-T``. 
+A  good approximation can be half what was set in ``-t``.
+
+..
+    miscellancious
+
+    outdir
+    input PAF
+    resume
+    keep temp files
+    pigz
+    transclose batch
+    MAF
+    Consensus
