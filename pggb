@@ -602,7 +602,7 @@ then
       pigz -f -q -p $threads "$prefix_seqwish"*.maf -v
     fi
     if [[ $vcf_spec != false ]]; then
-      pigz -f -q -p $threads "$prefix_seqwish"*.vcf -v
+      bgzip -f -@ $threads "$prefix_seqwish"*.vcf -v
     fi
     if [[ $do_layout == true ]]; then
         pigz -f -q -p $threads "$prefix_final_graph".og.lay.tsv -v
