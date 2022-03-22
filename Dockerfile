@@ -27,7 +27,8 @@ RUN apt-get update \
                        build-essential \
                        time \
                        curl \
-                       pigz
+                       pigz \
+                       tabix
                         
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
