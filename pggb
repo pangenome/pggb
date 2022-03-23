@@ -418,7 +418,7 @@ then
     prefix_final_graph="$prefix_smoothed".smooth.fix
 
     # Remove redundancy and sort
-    gfaffix "$prefix_smoothed".smooth.gfa -o "$prefix_final_graph".gfa | pigz >"$prefix_final_graph".affixes.tsv.gz
+    ( $timer -f "$fmt" gfaffix "$prefix_smoothed".smooth.gfa -o "$prefix_final_graph".gfa | $timer -f "$fmt" pigz >"$prefix_final_graph".affixes.tsv.gz ) 2> >(tee -a "$log_file")
     ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_final_graph".gfa -o - -O \
         | $timer -f "$fmt" odgi sort -P -p Ygs -t $threads -i - -o "$prefix_final_graph".og ) 2> >(tee -a "$log_file")
     ( $timer -f "$fmt" odgi view -i "$prefix_final_graph".og -g >"$prefix_final_graph".gfa ) 2> >(tee -a "$log_file")
