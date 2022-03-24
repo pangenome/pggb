@@ -32,7 +32,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout a36ab5fa3d435a3030fd584e653b016ca1e89313 \
+    && git checkout 802e318a31ba013c89e8640d98a0668174ea8dd1 \
     && git submodule update --init --recursive \
     && sed -i 's/-mcx16 //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' CMakeLists.txt \
@@ -58,7 +58,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 0f15c4ec6c88879092e0e85483eb6e893d889641 \
+    && git checkout e692624438319a2a2568dc910858940776db31c2 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && sed -i 's/-mcx16 //g' deps/WFA/CMakeLists.txt \
@@ -79,7 +79,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
 
 RUN apt-get update && apt-get install -y pip && pip install multiqc && apt-get install -y bcftools
 
-RUN apt-get install wget && wget http://hypervolu.me/~erik/vg/vg-e5be425.gz && zcat vg-e5be425.gz >vg && chmod +x vg && cp vg /usr/local/bin/vg
+RUN apt-get install wget && wget https://github.com/vgteam/vg/releases/download/v1.39.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb
