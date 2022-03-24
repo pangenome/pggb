@@ -9,28 +9,8 @@ This pangenome graph construction pipeline renders a collection of sequences int
 Its goal is to build a graph that is locally directed and acyclic while preserving large-scale variation.
 Maintaining local linearity is important for the interpretation, visualization, and reuse of pangenome variation graphs.
 
-It's core implementation uses three phases:
+[**WORK IN PROGRESS**] Read the full documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/).
 
-1. _[wfmash](https://github.com/ekg/wfmash)_: (*alignment*) -- `wfmash` uses a modified version of mashmap to obtain approximate mappings, and then applies a [wavefront-guided global alignment algorithm for long sequences](https://github.com/ekg/wflign) to derive an alignment for each mapping.
-`wfmash` uses the [wavefront alignment algorithm](https://github.com/smarco/WFA) for base-level alignment. This mapper is used to scaffold the pangenome, using genome segments of a given length with a specified maximum level of sequence divergence.
-All segments in the input are mapped to all others.
-This step yields alignments represented in the [PAF](https://github.com/lh3/miniasm/blob/master/PAF.md) output format, with cigars describing their base-exact alignment.
-
-2. _[seqwish](https://github.com/ekg/seqwish)_: (*graph induction*) -- The pangenome graph is induced from the alignments.
-The induction process implicitly builds the [alignment graph](https://doi.org/10.1186/1471-2105-15-99) in a memory-efficient disk-backed implicit interval tree.
-It then computes the transitive closure of the bases in the input sequences through the alignments.
-By tracing the paths of the input sequences through the graph, it produces a variation graph, which it emits in the restricted subset of [GFAv1](https://github.com/GFA-spec/GFA-spec/blob/master/GFA1.md) format used by variation-graph-based tools.
-
-3. _[smoothxg](https://github.com/ekg/smoothxg)_: (*normalization*) -- The graph is then sorted with a form of multi-dimensional scaling in 1D, groomed, and topologically ordered locally.
-The 1D order is then broken into "blocks" which are "smoothed" using the partial order alignment (POA) algorithm implemented in [abPOA](https://github.com/yangao07/abPOA) or [spoa](https://github.com/rvaser/spoa).
-This normalizes their mutual alignment and removes artifacts resulting from transitive ambiguities in the pairwise alignments.
-It ensures that the graph always has local partial order, which is essential for many applications and matches our prior expectations about small-scale variation in genomes.
-This step yields a rebuilt graph, a consensus subgraph, and a whole genome alignment in [MAF](http://www.bx.psu.edu/~dcking/man/maf.xhtml) format.
-
-Moreover, the pipeline supports identification and collapse of redundant structure with [GFAffix](https://github.com/marschall-lab/GFAffix).
-Optional post-processing steps provide 1D and 2D diagnostic visualizations of the graph, basic graph metrics. Variant calling is also possible with `vg deconstruct` to obtain a VCF file relative to any set of reference sequences used in the construction. It utilizes a [path jaccard](https://github.com/vgteam/vg/pull/3416) concept to correctly localize variants in segmental duplications and variable number tandem repeats. In the HPRC data, this greatly improved variant calling performance.
-
-The output graph (`*.smooth.gfa`) is suitable for read mapping in [vg](https://github.com/vgteam/vg) or with [GraphAligner](https://github.com/maickrau/GraphAligner). For more downstream processing steps see [downstream](#downstream).
 
 ## quick start
 
@@ -238,6 +218,7 @@ from the `Dockerfile`. This can lead to better performance in the `abPOA` step o
 ### nextflow
 
 A nextflow DSL2 port of `pggb` is developed by the [nf-core](https://nf-co.re/) community. See [nf-core/pangenome](https://github.com/nf-core/pangenome) for more details.
+
 
 ## parameter considerations
 

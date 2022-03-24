@@ -25,9 +25,11 @@ RUN apt-get update \
                        libjemalloc-dev \
                        libhts-dev \
                        build-essential \
+                       pkg-config \
                        time \
                        curl \
-                       pigz
+                       pigz \
+                       tabix
                         
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
@@ -74,7 +76,7 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout a22e828 \
+    && git checkout dd42d555450bb3ce0c61c70e50c6e955ad5f85b3 \
     && cargo install --force --path . && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix
 
 RUN apt-get update && apt-get install -y pip && pip install multiqc && apt-get install -y bcftools
