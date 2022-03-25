@@ -34,7 +34,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 9f180096a9d7606f387a0a694671376b6062eb7d \
+    && git checkout 0d57e475e43422ea4a647461e89164106b84360f \
     && git submodule update --init --recursive \
     && sed -i 's/-mcx16 //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' CMakeLists.txt \
