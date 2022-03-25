@@ -10,8 +10,8 @@ FAQs
 How are non-common nucleotide sequences treated?
 ================================================
 
-Default `nucleotide sequences <http://www.hgmd.cf.ac.uk/docs/nuc_lett.html>`_ are `A,C,T,G`. All other nucleotide symbols are treated as `N`.
-That is, in ``wfmash``'s approximate alignment step, they are treated as a mismatch, but not in the base-level alignment step.
+The supported canonical bases are `A`, `C`, `T`, `G`. All other `nucleotide symbols <http://www.hgmd.cf.ac.uk/docs/nuc_lett.html>`_ are treated as `N`.
+In particular, in ``wfmash``, non-canonical bases are treated as mismatches when guiding the local base-level alignments.
 
 1. Point 1
 ---------------------------------------------------------------------------------------------
