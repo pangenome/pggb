@@ -34,7 +34,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 0d57e475e43422ea4a647461e89164106b84360f \
+    && git checkout c746c7328344d9da7c3cfa1d6e8a4cf09d634a3a \
     && git submodule update --init --recursive \
     && sed -i 's/-mcx16 //g' CMakeLists.txt \
     && sed -i 's/-march=native //g' CMakeLists.txt \
@@ -51,7 +51,7 @@ RUN git clone --recursive https://github.com/ekg/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout 88cd0ea5f086cadfaf21c4c363d71536a1a7ea09 \
+    && git checkout 5a159f51b6617c559539ed7283a06b4394a4c7ff \
     && git submodule update --init --recursive \
     && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
@@ -60,7 +60,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/ekg/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout e692624438319a2a2568dc910858940776db31c2 \
+    && git checkout 79cc2d131a818000401d451ecf14c00afc12dc8c \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && sed -i 's/-mcx16 //g' deps/WFA/CMakeLists.txt \
@@ -76,7 +76,7 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout 7be10769bebbdf65b04b0d51a421b6ec93af853c \
+    && git checkout 9581a29d6dfe1e76a98f8c360ed33adf0348fa27 \
     && cargo install --force --path . && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix
 
 RUN apt-get update && apt-get install -y pip && pip install multiqc && apt-get install -y bcftools
