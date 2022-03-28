@@ -7,11 +7,11 @@ input_fasta=false
 output_dir=""
 input_paf=false
 resume=false
-map_pct_id=false
+map_pct_id=95
 n_mappings=false
-segment_length=false
+segment_length=10000
 block_length=false
-mash_kmer=16
+mash_kmer=false
 min_match_length=47
 transclose_batch=10000000
 n_haps=false
@@ -20,12 +20,7 @@ pad_max_depth=100
 max_path_jump=0
 max_edge_jump=0
 target_poa_length=4001,4507
-# poa param suggestions from minimap2
-# - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
-# - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
-# - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
-# between asm10 and asm20 ~ 1,7,11,2,33,1
-poa_params="1,19,39,3,81,1"
+poa_params=false
 poa_padding=0.03
 do_viz=true
 do_layout=true
@@ -107,13 +102,11 @@ fi
 
 if [[
        "$input_fasta" == false
-    || $map_pct_id == false
     || $n_mappings == false
-    || $segment_length == false
    ]];
 then
     show_help=true
-    >&2 echo "Mandatory arguments -i, -s, -n, -p"
+    >&2 echo "Mandatory arguments -i, -n"
 fi
 
 if [[ $poa_threads == 0 ]];
@@ -121,9 +114,42 @@ then
     poa_threads=$threads
 fi
 
-if [[ $block_length == false ]];
+block_length_cmd=""
+if [[ $block_length != false ]];
 then
-    block_length=$(echo $segment_length '*' 3 | bc)
+    block_length_cmd="-l $block_length"
+fi
+# wfmash auto-sets our block length based on its parameters
+
+mash_kmer_cmd=""
+if [[ $mash_kmer != false ]];
+then
+    mash_kmer_cmd="-k $mash_kmer"
+fi
+# wfmash auto-sets our kmer length based on its parameters
+
+# our partial order alignment parameters
+# poa param suggestions from minimap2
+# - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
+# - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
+# - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
+# between asm10 and asm20 ~ 1,7,11,2,33,1
+poa_params_cmd=""
+if [[ $poa_params == false ]];
+then
+    poa_params_cmd="-P 1,19,39,3,81,1"
+else
+    if [[ $poa_params == "asm5" ]]; then
+        poa_params_cmd="-P 1,19,39,3,81,1"
+    elif [[ $poa_params == "asm10" ]]; then
+        poa_params_cmd="-P 1,9,16,2,41,1"
+    elif [[ $poa_params == "asm15" ]]; then
+        poa_params_cmd="-P 1,7,11,2,33,1"
+    elif [[ $poa_params == "asm20" ]]; then
+        poa_params_cmd="-P 1,4,6,2,26,1"
+    else
+        poa_params_cmd="-P $poa_params"
+    fi
 fi
 
 if [[ $n_haps == false ]];
@@ -134,15 +160,14 @@ fi
 if [ $show_help ];
 then
     padding=`printf %${#0}s` # prints as many spaces as the length of $0
-    echo "usage: $0 -i <input-fasta> -s <segment-length> -n <n-mappings>"
-    echo "       $padding -p <map-pct-id> [options]"
+    echo "usage: $0 -i <input-fasta> -n <n-mappings> [options]"
     echo "options:"
     echo "   [wfmash]"
     echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
-    echo "    -s, --segment-length N      segment length for mapping"
-    echo "    -l, --block-length N        minimum block length filter for mapping [default: 3*segment-length]"
+    echo "    -s, --segment-length N      segment length for mapping [default: 10k]"
+    echo "    -l, --block-length N        minimum block length filter for mapping [default: 5*segment-length]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
-    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment"
+    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 95]"
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: 16]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
@@ -156,7 +181,8 @@ then
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
     echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 4001,4507]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
-    echo "                                [default: 1,19,39,3,81,1]"
+    echo "                                may also be given as presets: asm5, asm10, asm15, asm20"
+    echo "                                [default: 1,19,39,3,81,1 = asm5]"
     echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.03]"
     echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: 100]"
     echo "    -M, --write-maf             write MAF output representing merged POA blocks [default: off]"
@@ -279,7 +305,7 @@ smoothxg:
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
   poa-length-target:  $target_poa_length
-  poa-params:         $poa_params
+  poa-params:         $poa_params_cmd
   write-maf:          $write_maf
   consensus-prefix:   $consensus_prefix
   consensus-spec:     $consensus_spec
@@ -307,12 +333,12 @@ if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
           ($timer -f "$fmt" wfmash \
               $exclude_cmd \
               -s $segment_length \
-              -l $block_length \
+              $block_length_cmd \
               $merge_cmd \
               $split_cmd \
+              $mash_kmer_cmd \
               -p $map_pct_id \
               -n $n_mappings \
-              -k $mash_kmer \
               -t $threads \
               "$input_fasta" "$input_fasta" \
               > "$prefix_paf".$mapper.paf) 2> >(tee -a "$log_file")
@@ -377,7 +403,7 @@ do
                    -j $max_path_jump \
                    -e $max_edge_jump \
                    -l $poa_length \
-                   -p "$poa_params" \
+                   $poa_params_cmd \
                    -O $poa_padding \
                    -Y $(echo "$pad_max_depth * $n_haps" | bc) \
                    -d 0 -D 0 \
@@ -400,7 +426,7 @@ do
                    -j $max_path_jump \
                    -e $max_edge_jump \
                    -l $poa_length \
-                   -p "$poa_params" \
+                   $poa_params_cmd \
                    -O $poa_padding \
                    -Y $(echo "$pad_max_depth * $n_haps" | bc) \
                    -d 0 -D 0 \
