@@ -19,7 +19,7 @@ First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Do
 Put your sequences in one FASTA file and index it with `samtools faidx`.
 If you have many genomes, we suggest using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
 
-To build a graph from `input.fa`, which contains 9 haplotypes, in the directory `output`, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
+To build a graph from `input.fa`, which contains 9 haplotypes, in the directory `output`, scaffolding the graph using 10kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
 
 ```
 pggb \ 
@@ -27,7 +27,7 @@ pggb \
     -o output \
     -t 16 \
     -p 90 \
-    -s 5000 \
+    -s 10000 \
     -n 9 \
     -v
 ```
@@ -41,7 +41,7 @@ We render 1D and 2D visualizations of the graph with `odgi`, which are very usef
 ### essential
 
 `pggb` requires that the user set a number of mappings `-n` per segment.
-Although the defaults (`-p 95 -s 5k`) should work for most pangenome contexts, it is recommended that suitable mapping identity minimum `-p` and a segment length `-s`.
+Although the defaults (`-p 95 -s 10k`) should work for most pangenome contexts, it is recommended that suitable mapping identity minimum `-p` and a segment length `-s`.
 In particular, for high divergence problems (e.g. models built from separate species) it can be necessary to set `-p` and `-s` to different levels.
 Increasing `-p` and `-s` will increase the stringency of the initial alignment, while reducing them will make this more sensitive.
 These 3 key parameters (`-n`, `-p`, and `-s`) define most of the structure of the pangenome graph.
