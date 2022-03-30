@@ -150,7 +150,11 @@ to analyze this `YPRP` panel, we have to specify ``-p`` lower than or equal to `
 However, in order to account for possible underestimates of sequence divergence, and medium/large structural variants
 leading locally to greater divergence, we recommend setting an even smaller mapping identity, like ``-p 90``.
 
-The `YPRP` panel presents known structural inter-chromosomes rearrangements, for example between chromosomes `chrVII` and `chrVIII`
+-------------------------
+Inter-chromosome estimations
+-------------------------
+
+The `YPRP` panel presents known structural inter-chromosome rearrangements, for example between chromosomes `chrVII` and `chrVIII`
 (see the :ref:`sequence_partitioning` tutorial for more information). This can explain why those sets present a higher
 intra-chromosome divergence.
 
