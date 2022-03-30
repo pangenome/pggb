@@ -100,7 +100,7 @@ For example, to compute the distances between all mitochondrial sequences, execu
     YPS128#1#chrMT       0.0170687  0.0198213  0.0136991  0.0175939  0.0141502  0.0131603
 
 The distance is between 0 (identical sequences) and 1.
-This shows that we have 7 sequences and the distance is up to a few percent. To identify the maximum divergence, execute:
+This shows that we have 7 sequences and the distances are up to a few percent. To identify the maximum divergence, execute:
 
 .. code-block:: bash
 
@@ -143,3 +143,55 @@ To compute the maximum divergence for each set of chromosomes, execute:
     chrXV    0.0081558
     chrXVI   0.00838426
 
+
+From this analysis, `chrVII`, `chrVIII`, and `chrXIII` sets show the higher sequence divergence, with maximum value of ``0.0639874``.
+In general, we should set a mapping identity value lower than or equal to ``100 - max_divergence * 100``. That is,
+to analyze this `YPRP` panel, we have to specify ``-p`` lower than or equal to ``93.60126``.
+However, in order to account for possible underestimates of sequence divergence, and medium/large structural variants
+leading locally to greater divergence, we recommend setting an even smaller mapping identity, like ``-p 90``.
+
+The `YPRP` panel presents known structural inter-chromosomes rearrangements, for example between chromosomes `chrVII` and `chrVIII`
+(see the :ref:`sequence_partitioning` tutorial for more information). This can explain why those sets present a higher
+intra-chromosome divergence.
+
+To estimate the sequence divergence between `chrVII` and `chrVIII` chromosomes, execute:
+
+.. code-block:: bash
+
+    mash triangle scerevisiae7.community.0.fa.gz -s 10000 > scerevisiae7.community.0.mash_triangle.txt
+    cat scerevisiae7.community.0.mash_triangle.txt | column -t
+
+.. code-block:: none
+
+    14
+    DBVPG6044#1#chrVII
+    S288C#1#chrVII         0.00811043
+    SK1#1#chrVII           0.00160605  0.00759986
+    Y12#1#chrVII           0.00721034  0.00710972  0.00740957
+    YPS128#1#chrVII        0.00641651  0.00659004  0.00659004  0.00505504
+    DBVPG6044#1#chrVIII    0.243761    0.222464    0.23782     0.215016    0.221466
+    S288C#1#chrVIII        0.222464    0.203604    0.217673    0.194429    0.214163    0.00928959
+    SK1#1#chrVIII          0.250557    0.221466    0.242205    0.215016    0.216771    0.000911163  0.00912584
+    UWOPS034614#1#chrVII   0.0625263   0.0623939   0.0627391   0.0625528   0.0610962   0.0635756    0.0649949   0.0635211
+    UWOPS034614#1#chrVIII  0.0512793   0.0517248   0.0514142   0.049118    0.0496087   0.0358693    0.0373731   0.0359997   0.258493
+    Y12#1#chrVIII          0.236445    0.222464    0.236445    0.216771    0.231311    0.00815958   0.0081861   0.00759251  0.0625528  0.0354817
+    YPS128#1#chrVIII       0.239237    0.199716    0.213325    0.208588    0.191209    0.00728616   0.00790009  0.006864    0.0628727  0.0345966  0.00614217
+    DBVPG6765#1#chrVII     0.00890041  0.00474338  0.0079113   0.00866976  0.00768463  0.26803      0.256381    0.270747    0.0628995  0.0512793  0.26546     0.23011
+    DBVPG6765#1#chrVIII    0.273629    0.26546     0.273629    0.26803     0.270747    0.00861155   0.0060471   0.00853035  0.0656244  0.0360829  0.00873594  0.00826588  0.26546
+
+
+The ``scerevisiae7.community.0.fa.gz`` file contains the sequences of `chrVII` and `chrVIII` sets in FASTA format
+(follow the :ref:`sequence_partitioning` tutorial to obtain the FASTA files for all the communities detectable in the `YPRP` panel).
+The ``-s 10000`` value in ``mash triangle`` specifies a bigger sketch size for each sequence to compare: a higher value allows for more accurate divergence estimates
+(see `here <https://mash.readthedocs.io/en/latest/distances.html#distance-estimation>`_ how the distance estimation works).
+
+The output shows that, generally, sequences from different chromosomes present a very high sequence divergence (greater than ~0.20).
+However, for example, the ``UWOPS034614#1#chrVIII`` sequence presents a much lower divergence with respect to the other `chrVII` sequences;, as
+shown by the following row of the lower-triangular distance matrix:
+
+.. code-block:: none
+
+    UWOPS034614#1#chrVIII  0.0512793   0.0517248   0.0514142   0.049118    0.0496087   0.0358693    0.0373731   0.0359997   0.258493
+
+Similar considerations hold true for the ``DBVPG6765#1#chrVII`` sequence.
+Such lower sequence divergences are due to the structural rearrangements between these chromosomes (`Yue et al., 2016 <https://doi.org/10.1038/ng.3847>`_).
