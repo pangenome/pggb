@@ -54,7 +54,7 @@ we use `fastix <https://github.com/ekg/fastix>`_:
     ls *.fa | while read f; do
         sample_name=$(echo $f | cut -f 1 -d '.');
         echo ${sample_name}
-        ~/git/fastix/target/release/fastix -p "${sample_name}#1#" $f >> scerevisiae7.fasta
+        fastix -p "${sample_name}#1#" $f >> scerevisiae7.fasta
     done
     bgzip -@ 4 scerevisiae7.fasta
     samtools faidx scerevisiae7.fasta.gz
@@ -104,7 +104,7 @@ This shows that we have 7 sequences and the distance is up to a few percent. To 
 
 .. code-block:: bash
 
-    sed 1,1d scerevisiae7.chrMT.mash_triangle.txt | tr '\t' '\n' | grep chr -v | sort -g -k 1nr | head -n 1
+    sed 1,1d scerevisiae7.chrMT.mash_triangle.txt | tr '\t' '\n' | grep chr -v | LC_ALL=C sort -g -k 1nr | uniq | head -n 1
 
 .. code-block:: none
 
@@ -115,8 +115,8 @@ To compute the maximum divergence for each set of chromosomes, execute:
 .. code-block:: bash
 
     ls scerevisiae7.*.fasta.gz | while read CHR_FASTA; do
-        CHROM=$(echo CHR_FASTA | cut -f 2 -d '.')
-        MAX_DIVERGENCE=$(mash triangle -p 4 CHR_FASTA | sed 1,1d | tr '\t' '\n' | grep chr -v | sort -g -k 1nr | head -n 1)
+        CHROM=$(echo $CHR_FASTA | cut -f 2 -d '.')
+        MAX_DIVERGENCE=$(mash triangle -p 4 $CHR_FASTA | sed 1,1d | tr '\t' '\n' | grep chr -v | LC_ALL=C  sort -g -k 1nr | uniq | head -n 1)
 
         echo -e "$CHROM\t$MAX_DIVERGENCE" >> scerevisiae7.divergence.txt
     done
@@ -127,22 +127,19 @@ To compute the maximum divergence for each set of chromosomes, execute:
 
     chrI     0.0178312
     chrII    0.00804257
-    chrIII   0.00981378
+    chrIII   0.0121679
     chrIV    0.00759618
-    chrIX    0.00985499
+    chrIX    0.0106545
     chrMT    0.0210181
     chrV     0.00892796
-    chrVI    0.00985499
-    chrVII   0.00877107
-    chrVIII  0.00924552
-    chrX     0.00920555
-    chrXI    0.00948708
+    chrVI    9.55247e-05
+    chrVII   0.0639874
+    chrVIII  0.0385787
+    chrX     0.0357395
+    chrXI    0.0324062
     chrXII   0.00900687
-    chrXIII  0.00804257
+    chrXIII  0.052117
     chrXIV   0.00838426
-    chrXV    0.000981871
+    chrXV    0.0081558
     chrXVI   0.00838426
 
-From this analysis, ``chrI`` and ``chrMT`` sets show the higher sequence divergence, with maximum value of ``0.0210181``.
-In general, we should set a mapping identity value lower than or equal to ``100 - max_divergence * 100``. That is,
-to analyze this Yeast panel, we have to specify ``-p`` lower than or equal to ``97.89819``.
