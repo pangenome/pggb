@@ -169,7 +169,7 @@ then
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
     echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 95]"
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
-    echo "    -K, --mash-kmer N           kmer size for mapping [default: 16]"
+    echo "    -K, --mash-kmer N           kmer size for mapping [default: 19]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
