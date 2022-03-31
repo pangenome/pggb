@@ -95,8 +95,8 @@ To compute the pairwise mappings with `wfmash <https://github.com/ekg/wfmash>`_,
     wfmash scerevisiae7.fasta.gz -p 90 -n 7 -t 4 -m > scerevisiae7.mapping.paf
 
 
-We set ``-p 90`` as we expect a sequence divergence of ~10% between these assemblies, while ``-n 7`` indicates the number
-of haplotypes (number of haploid samples in this example).
+We set ``-p 90`` as we expect a sequence divergence of ~10% between these assemblies (see the :ref:`divergence_estimation`
+tutorial for more information), while ``-n 7`` indicates the number of haplotypes (number of haploid samples in this example).
 
 To project the PAF mappings into a network format (an edge list), execute:
 
