@@ -186,7 +186,7 @@ To estimate the sequence divergence between `chrVII` and `chrVIII` chromosomes, 
 
 The ``scerevisiae7.community.0.fa.gz`` file contains the sequences of `chrVII` and `chrVIII` sets in FASTA format
 (follow the :ref:`sequence_partitioning` tutorial to obtain the FASTA files for all the communities detectable in the `YPRP` panel).
-The ``-s 10000`` value in ``mash triangle`` specifies a bigger sketch size for each sequence to compare: a higher value allows for more accurate divergence estimates
+The ``-s 10000`` value in ``mash triangle`` specifies a bigger sketch size for each sequence to compare: a higher value allows for more accurate estimates
 (see `here <https://mash.readthedocs.io/en/latest/distances.html#distance-estimation>`_ how the distance estimation works).
 
 The output shows that, generally, sequences from different chromosomes present a very high sequence divergence (greater than ~0.20).

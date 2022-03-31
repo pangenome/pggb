@@ -213,3 +213,75 @@ All ``scerevisiae7.community.*.fa.gz`` files are ready to be processed separatel
 .. note::
 
 	If you need to join all ``pggb``'s partitioned graphs again, you can use ``odgi squeeze`` (see its `documentation <https://odgi.readthedocs.io/en/latest/rst/commands/odgi_squeeze.html>`_).
+
+
+-------------------------
+Mash-based partitioning
+-------------------------
+
+To obtain the reciprocal relationship between the input sets of sequences, in order to identify the underlying communities,
+we can also use `mash <https://doi.org/10.1186/s13059-016-0997-x>`_.
+The main advantage of such an approach is that it allows us not to have to specify an initial level of expected identity.
+
+To compute the pairwise distances between all pairs of input sequences, execute:
+
+.. code-block:: bash
+
+    mash dist scerevisiae7.fasta.gz scerevisiae7.fasta.gz -s 10000 -i > scerevisiae7.distances.tsv
+
+The ``mash dist`` command estimates the distance of each pair of sequences in input.
+The ``-s 10000`` specifies a bigger sketch size for each sequence to compare: a higher value allows for more accurate estimates
+(see `here <https://mash.readthedocs.io/en/latest/distances.html#distance-estimation>`_ how the distance estimation works).
+Moreover, ``-i`` indicates to compare the individual sequences in input, and not the FASTA files as a whole.
+
+To visualize the first rows of the ``scerevisiae7.distances.tsv`` file, execute:
+
+.. code-block:: bash
+
+    head -n 5 scerevisiae7.distances.tsv | column -t
+
+.. code-block:: none
+
+    DBVPG6044#1#chrI    DBVPG6044#1#chrI  0         0             10000/10000
+    DBVPG6044#1#chrII   DBVPG6044#1#chrI  0.184461  0             105/10000
+    DBVPG6044#1#chrIII  DBVPG6044#1#chrI  0.186761  0             100/10000
+    DBVPG6044#1#chrIV   DBVPG6044#1#chrI  0.220489  1.83465e-228  49/10000
+    DBVPG6044#1#chrV    DBVPG6044#1#chrI  0.176252  0             125/10000
+
+The result is a tab-separated file, with each row reporting the names of the compared sequences, their mash-distance,
+the P-value associated with the mash-distance, and the ratio of the number of shared hashes divided by the number of
+hashes considered (set to 10000 with ``-s 10000``).
+
+To project the distances into a network format (an edge list), and then identify the communities, execute:
+
+.. code-block:: bash
+
+    python3 ../../scripts/mash2net.py -m scerevisiae7.distances.tsv
+
+    python3 ../../scripts/net2communities.py \
+        -e scerevisiae7.distances.tsv.edges.list.txt \
+        -w scerevisiae7.distances.tsv.edges.weights.txt \
+        -n scerevisiae7.distances.tsv.vertices.id2name.txt
+
+    seq 0 14 | while read i; do
+        chromosomes=$(cat scerevisiae7.distances.tsv.edges.weights.txt.community.$i.txt | cut -f 3 -d '#' | sort | uniq | tr '\n' ' ');
+        echo "community $i --> $chromosomes";
+    done
+
+.. code-block:: none
+
+    community 0 --> chrVII chrVIII
+    community 1 --> chrX chrXIII
+    community 2 --> chrV
+    community 3 --> chrVI
+    community 4 --> chrIX
+    community 5 --> chrXIV
+    community 6 --> chrIII
+    community 7 --> chrIV
+    community 8 --> chrMT
+    community 9 --> chrII
+    community 10 --> chrXV
+    community 11 --> chrI
+    community 12 --> chrXI
+    community 13 --> chrXII
+    community 14 --> chrXVI

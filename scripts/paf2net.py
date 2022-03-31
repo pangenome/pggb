@@ -15,7 +15,7 @@ id = 0
 name_2_id_dict = {}
 with open(args.paf) as f:
     for line in f:
-        name1, _, _, _, _, name2, _, _, _, _, align_len, _, est_identity  = line.strip().split('\t')
+        name1, _, _, _, _, name2, _, _, _, _, align_len, _, est_identity = line.strip().split('\t')
 
         for nameX in [name1, name2]:
             if nameX not in name_2_id_dict:
@@ -28,7 +28,7 @@ fw_weights = open(args.paf + '.edges.weights.txt', 'w')
 
 with open(args.paf) as f:
     for line in f:
-        name1, _, _, _, _, name2, _, _, _, _, align_len, _, est_identity  = line.strip().split('\t')
+        name1, _, _, _, _, name2, _, _, _, _, align_len, _, est_identity = line.strip().split('\t')
         align_len = int(align_len)
         est_identity = float(est_identity.split('id:f:')[-1])
 
