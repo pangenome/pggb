@@ -36,7 +36,7 @@ consensus_prefix=Consensus_
 no_splits=false
 multiqc=false
 keep_intermediate_files=false
-pigz_compress=false
+compress=false
 normalize=true
 vcf_spec=false
 
@@ -47,7 +47,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:a:p:n:s:l:K:k:B:H:j:P:O:Me:t:T:vhASY:G:C:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,pigz-compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:a:p:n:s:l:K:k:B:H:j:P:O:Me:t:T:vhASY:G:C:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -82,7 +82,7 @@ while true ; do
         -m|--multiqc) multiqc=true ; shift ;;
         -r|--resume) resume=true ; shift ;;
         -A|--keep-temp-files) keep_intermediate_files=true ; shift ;;
-        -Z|--pigz) pigz_compress=true ; shift ;;
+        -Z|--compress) compress=true ; shift ;;
         -V|--vcf-spec) vcf_spec=$2 ; shift 2 ;;
         -h|--help) show_help=true ; shift ;;
         --) shift ; break ;;
@@ -215,7 +215,8 @@ then
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
     echo "    -T, --poa-threads N         number of compute threads to use during POA (set lower if you OOM during smoothing)"
     echo "    -A, --keep-temp-files       keep intermediate graphs"
-    echo "    -Z, --pigz-compress         compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz"
+    echo "    -Z, --compress              compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz,"
+    echo "                                and variant (.vcf) outputs with bgzip"
     echo "    -h, --help                  this text"
     echo
     echo "Use wfmash, seqwish, smoothxg, and odgi to build and display a pangenome graph."
@@ -284,7 +285,7 @@ general:
   input-fasta:        $input_fasta
   output-dir:         $output_dir
   resume:             $resume
-  pigz-compress:      $pigz_compress
+  compress:           $compress
   threads:            $threads
 wfmash:
   mapping-tool:       $mapper
@@ -617,7 +618,7 @@ then
   fi
 fi
 
-if [[ $pigz_compress == true ]];
+if [[ $compress == true ]];
 then
     if [[ $input_paf == false ]];
     then
