@@ -18,4 +18,4 @@ in the diversity metric). In general, increasing ``-s``, and ``-p`` decreases ru
 For instance, a good setting for 10-20 genomes from the same species, with diversity from 1-5% would be ``-s 100000 -p 90 -n 10``. However, if we wanted to include genomes from another 
 species with higher divergence (say 20%), we might use ``-s 100000 -p 70 -n 10``. The exact configuration depends on the application, and testing must be used to determine what is appropriate for a given study.
 
-When abPOA digests very complex and deep blocks, it might consume a huge amount of memory. This can be addressed with ``-T`` to specifically control the number of threads during the POA step. This leads to a lower memory consumption.
+When ``abPOA`` digests very complex and deep blocks, it might consume a huge amount of memory. This can be addressed with ``-T`` to specifically control the number of threads during the POA step. This leads to a lower memory consumption.

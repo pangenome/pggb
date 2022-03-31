@@ -7,17 +7,17 @@
 
 This pangenome graph construction pipeline renders a collection of sequences into a pangenome graph (in the variation graph model).
 Its goal is to build a graph that is locally directed and acyclic while preserving large-scale variation.
-Maintaining local linearity is important for the interpretation, visualization, and reuse of pangenome variation graphs.
+Maintaining local linearity is important for the interpretation, visualization, and reuse of the pangenome graphs.
 
 [**WORK IN PROGRESS**] Read the full documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/).
 
 
 ## quick start
 
-First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Docker, guix, or by manually building its dependencies.
+First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Docker, `guix`, or by manually building its dependencies.
 
 Put your sequences in one FASTA file and index it with `samtools faidx`.
-If you have many genomes, we suggest using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
+If you have many genomes, we recommend using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
 
 To build a graph from `input.fa`, which contains 9 haplotypes, in the directory `output`, scaffolding the graph using 10kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
 
@@ -32,54 +32,12 @@ pggb \
     -v
 ```
 
-The final process output will be called `outdir/input.fa*smooth.gfa`.
+The final output will be called `outdir/input.fa*smooth.gfa`.
 By default, several intermediate files are produced.
 We render 1D and 2D visualizations of the graph with `odgi`, which are very useful to understand the result of the build.
 
-## establishing parameters
+See also [this step-by-step example](https://pggb.readthedocs.io/en/latest/rst/quick_start.html) for more information.
 
-### essential
-
-`pggb` requires that the user set a number of mappings `-n` per segment.
-Although the defaults (`-p 95 -s 10k`) should work for most pangenome contexts, it is recommended that suitable mapping identity minimum `-p` and a segment length `-s`.
-In particular, for high divergence problems (e.g. models built from separate species) it can be necessary to set `-p` and `-s` to different levels.
-Increasing `-p` and `-s` will increase the stringency of the initial alignment, while reducing them will make this more sensitive.
-These 3 key parameters (`-n`, `-p`, and `-s`) define most of the structure of the pangenome graph.
-They can be set using some prior information about the sequences that you're using.
-
-_Estimate divergence_:
-First, use `mash dist` or `mash triangle` to establish a typical level of divergence between the sequences in your input.
-Convert this to an approximate percent identity and provide it as `-p, --map-pct-id PCT`.
-
-_Define a homology scale_:
-Select a segment length for the initial mapping `-s, --segment-length LENGTH`.
-This will structure the alignments and the resulting graph.
-In general, this should at least be larger than transposon and other common repeats in your pangenome.
-A filter `-l, --block-length BLOCK` by default requires that mappings be made of at least 3 segments, or else they are filtered.
-
-_Set a target number of alignments per segment and haplotype count_: 
-The `pggb` graph is defined by the number of mappings per segment of each genome `-n, --n-mappings N`.
-Ideally, you should set this to equal the number of haplotypes in the pangenome.
-Keep in mind that the total work of alignment is proportional to `N*N`, and these multimappings can be highly redundant.
-If you provide a `N` that is not equal to the number of haplotypes, provide the actual number of haplotypes to `-H`, which helps `smoothxg` determine the right POA problem size.
-
-### optional
-
-_Set a match filter_:
-Graph induction with `seqwish` often works better when we filter very short matches out of the input alignments.
-This underalignment is then resolved in the final `smoothxg` step.
-Removing short matches can simplify the graph and remove spurious relationships caused by short repeated homologies.
-The default setting of `-k 29` is optimal for around 5% divergence, and we suggest lowering it for higher divergence and increasing it for lower divergence (values up to `-k 311` work well for human haplotypes).
-
-_Define a partial order alignment (POA) target length_:
-The last step in `pggb` refines the graph by running a partial order alignment across segments.
-The length of these sub-problems greatly affects the total time and memory requirements of `pggb`, and is defined by `-G, --poa-length-target N,M`.
-Two passes of refinement are defined by lengths `N` and `M`.
-Ideally, this target can be set above the length of transposon repeats in the pangenome, and base-level graph quality tends to improve as it is set higher.
-The default setting of `-G 13117,13219` makes sense for lower-diversity pangenomes, but can require several GB of RAM per thread.
-A setting like `-G 3079,3559` will be significantly faster.
-
-Always set `-t` to the desired number of parallel threads.
 
 ## suggested settings for different organisms
 
@@ -123,20 +81,6 @@ We also call variants with `-V` with respect to the reference `gi|568815561:#`.
 - Each colored rectangle represents a node of a path. The node’s x-coordinates are on the x-axis and the y-coordinates are on the y-axis, respectively.
 - A bubble indicates that here some paths have a diverging sequence or it can represent a repeat region.
 
-### suggestions for larger pangenomes
-
-Although it makes for a nice example, the settings for this small, highly-diverse gene in the human HLA are typically too sensitive for application to whole genomes.
-
-In practice, we usually need to set `-s` much higher, up to 50000 or 100000 depending on context, to ensure that the resulting graphs maintain a structure reflective of the underlying homology of large regions of the genome, and not spurious matches caused by small repeats.
-
-To ensure that we only get high-quality alignments, we might need to set `-p` higher, near the expected pairwise diversity of the sequences we're using (including structural variants in the diversity metric).
-In general, increasing `-s`, and `-p` decreases runtime and memory usage.
-
-For instance, a good setting for 10-20 genomes from the same species, with diversity from 1-5% would be `-s 100000 -p 90 -n 10`.
-However, if we wanted to include genomes from another species with higher divergence (say 20%), we might use `-s 100000 -p 70 -n 10`.
-The exact configuration depends on the application, and testing must be used to determine what is appropriate for a given study.
-
-When `abpoa` digests very complex and deep blocks, it might consume a huge amount of memory. This can be addressed with `-T` to specifically control the number of threads during the POA step. This leads to a lower memory consumption.
 
 ## installation
 
@@ -219,59 +163,6 @@ from the `Dockerfile`. This can lead to better performance in the `abPOA` step o
 
 A nextflow DSL2 port of `pggb` is developed by the [nf-core](https://nf-co.re/) community. See [nf-core/pangenome](https://github.com/nf-core/pangenome) for more details.
 
-
-## parameter considerations
-
-It is important to understand the key parameters of each phase and their effect on the resulting pangenome graph.
-Each pangenome is different.
-We may require different settings to obtain useful graphs for particular applications in different contexts.
-
-### defining the base alignment with wfmash
-
-Three parameters passed to `wfmash` are essential for establishing the basic structure of the pangenome:
-
-- `-s[N], --segment-length=[N]` is the length of the mapped and aligned segment
-- `-p[%], --map-pct-id=[%]` is the percentage identity minimum in the _mapping_ step
-- `-n[N], --n-mappings=[N]` is the maximum number of mappings (and alignments) to report for each segment
-
-Crucially, `--segment-length` provides a kind of minimum alignment length filter.
-The mashmap step in `wfmash` will only consider segments of this size, and require them to have an approximate pairwise identity of at least `--map-pct-id`.
-For small pangenome graphs, or where there are few repeats, `--segment-length` can be set low (such as 3000 in the example above).
-However, for larger contexts, with repeats, it can be very important to set this high (for instance 100000 in the case of human genomes).
-A long segment length ensures that we represent long collinear regions of the input sequences in the structure of the graph. As a general rule of thump, `-n` should be set to the number of haplotypes given in the input sequences. Because that's the maximum number of secondary mappings and alignments that we expect.
-
-### generating the initial graph with seqwish
-
-The `-k` or `--min-match-length` parameter given to `seqwish` will drop any short matches from consideration.
-In practice, these often occur in regions of low alignment quality, which are typical of areas with large indels and structural variations in the `wfmash` alignments.
-In effect, setting `-k` to N means that we can tolerate a local pairwise difference rate of no more than 1/N.
-Thus, indels which may be represented by complex series of edit operations will be opened into [bubbles](https://doi.org/10.1089/cmb.2017.0251) in the induced graph, and alignment regions with very low identity will be ignored.
-Using affine-gapped alignment (such as with _[minimap2](https://github.com/lh3/minimap2)_) may reduce the impact of this step by representing large indels more precisely in the input alignments.
-However, it remains important due to local inconsistency in alignments in low-complexity sequence.
-
-### homogenizing and ordering the graph with smoothxg
-
-The "chunked" POA process attempts to build an MSA for each collinear region in the sorted graph.
-This depends on a sorting pipeline implemented in _[odgi](https://github.com/vgteam/odgi)_.
-`smoothxg` greedily extends candidate blocks until they contain `-w[N], --max-block-weight=[N]` bp of sequence in the embedded paths.
-The `--max-block-weight` parameter thus determines the average size of these blocks.
-We expect their length in graph space to be approximately `max-block-weight` / `average_path_depth`.
-Thus, we set the `max-block-weight` to `-G, --poa-length-target` times the number of `-n, --n-mappings` or `-H, --n-haps`. It may be necessary to change this setting when the pangenome path depth (the number of genome sequences covering the average graph node) is higher or lower.
-In effect, setting `--poa-length-target` and therefore `--max-block-weight` higher will make the size of the blocks given to the POA algorithm larger, and this will result in larger regions of the graph having guaranteed local partial order.
-Setting it higher can greatly increase runtime, because the POA algorithm is quadratic in the length of the longest sequence and graph that it aligns, but it also tends to produce cleaner resulting graphs. \
-When forming each block, `smoothxg` pads each end of the sequence in the POA step with `N*longest_poa_seq` bp. This tries to ensure that at the boundaries of blocks, we smooth, too. During our trials with the HPRC data, a default of `0.03` crystallized. But this could vary dependent on the data set.
-The POA parameters will determine how well the sequence can be aligned in a block given their assumed divergence. The current default of `1,19,39,3,81,1` is for ~0.1% divergence, as suggested by `minimap2`:
-
-| asm mode  | `--poa-params` | divergence in % |
-| ------------- | ------------- | ------------- |
-| asm5  | 1,19,39,3,81,1  | ~0.1 |
-| asm10  | 1,9,16,2,41,1  | ~1 |
-| asm20  | 1,4,6,2,26,1 | ~5 |
-
-Other parameters to `smoothxg` help to shape the scope and boundaries of the blocks.
-In particular, `-e[N], --max-edge-jump=[N]` breaks a growing block when an edge in the graph jumps more than the given distance `N` in the sort order of the graph.
-This is designed to encourage blocks to stop near the boundaries of structural variation.
-When a path leaves and returns to a given block, we can pull in the sequence that lies outside the block if it is less than `-j[N], --max-path-jump=[N]`.
 
 ## reporting
 
