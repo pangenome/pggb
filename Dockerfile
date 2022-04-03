@@ -7,7 +7,7 @@ LABEL software="pggb"
 LABEL about.home="https://github.com/pangenome/pggb"
 LABEL about.license="SPDX:MIT"
 
-# odgi's dependencies
+# dependencies
 RUN apt-get update \
     && apt-get install -y \
                        git \
@@ -34,7 +34,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 92409e763a56bb15cf652fbc11003eb785402d27 \
+    && git checkout 1344b9e39bf585a7687cec29fb45a4adb9bb6692 \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
@@ -43,7 +43,7 @@ RUN git clone --recursive https://github.com/ekg/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout a2d85fb809b429cee72a2d792a249bf6474be761 \
+    && git checkout bd96fbbcda96c3f6bc6b2e3d965bf722ca29491d \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
