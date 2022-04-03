@@ -7,7 +7,7 @@ LABEL software="pggb"
 LABEL about.home="https://github.com/pangenome/pggb"
 LABEL about.license="SPDX:MIT"
 
-# odgi's dependencies
+# dependencies
 RUN apt-get update \
     && apt-get install -y \
                        git \
@@ -34,38 +34,28 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout c746c7328344d9da7c3cfa1d6e8a4cf09d634a3a \
+    && git checkout 1344b9e39bf585a7687cec29fb45a4adb9bb6692 \
     && git submodule update --init --recursive \
-    && sed -i 's/-mcx16 //g' CMakeLists.txt \
-    && sed -i 's/-march=native //g' CMakeLists.txt \
-    && sed -i 's/-mcx16 //g' src/common/wflign/CMakeLists.txt \
-    && sed -i 's/-march=native //g' src/common/wflign/CMakeLists.txt \
-    && sed -i 's/-mcx16 //g' src/common/wflign/deps/WFAv2/CMakeLists.txt \
-    && sed -i 's/-march=native //g' src/common/wflign/deps/WFAv2/CMakeLists.txt \
-    && sed -i 's/-mcx16 //g' src/common/wflign/deps/wflambdav2/CMakeLists.txt \
-    && sed -i 's/-march=native //g' src/common/wflign/deps/wflambdav2/CMakeLists.txt \
-    && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     && cd ../
 
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout 5a159f51b6617c559539ed7283a06b4394a4c7ff \
+    && git checkout bd96fbbcda96c3f6bc6b2e3d965bf722ca29491d \
     && git submodule update --init --recursive \
-    && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
     && cd ../
 
-RUN git clone --recursive https://github.com/ekg/smoothxg \
+RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 79cc2d131a818000401d451ecf14c00afc12dc8c \
+    && git checkout 372bb5d74ad4effb498659bf30fe1580b71ef7db \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
-    && sed -i 's/-mcx16 //g' deps/WFA/CMakeLists.txt \
-    && sed -i 's/-march=native //g' deps/WFA/CMakeLists.txt \
-    && cmake -H. -Bbuild && cmake --build build -- -j $(nproc) \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi
 
