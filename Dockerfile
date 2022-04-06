@@ -52,7 +52,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 372bb5d74ad4effb498659bf30fe1580b71ef7db \
+    && git checkout 675972e1c56ebd4a5b5a80e019c7c87e0218e89f \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
