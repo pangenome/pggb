@@ -13,6 +13,7 @@ segment_length=10000
 block_length=false
 mash_kmer=false
 min_match_length=47
+sparse_factor=0
 transclose_batch=10000000
 n_haps=false
 block_ratio_min=0
@@ -47,7 +48,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:a:p:n:s:l:K:k:B:H:j:P:O:Me:t:T:vhASY:G:C:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:a:p:n:s:l:K:k:f:B:H:j:P:O:Me:t:T:vhASY:G:C:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -64,6 +65,7 @@ while true ; do
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
+        -f|--sparse-factor) sparse_factor=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
         -H|--n-haps) n_haps=$2 ; shift 2 ;;
         -d|--pad-max-depth) pad_max_depth=$2 ; shift 2 ;;
@@ -174,6 +176,7 @@ then
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
     echo "    -k, --min-match-len N       filter exact matches below this length [default: 47]"
+    echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
     echo "    -H, --n-haps N              number of haplotypes, if different than that set with -n [default: n-mappings]"
@@ -253,7 +256,7 @@ else
 fi
 
 # Graph induction
-prefix_seqwish="$prefix_paf".$(echo k$min_match_length-B$transclose_batch | sha256sum | head -c 7)
+prefix_seqwish="$prefix_paf".$(echo k$min_match_length-f$sparse_factor-B$transclose_batch | sha256sum | head -c 7)
 
 # Normalization
 block_id_min=$(echo "scale=4; $map_pct_id / 100.0" | bc)
@@ -299,6 +302,7 @@ wfmash:
   exclude-delim:      $exclude_delim
 seqwish:
   min-match-len:      $min_match_length
+  sparse-factor:      $sparse_factor
   transclose-batch:   $transclose_batch
 smoothxg:
   n-haps:             $n_haps
@@ -358,6 +362,7 @@ if [[ ! -s $prefix_seqwish.seqwish.gfa || $resume == false ]]; then
         -s "$input_fasta" \
         -p "$seqwish_paf" \
         -k $min_match_length \
+        -f $sparse_factor \
         -g "$prefix_seqwish".seqwish.gfa \
         -B $transclose_batch \
         -P \
