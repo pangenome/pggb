@@ -50,10 +50,12 @@ Core packages
 
         + Global graph sorting with `PG-SGD <https://odgi.readthedocs.io/en/latest/rst/tutorials/sort_layout.html>`_
         + Break graph into blocks
-        + `smooth` blocks via `POA <https://simpsonlab.github.io/2015/05/01/understanding-poa/>`_
+        + Smooth blocks via `POA <https://simpsonlab.github.io/2015/05/01/understanding-poa/>`_
         + Graph has partial local order
         + Smoothed graph in `GFAv1 <https://github.com/GFA-spec/GFA-spec/blob/master/GFA1.md>`_ format
-        + Consensus  paths and graph
+..
+        + Consensus paths and graph
+
         + Whole genome alignment in `MAF <https://genome.ucsc.edu/FAQ/FAQformat.html#format5>`_ format
 
 

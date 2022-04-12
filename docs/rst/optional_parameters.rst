@@ -108,7 +108,7 @@ Always set `-t` to the desired number of parallel threads. If the POA step of ``
 A  good approximation can be half what was set in ``-t``.
 
 ..
-    miscellancious
+    miscellaneous
 
     outdir
     input PAF
