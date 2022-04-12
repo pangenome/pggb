@@ -107,8 +107,14 @@ if [[
     || $n_mappings == false
    ]];
 then
-    show_help=true
-    >&2 echo "Mandatory arguments -i, -n"
+    >&2 echo "ERROR: mandatory arguments -i and -n"
+    exit
+fi
+
+if (( "$n_mappings" < 2 ));
+then
+    >&2 echo "ERROR: -n must be greater than or equal to 2"
+    exit
 fi
 
 if [[ $poa_threads == 0 ]];
