@@ -54,8 +54,11 @@ We build a MHC class II ALTs GRCh38 pangenome graph from 10 haplotypes using tes
     cd pggb
     ./pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -V 'gi|568815561:#' -o out -M -C cons,100,1000,10000 -m
 
-This writes to directory ``out``: A variation graph in GFA format, a multiple sequence alignment in MAF format, a series of consensus graphs at different levels of variant resolution, 
-and several diagnostic images. By default, the outputs are named according to the input file and a hash of the construction parameters. 
+..
+    This writes to directory ``out``: a variation graph in GFA format, a multiple sequence alignment in MAF format, a series of consensus graphs at different levels of variant resolution,
+
+This writes to directory ``out``: a variation graph in GFA format, a multiple sequence alignment in MAF format,
+and several diagnostic images. By default, the outputs are named according to the input file and a hash of the construction parameters.
 Adding -v prohibits the rendering of 1D and 2D diagnostic images of the graph. This can reduce running time, because the calculation of the 2D layout can take a while. 
 By default, redundant structures in the graph are collapsed by applying GFAffix. We also call variants with ``-V`` with respect to the reference ``gi|568815561:#``.
 
