@@ -32,7 +32,7 @@ no_merge_segments=false
 do_stats=false
 exclude_delim=false
 write_maf=false
-consensus_spec=false
+consensus_spec=false # Disabled for the moment due to PGGB's #133 and #182 issues
 consensus_prefix=Consensus_
 no_splits=false
 multiqc=false
@@ -48,7 +48,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:a:p:n:s:l:K:k:f:B:H:j:P:O:Me:t:T:vhASY:G:C:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:a:p:n:s:l:K:k:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -75,7 +75,7 @@ while true ; do
         -P|--poa-params) poa_params=$2 ; shift 2 ;;
         -O|--poa-padding) poa_padding=$2 ; shift 2 ;;
         -M|--write-maf) write_maf=true ; shift ;;
-        -C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
+        #-C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
         -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
         -t|--threads) threads=$2 ; shift 2 ;;
         -T|--poa-threads) poa_threads=$2 ; shift 2 ;;
@@ -196,15 +196,15 @@ then
     echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: 100]"
     echo "    -M, --write-maf             write MAF output representing merged POA blocks [default: off]"
     echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
-    echo "    -C, --consensus-spec SPEC   consensus graph specification: write consensus graphs to"
-    echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a min_len parameter"
-    echo "                                (which defines the length of divergences from consensus paths to preserve in the"
-    echo "                                output), optionally a file containing reference paths to preserve in the output,"
-    echo "                                a flag (y/n) indicating whether we should also use the POA consensus paths, a"
-    echo "                                minimum coverage of consensus paths to retain (min_cov), and a maximum allele"
-    echo "                                length (max_len, defaults to 1e6); implies -a; example:"
-    echo "                                cons,100,1000:refs1.txt:n,1000:refs2.txt:y:2.3:1000000,10000"
-    echo "                                [default: off]"
+    #echo "    -C, --consensus-spec SPEC   consensus graph specification: write consensus graphs to"
+    #echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a min_len parameter"
+    #echo "                                (which defines the length of divergences from consensus paths to preserve in the"
+    #echo "                                output), optionally a file containing reference paths to preserve in the output,"
+    #echo "                                a flag (y/n) indicating whether we should also use the POA consensus paths, a"
+    #echo "                                minimum coverage of consensus paths to retain (min_cov), and a maximum allele"
+    #echo "                                length (max_len, defaults to 1e6); implies -a; example:"
+    #echo "                                cons,100,1000:refs1.txt:n,1000:refs2.txt:y:2.3:1000000,10000"
+    #echo "                                [default: off]"
     echo "   [odgi]"
     echo "    -v, --skip-viz              don't render visualizations of the graph in 1D and 2D [default: make them]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
@@ -234,7 +234,8 @@ fi
 
 # Alignment
 mapper_letter='W'
-paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings-K$mash_kmer
+n_mappings_minus_1=$( echo "$n_mappings - 1" | bc )
+paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings_minus_1-K$mash_kmer
 
 if [[ $no_merge_segments == true ]];
 then
@@ -349,7 +350,7 @@ if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
               $split_cmd \
               $mash_kmer_cmd \
               -p $map_pct_id \
-              -n $n_mappings \
+              -n $n_mappings_minus_1 \
               -t $threads \
               "$input_fasta" "$input_fasta" \
               > "$prefix_paf".$mapper.paf) 2> >(tee -a "$log_file")
