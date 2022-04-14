@@ -36,7 +36,7 @@ the ``leidenalg`` `package <https://github.com/vtraag/leidenalg>`_:
 
 .. code-block:: bash
 
-    pip3 install leidenalg
+    pip3 install python-igraph
     pip3 install pycairo # Only needed for visualization
 
 
@@ -92,11 +92,12 @@ To compute the pairwise mappings with `wfmash <https://github.com/ekg/wfmash>`_,
 
 .. code-block:: bash
 
-    wfmash scerevisiae7.fasta.gz -p 90 -n 7 -t 4 -m > scerevisiae7.mapping.paf
+    wfmash scerevisiae7.fasta.gz -p 90 -n 6 -t 4 -m > scerevisiae7.mapping.paf
 
 
 We set ``-p 90`` as we expect a sequence divergence of ~10% between these assemblies (see the :ref:`divergence_estimation`
-tutorial for more information), while ``-n 7`` indicates the number of haplotypes (number of haploid samples in this example).
+tutorial for more information), while ``-n 6`` indicates the number of mappings to keep for each homologous region
+identified, set as the number of haplotypes (number of haploid samples in this example) minus 1.
 
 To project the PAF mappings into a network format (an edge list), execute:
 
@@ -120,12 +121,12 @@ To identity the communities, execute:
         -n scerevisiae7.mapping.paf.vertices.id2name.txt
 
 The ``paf2net.py`` script creates a set of `*.community.*.txt` files one for each of the 15 communities detected.
-Each ``txt`` file lists the sequences that belong to the same community. For example, to see the sequences in the first community,
+Each ``txt`` file lists the sequences that belong to the same community. For example, to see the sequences in one community,
 execute:
 
 .. code-block:: bash
 
-    cat scerevisiae7.mapping.paf.edges.weights.txt.community.0.txt
+    cat scerevisiae7.mapping.paf.edges.weights.txt.community.6.txt
 
 .. code-block:: none
 
@@ -157,21 +158,22 @@ samples (`Yue et al., 2016 <https://doi.org/10.1038/ng.3847>`_). To see the chro
 
 .. code-block:: none
 
-    community 0 --> chrVII chrVIII
-    community 1 --> chrX chrXIII
-    community 2 --> chrVI
+    community 0 --> chrI
+    community 1 --> chrII
+    community 2 --> chrIII
     community 3 --> chrIV
     community 4 --> chrV
-    community 5 --> chrXII
-    community 6 --> chrXV
-    community 7 --> chrI
-    community 8 --> chrII
-    community 9 --> chrIII
-    community 10 --> chrIX
-    community 11 --> chrXI
-    community 12 --> chrXIV
-    community 13 --> chrMT
-    community 14 --> chrXVI
+    community 5 --> chrVI
+    community 6 --> chrVII chrVIII
+    community 7 --> chrIX
+    community 8 --> chrX chrXIII
+    community 9 --> chrXI
+    community 10 --> chrXII
+    community 11 --> chrXIV
+    community 12 --> chrXV
+    community 13 --> chrXVI
+    community 14 --> chrMT
+
 
 The ``paf2net.py`` script can also generate a visualization of the communities detected. To request such a visualization,
 run the script by specifying the ``--plot`` flag (it can be slow with big datasets):
@@ -185,7 +187,7 @@ run the script by specifying the ``--plot`` flag (it can be slow with big datase
         --plot
 
 The visualization is written in the ``scerevisiae7.mapping.paf.edges.list.txt.communities.pdf`` file.
-Here is the visualization of a few communities, including the two ones that depict the structural rearrangements (in red and green):
+Here is the visualization of the two communities that depict the structural rearrangements (in grey and green):
 
 .. image:: /img/scerevisiae7.zoom_in_communities.png
 
@@ -270,18 +272,18 @@ To project the distances into a network format (an edge list), and then identify
 
 .. code-block:: none
 
-    community 0 --> chrVII chrVIII
-    community 1 --> chrX chrXIII
-    community 2 --> chrV
-    community 3 --> chrVI
-    community 4 --> chrIX
-    community 5 --> chrXIV
-    community 6 --> chrIII
-    community 7 --> chrIV
-    community 8 --> chrMT
-    community 9 --> chrII
-    community 10 --> chrXV
-    community 11 --> chrI
-    community 12 --> chrXI
-    community 13 --> chrXII
-    community 14 --> chrXVI
+    community 0 --> chrII
+    community 1 --> chrI
+    community 2 --> chrIII
+    community 3 --> chrIV
+    community 4 --> chrV
+    community 5 --> chrVI
+    community 6 --> chrVII chrVIII
+    community 7 --> chrIX
+    community 8 --> chrX chrXIII
+    community 9 --> chrXI
+    community 10 --> chrXII
+    community 11 --> chrXIV
+    community 12 --> chrXV
+    community 13 --> chrXVI
+    community 14 --> chrMT
