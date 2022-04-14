@@ -34,7 +34,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/ekg/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 1344b9e39bf585a7687cec29fb45a4adb9bb6692 \
+    && git checkout ad8aebae1be96847839778af534866bc9545adb9 \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
@@ -43,7 +43,7 @@ RUN git clone --recursive https://github.com/ekg/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout bd96fbbcda96c3f6bc6b2e3d965bf722ca29491d \
+    && git checkout 706ef7e2640e38a75ae7435fb57f7a6c8e3ada2c \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
@@ -52,7 +52,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 675972e1c56ebd4a5b5a80e019c7c87e0218e89f \
+    && git checkout b3f4578f37000922cdd193c2d183951f48f6e612 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
