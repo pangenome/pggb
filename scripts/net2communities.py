@@ -16,28 +16,28 @@ args = parser.parse_args()
 
 
 import igraph as ig
-import leidenalg as la
 
-# Read weigths
+# Read weights
 weight_list = [float(x) for x in open(args.edge_weights).read().strip().split('\n')]
 
-# Read the edge list and inizialite the network
-g = ig.read( filename=args.edge_list, format='edgelist')# todo It breaks the plotting, directed=False)
+# Read the edge list and initialize the network
+g = ig.read( filename=args.edge_list, format='edgelist', directed=False)
 
 # Detect the communities
-partition = la.find_partition(
-    g,
-    la.ModularityVertexPartition,
-    n_iterations=-1 if args.accurate else 30, # -1 indicates to iterate until convergence
-    weights=weight_list,
-    seed=42
+partition = g.community_leiden(
+    objective_function='modularity',
+    n_iterations=-1 if args.accurate else 60, # -1 indicates to iterate until convergence
+    weights=weight_list
 )
 
-# todo try igraph community detection algorithm, it is faster. It needs 'directed=False'
-# partition2 = g.community_leiden(
-#     objective_function='modularity',
+# Slower implementation
+# import leidenalg as la
+# partition = la.find_partition(
+#     g,
+#     la.ModularityVertexPartition,
 #     n_iterations=-1 if args.accurate else 30, # -1 indicates to iterate until convergence
-#     weights=weight_list
+#     weights=weight_list,
+#     seed=42
 # )
 
 print(f'Detected {len(partition)} communities.')
