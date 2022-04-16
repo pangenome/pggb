@@ -623,11 +623,13 @@ fi
 if [[ $keep_intermediate_files != true ]];
 then
   rm -f "$prefix_seqwish".seqwish.{gfa,og}
+  rm -f "$prefix_smoothed".smooth.[0-9]*.{gfa,og}
 
   if [[ $normalize == true ]] && [[ $write_maf == false ]];
   then
     rm -f "$prefix_smoothed".smooth.{gfa,og}
   fi
+
 fi
 
 if [[ $compress == true ]];
