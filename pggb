@@ -317,7 +317,7 @@ wfmash:
   map-pct-id:         $map_pct_id
   n-mappings:         $n_mappings
   mash-kmer:          $mash_kmer
-  mash-kmer-thres:    $mash_kmer-thres
+  mash-kmer-thres:    $mash_kmer_thres
   exclude-delim:      $exclude_delim
 seqwish:
   min-match-len:      $min_match_length
