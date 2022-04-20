@@ -26,7 +26,7 @@ g = ig.read( filename=args.edge_list, format='edgelist', directed=False)
 # Detect the communities
 partition = g.community_leiden(
     objective_function='modularity',
-    n_iterations=-1 if args.accurate else 60, # -1 indicates to iterate until convergence
+    n_iterations=120 if args.accurate else 60, # -1 would indicate to iterate until convergence
     weights=weight_list
 )
 
