@@ -12,6 +12,7 @@ n_mappings=false
 segment_length=10000
 block_length=false
 mash_kmer=false
+mash_kmer_thres=false
 min_match_length=47
 sparse_factor=0
 transclose_batch=10000000
@@ -48,7 +49,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:a:p:n:s:l:K:k:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,min-match-length:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:a:p:n:s:l:K:F:k:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -63,6 +64,7 @@ while true ; do
         -l|--block-length) block_length=$2 ; shift 2 ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
+        -F|--mash-kmer-thres) mash_kmer_thres=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -f|--sparse-factor) sparse_factor=$2 ; shift 2 ;;
@@ -136,6 +138,14 @@ then
 fi
 # wfmash auto-sets our kmer length based on its parameters
 
+mash_kmer_thres_cmd=""
+if [[ $mash_kmer_thres != false ]];
+then
+    mash_kmer_thres_cmd="-H $mash_kmer_thres"
+fi
+# wfmash auto-sets our kmer frequency threshold based on its parameters
+
+
 # our partial order alignment parameters
 # poa param suggestions from minimap2
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
@@ -178,6 +188,7 @@ then
     echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 95]"
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: 19]"
+    echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: 0.5]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
@@ -235,7 +246,7 @@ fi
 # Alignment
 mapper_letter='W'
 n_mappings_minus_1=$( echo "$n_mappings - 1" | bc )
-paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings_minus_1-K$mash_kmer
+paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings_minus_1-K$mash_kmer-F$mash_kmer_thres
 
 if [[ $no_merge_segments == true ]];
 then
@@ -306,6 +317,7 @@ wfmash:
   map-pct-id:         $map_pct_id
   n-mappings:         $n_mappings
   mash-kmer:          $mash_kmer
+  mash-kmer-thres:    $mash_kmer-thres
   exclude-delim:      $exclude_delim
 seqwish:
   min-match-len:      $min_match_length
@@ -349,6 +361,7 @@ if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
               $merge_cmd \
               $split_cmd \
               $mash_kmer_cmd \
+              $mash_kmer_thres_cmd \
               -p $map_pct_id \
               -n $n_mappings_minus_1 \
               -t $threads \
