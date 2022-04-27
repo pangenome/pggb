@@ -123,6 +123,12 @@ Or if you want to pull a specific snapshot from [https://github.com/orgs/pangeno
 docker pull ghcr.io/pangenome/pggb:TAG
 ```
 
+You can pull the docker image also from [dockerhub](https://hub.docker.com/r/pangenome/pggb):
+
+```shell
+docker pull pangenome/pggb
+```
+
 Going in the `pggb` directory
 
 ```sh
