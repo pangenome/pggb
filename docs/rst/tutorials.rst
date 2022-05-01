@@ -8,4 +8,4 @@ Tutorials
     tutorials/sequence_partitioning
     tutorials/divergence_estimation
     tutorials/escherichia_coli
-    tutorials/template
+    tutorials/genus_species
