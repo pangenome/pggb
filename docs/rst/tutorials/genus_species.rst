@@ -1,4 +1,4 @@
-.. _genus_species:
+.. _genus-species:
 
 ####################
 GenusSpecies
