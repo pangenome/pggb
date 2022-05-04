@@ -173,13 +173,13 @@ Take SNPs from the PGGB VCF file:
 
 Prepare the reference in ``SDF`` format for variant evaluation with ``rtg vcfeval``:
 
-.. code-block::bash
+.. code-block:: bash
 
     rtg format -o chm13#chr6:28380000-33300000.sdf chm13#chr6:28380000-33300000.fa
 
 Compare nucmer-based SNPs with PGGB-based SNPs:
 
-.. code-block::bash
+.. code-block:: bash
 
     REFSDF=chm13#chr6:28380000-33300000.sdf
     NAMEREF=chm13
@@ -199,7 +199,7 @@ Compare nucmer-based SNPs with PGGB-based SNPs:
 
 Collect statistics:
 
-.. code-block::
+.. code-block:: bash
 
     (echo contig precision recall f1.score; grep None */*txt | sed 's,/summary.txt:,,' | tr -s ' ' | cut -f 1,7,8,9 -d ' ' ) | tr ' ' '\t' > statistics.tsv
 
