@@ -7,6 +7,6 @@ Tutorials
 
     tutorials/sequence_partitioning
     tutorials/divergence_estimation
-    tutorials/homo_sapiens_mhc
+    tutorials/small_variants_evaluation
     tutorials/escherichia_coli
     tutorials/genus_species

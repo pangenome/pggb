@@ -1,7 +1,7 @@
-.. _homo-sapiens-mhc:
+.. _small-variants-evaluation:
 
 ####################
-Homo sapiens MHC
+Small variants evaluation
 ####################
 
 ========
@@ -137,7 +137,7 @@ Align each sequence against the reference with `nucmer <10.1186/gb-2004-5-2-r12>
         rm $CONTIG.fa
     done
 
-Generate VCF files for each sequence against the reference with `nucmer <10.1186/gb-2004-5-2-r12>`_:
+Using the ``nucmer2vcf.R`` script, wenerate VCF files for each sequence with respect to the reference with `nucmer <10.1186/gb-2004-5-2-r12>`_:
 
 .. code-block:: bash
 
@@ -190,11 +190,11 @@ Compare nucmer-based SNPs with PGGB-based SNPs:
         PREFIX=nucmer/${CONTIG}_vs_${NAMEREF}
 
         rtg vcfeval \
-                -t $REFSDF \
-                -b $PREFIX.vcf.gz \
-                -c HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.*.smooth.final.chm13.bub100k.waved.${CONTIG}.max1.vcf.gz \
-                -T 16 \
-                -o vcfeval/${CONTIG}
+            -t $REFSDF \
+            -b $PREFIX.vcf.gz \
+            -c HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.*.smooth.final.chm13.bub100k.waved.${CONTIG}.max1.vcf.gz \
+            -T 16 \
+            -o vcfeval/${CONTIG}
     done
 
 Collect statistics:
@@ -210,7 +210,7 @@ Plot statistics:
     require(ggplot2)
     require(tidyr)
 
-    stat_df <- read.table('/home/guarracino/statistics.tsv', sep = '\t', header = T, comment.char = '?')
+    stat_df <- read.table('statistics.tsv', sep = '\t', header = T, comment.char = '?')
 
     stat_df <- pivot_longer(stat_df,precision:f1.score,"Metric")
 
