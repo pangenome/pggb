@@ -69,7 +69,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && git checkout 9581a29d6dfe1e76a98f8c360ed33adf0348fa27 \
     && cargo install --force --path . && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix
 
-RUN apt-get update && apt-get install -y pip && pip install multiqc && apt-get install -y bcftools
+RUN apt-get update && apt-get install -y pip && pip install multiqc==1.11 && apt-get install -y bcftools
 
 RUN apt-get install wget && wget https://github.com/vgteam/vg/releases/download/v1.39.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
