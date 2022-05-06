@@ -1,0 +1,1043 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   inkscape:export-ydpi="289.40701"
+   inkscape:export-xdpi="289.40701"
+   inkscape:export-filename="/home/heumos/git/pggb/docs/img/smoothxg_workflow.png"
+   sodipodi:docname="smoothxg_workflow.svg"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04, custom)"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 272.16501 148.21181"
+   height="148.21181mm"
+   width="272.16501mm"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs2">
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="Arrow1Lend"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lend">
+      <path
+         transform="matrix(-0.8,0,0,-0.8,-10,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path6203" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="Arrow1Lstart"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Lstart">
+      <path
+         transform="matrix(0.8,0,0,0.8,10,0)"
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt"
+         d="M 0,0 5,-5 -12.5,0 5,5 Z"
+         id="path6200" />
+    </marker>
+    <linearGradient
+       id="linearGradient5668"
+       inkscape:collect="always">
+      <stop
+         id="stop5664"
+         offset="0"
+         style="stop-color:#999999;stop-opacity:1;" />
+      <stop
+         id="stop5666"
+         offset="1"
+         style="stop-color:#999999;stop-opacity:0;" />
+    </linearGradient>
+    <inkscape:path-effect
+       lpeversion="0"
+       only_selected="false"
+       apply_with_weight="true"
+       apply_no_weight="true"
+       helper_size="0"
+       steps="2"
+       weight="33.333333"
+       is_visible="true"
+       id="path-effect5654"
+       effect="bspline" />
+    <inkscape:path-effect
+       lpeversion="0"
+       only_selected="false"
+       apply_with_weight="true"
+       apply_no_weight="true"
+       helper_size="0"
+       steps="2"
+       weight="33.333333"
+       is_visible="true"
+       id="path-effect5650"
+       effect="bspline" />
+    <inkscape:path-effect
+       lpeversion="0"
+       only_selected="false"
+       apply_with_weight="true"
+       apply_no_weight="true"
+       helper_size="0"
+       steps="2"
+       weight="33.333333"
+       is_visible="true"
+       id="path-effect5646"
+       effect="bspline" />
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="103.70081"
+       x2="105"
+       y1="103.70081"
+       x1="75"
+       id="linearGradient5670-9"
+       xlink:href="#linearGradient5668"
+       inkscape:collect="always"
+       gradientTransform="matrix(0.26458333,0,0,0.20130823,46.957283,113.76684)" />
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="103.70081"
+       x2="105"
+       y1="103.70081"
+       x1="75"
+       id="linearGradient5670-9-64"
+       xlink:href="#linearGradient5668"
+       inkscape:collect="always"
+       gradientTransform="matrix(0.2821078,0,0,0.12404564,140.1229,152.29555)" />
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="103.70081"
+       x2="105"
+       y1="103.70081"
+       x1="75"
+       id="linearGradient5670-9-6-3"
+       xlink:href="#linearGradient5668"
+       inkscape:collect="always"
+       gradientTransform="matrix(0,-0.26458333,0.08144904,0,86.801876,184.22374)" />
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="103.70081"
+       x2="105"
+       y1="103.70081"
+       x1="75"
+       id="linearGradient5670-9-9"
+       xlink:href="#linearGradient5668"
+       inkscape:collect="always"
+       gradientTransform="matrix(0.26458333,0,0,0.26670362,94.28769,86.004818)" />
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="103.70081"
+       x2="105"
+       y1="103.70081"
+       x1="75"
+       id="linearGradient5670-9-95"
+       xlink:href="#linearGradient5668"
+       inkscape:collect="always"
+       gradientTransform="matrix(0.26458333,0,0,0.20112317,141.54251,113.85624)" />
+    <linearGradient
+       gradientUnits="userSpaceOnUse"
+       y2="103.70081"
+       x2="105"
+       y1="103.70081"
+       x1="75"
+       id="linearGradient5670-9-07"
+       xlink:href="#linearGradient5668"
+       inkscape:collect="always"
+       gradientTransform="matrix(0.26458333,0,0,0.18948201,188.82252,115.23864)" />
+    <linearGradient
+       y2="103.70081"
+       x2="105"
+       y1="103.70081"
+       x1="75"
+       gradientTransform="matrix(0.26458333,0,0,0.20105866,94.28769,113.79202)"
+       gradientUnits="userSpaceOnUse"
+       id="linearGradient5153"
+       xlink:href="#linearGradient5668"
+       inkscape:collect="always" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient5668"
+       id="linearGradient50608"
+       gradientUnits="userSpaceOnUse"
+       gradientTransform="matrix(0.26458333,0,0,0.08144904,-0.29545441,126.32303)"
+       x1="75"
+       y1="103.70081"
+       x2="105"
+       y2="103.70081" />
+    <clipPath
+       clipPathUnits="userSpaceOnUse"
+       id="clipPath984">
+      <path
+         d="M 0,841.89 H 1941.732 V 0 H 0 Z"
+         id="path982" />
+    </clipPath>
+  </defs>
+  <sodipodi:namedview
+     fit-margin-bottom="0"
+     fit-margin-right="0"
+     fit-margin-left="0"
+     fit-margin-top="0"
+     inkscape:document-rotation="0"
+     showguides="true"
+     inkscape:window-maximized="1"
+     inkscape:window-y="0"
+     inkscape:window-x="1920"
+     inkscape:window-height="1412"
+     inkscape:window-width="2560"
+     showgrid="true"
+     inkscape:current-layer="layer1"
+     inkscape:document-units="mm"
+     inkscape:cy="171.82552"
+     inkscape:cx="245.96598"
+     inkscape:zoom="0.99810551"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:pagecheckerboard="0"
+     inkscape:snap-text-baseline="false">
+    <inkscape:grid
+       originy="49.314234"
+       originx="7.559111"
+       id="grid5642"
+       type="xygrid" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(7.5591109,-37.685768)"
+     id="layer1"
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
+    <rect
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       ry="0"
+       y="108.16667"
+       x="-2.6458333"
+       height="81.333351"
+       width="243.41664"
+       id="rect5574"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:0.0316278;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="/home/heumos/git/pggb/docs/img/smoothxg_workflow.png" />
+    <g
+       id="g990"
+       transform="matrix(0.28323569,0,0,0.35277777,171.97917,174.3125)">
+      <path
+         d="M 0,0 H 102.756"
+         style="fill:#1f78b4;fill-opacity:1;stroke:#1f78b4;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         id="path992" />
+    </g>
+    <g
+       id="g990-6"
+       transform="matrix(0.28323569,0,0,0.35277777,171.97917,169.02084)">
+      <path
+         d="M 0,0 H 102.756"
+         style="fill:none;stroke:#33a02c;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         id="path992-1" />
+    </g>
+    <g
+       id="g990-6-8"
+       transform="matrix(0.28323569,0,0,0.35277777,171.97917,179.60415)">
+      <path
+         d="M 0,0 H 72.625739 102.756"
+         style="fill:none;stroke:#e31a1c;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         id="path992-1-7"
+         sodipodi:nodetypes="ccc" />
+    </g>
+    <g
+       id="g990-6-8-9"
+       transform="matrix(0.28323569,0,0,0.35277777,171.97917,184.89584)">
+      <path
+         d="M 0,0 H 69.833978 102.756"
+         style="fill:none;stroke:#ff7f00;stroke-width:7;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-dasharray:none;stroke-opacity:1"
+         id="path992-1-7-2"
+         sodipodi:nodetypes="ccc" />
+    </g>
+    <rect
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       ry="2.7624946"
+       y="111.71822"
+       x="27.930038"
+       height="44.338039"
+       width="38.747334"
+       id="rect4728"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.422244;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <rect
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       ry="2.7624946"
+       y="111.71846"
+       x="75.290497"
+       height="44.338039"
+       width="38.747334"
+       id="rect4728-3"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.422244;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <rect
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       ry="0"
+       y="115.6562"
+       x="216.95833"
+       height="37.041664"
+       width="19.339468"
+       id="rect4680"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.386166;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <path
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       inkscape:connector-curvature="0"
+       id="path5662-9-86-3"
+       d="m 95.056796,164.41086 -8.173991,-7e-5 0.538145,-0.22614 c 4.805099,-2.01924 5.983153,-3.07454 7.452386,-6.67589 l 0.376664,-0.92328 0.427002,0.88175 c 0.802277,1.65673 1.255716,2.41296 1.958245,3.26592 0.910759,1.10577 2.238902,2.04839 4.272013,3.03195 0.43997,0.21285 0.91776,0.44524 1.06175,0.51642 0.22508,0.11127 -0.88436,0.1294 -7.912214,0.12934 z"
+       style="opacity:1;fill:url(#linearGradient5670-9-6-3);fill-opacity:1;stroke:#000000;stroke-width:0.05;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <path
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       inkscape:connector-curvature="0"
+       id="path5662-9-86-3-6"
+       d="m 19.517425,134.57795 7e-5,-8.17399 0.22614,0.53815 c 2.01924,4.80509 3.07454,5.98315 6.67589,7.45238 l 0.92328,0.37667 -0.88175,0.427 c -1.65673,0.80227 -2.41296,1.25571 -3.26592,1.95824 -1.10577,0.91076 -2.04839,2.2389 -3.03195,4.27201 -0.21285,0.43996 -0.44524,0.91775 -0.51642,1.06174 -0.11127,0.22508 -0.1294,-0.88435 -0.12934,-7.9122 z"
+       style="fill:url(#linearGradient50608);fill-opacity:1;stroke:#000000;stroke-width:0.05;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <rect
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       ry="0"
+       y="164.34837"
+       x="85.429092"
+       height="19.620728"
+       width="19.469727"
+       id="rect4680-4"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <rect
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       ry="0"
+       y="124.6571"
+       x="-0.12316878"
+       height="19.620728"
+       width="19.469727"
+       id="rect4680-4-3"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.5;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       id="g4802"
+       transform="translate(47.896378,12.998688)"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+      <path
+         id="path5862-6"
+         d="m 52.181011,159.4237 h -0.298883 v -1.44212 c 0,-0.009 -0.0014,-0.0181 -0.0026,-0.0272 -4.71e-4,-0.0573 -0.01869,-0.11351 -0.0579,-0.15807 l -2.399852,-2.74142 c -7.37e-4,-0.001 -0.0014,-0.001 -0.0019,-0.002 -0.0143,-0.016 -0.03098,-0.0293 -0.04861,-0.0408 -0.0052,-0.004 -0.01049,-0.006 -0.01595,-0.01 -0.01527,-0.008 -0.03148,-0.0152 -0.04816,-0.0203 -0.0045,-10e-4 -0.0086,-0.003 -0.01311,-0.004 -0.01812,-0.004 -0.03695,-0.007 -0.05602,-0.007 h -5.897957 c -0.269326,0 -0.488119,0.21904 -0.488119,0.48815 v 3.964 h -0.298853 c -0.385275,0 -0.697672,0.31226 -0.697672,0.69767 v 3.62801 c 0,0.38514 0.312397,0.6976 0.697672,0.6976 h 0.298837 v 2.48349 c 0,0.26907 0.218795,0.48814 0.48812,0.48814 h 8.053966 c 0.269075,0 0.488119,-0.21904 0.488119,-0.48814 v -2.48349 h 0.298883 c 0.385162,0 0.697626,-0.31246 0.697626,-0.6976 v -3.62791 c -2.2e-5,-0.38539 -0.312487,-0.69766 -0.697648,-0.69766 z m -8.840969,-3.96402 h 5.653889 v 2.49738 c 0,0.13484 0.109398,0.24406 0.244059,0.24406 h 2.156018 v 1.22273 h -8.053966 z m 8.053989,11.33855 h -8.053989 v -2.35135 h 8.053966 v 2.35135 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="scsccccccccssscsssscsssscsscsccsscccccccccc"
+         style="stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none" />
+      <flowRoot
+         xml:space="preserve"
+         id="flowRoot5864-1"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0.01%;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#33a02c;fill-opacity:1;stroke:none;stroke-width:4.20406;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         transform="matrix(0.11893258,0,0,0.11893258,-11.613067,-60.818433)"><flowRegion
+           style="stroke-width:4.20406;stroke-miterlimit:4;stroke-dasharray:none;fill:#33a02c;fill-opacity:1"
+           id="flowRegion5866-4"><rect
+             id="rect5868-2"
+             width="112"
+             height="53.599998"
+             x="474.39999"
+             y="-1904.0004"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';fill:#33a02c;stroke-width:4.20406246;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1"
+             transform="scale(1,-1)" /></flowRegion><flowPara
+           id="flowPara5870-04"
+           style="font-size:32px;line-height:1.25;stroke-width:4.20406;stroke-miterlimit:4;stroke-dasharray:none;fill:#ff7f00;fill-opacity:1">xg</flowPara></flowRoot>
+      <path
+         id="path6276-4-1"
+         d="m 43.340054,155.45434 h 5.653889 v 2.49738 c 0,0.13484 0.109397,0.24406 0.244059,0.24406 h 2.156019 v 1.22273 h -8.053967 z m 8.053989,11.33855 h -8.053989 v -2.35136 h 8.053967 v 2.35136 z"
+         inkscape:connector-curvature="0"
+         sodipodi:nodetypes="ccsscccccccccc"
+         style="fill:#ffffff;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none" />
+    </g>
+    <text
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       id="text4732"
+       y="117.12617"
+       x="35.369228"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;line-height:0.25;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';stroke-width:0.264583"
+         y="117.12617"
+         x="35.369228"
+         id="tspan4730"
+         sodipodi:role="line">Preprocessing</tspan></text>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       transform="translate(-0.03589153,37.041684)"
+       id="g4807"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+      <rect
+         style="opacity:1;fill:#33a02c;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect4770-6-8"
+         width="31.516283"
+         height="4.9341259"
+         x="31.581455"
+         y="90.677467"
+         ry="2.467063" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="40.39196"
+         y="94.047066"
+         id="text4774-2"><tspan
+           sodipodi:role="line"
+           id="tspan4772-6"
+           x="40.39196"
+           y="94.047066"
+           style="font-size:3.175px;stroke-width:0.264583">Grooming</tspan></text>
+    </g>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       transform="translate(-0.03589153,46.3021)"
+       id="g4807-6"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+      <rect
+         style="opacity:1;fill:#33a02c;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect4770-6-8-1"
+         width="31.516283"
+         height="4.9341259"
+         x="31.581455"
+         y="89.089966"
+         ry="2.467063" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="36.020134"
+         y="92.459564"
+         id="text4774-2-8"><tspan
+           sodipodi:role="line"
+           id="tspan4772-6-7"
+           x="36.020134"
+           y="92.459564"
+           style="font-size:3.175px;stroke-width:0.264583">Topological Sort</tspan></text>
+    </g>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       transform="translate(-0.03589153,54.239605)"
+       id="g4807-9"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+      <rect
+         style="opacity:1;fill:#33a02c;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect4770-6-8-2"
+         width="31.516283"
+         height="4.9341259"
+         x="31.581455"
+         y="89.089966"
+         ry="2.467063" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="43.530525"
+         y="92.459564"
+         id="text4774-2-0"><tspan
+           sodipodi:role="line"
+           id="tspan4772-6-23"
+           x="43.530525"
+           y="92.459564"
+           style="font-size:3.175px;stroke-width:0.264583">Chop</tspan></text>
+    </g>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       transform="translate(-0.03589153,29.368762)"
+       id="g4807-2"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+      <a
+         id="a97289">
+        <rect
+           style="opacity:1;fill:#33a02c;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+           id="rect4770-6-8-9"
+           width="31.516283"
+           height="4.9341259"
+           x="31.581455"
+           y="90.677467"
+           ry="2.467063" />
+      </a>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="41.022926"
+         y="94.047066"
+         id="text4774-2-1"><tspan
+           sodipodi:role="line"
+           id="tspan4772-6-2"
+           x="41.022926"
+           y="94.047066"
+           style="font-size:3.175px;stroke-width:0.264583">PG-SGD</tspan></text>
+    </g>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       transform="translate(47.793545,29.395451)"
+       id="g4807-2-6"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+      <a
+         id="a97289-7">
+        <rect
+           style="opacity:1;fill:#33a02c;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+           id="rect4770-6-8-9-5"
+           width="31.516283"
+           height="4.9341259"
+           x="31.581455"
+           y="90.677467"
+           ry="2.467063" />
+      </a>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="37.561123"
+         y="94.279343"
+         id="text4774-2-1-3"><tspan
+           sodipodi:role="line"
+           id="tspan4772-6-2-5"
+           x="37.561123"
+           y="94.279343"
+           style="font-size:3.175px;stroke-width:0.264583">Define Blocks</tspan></text>
+    </g>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       transform="translate(48.02726,37.332951)"
+       id="g4807-2-6-7"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+      <a
+         id="a97289-7-0">
+        <rect
+           style="opacity:1;fill:#33a02c;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+           id="rect4770-6-8-9-5-9"
+           width="31.516283"
+           height="4.9341259"
+           x="31.581455"
+           y="90.677467"
+           ry="2.467063" />
+      </a>
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="38.002956"
+         y="94.279343"
+         id="text4774-2-1-3-3"><tspan
+           sodipodi:role="line"
+           x="38.002956"
+           y="94.279343"
+           style="font-size:3.175px;stroke-width:0.264583"
+           id="tspan5412">Break Blocks</tspan></text>
+    </g>
+    <path
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       inkscape:connector-curvature="0"
+       id="path5662-9-4"
+       d="m 114.10058,134.16956 7e-5,-20.17776 0.22614,1.32843 c 2.01923,11.86156 3.07453,14.76961 6.67589,18.39647 l 0.92328,0.92979 -0.88176,1.05406 c -1.65672,1.98044 -2.41295,3.09977 -3.26591,4.83398 -1.10577,2.24822 -2.04839,5.52675 -3.03195,10.54551 -0.21285,1.08607 -0.44524,2.26548 -0.51642,2.62093 -0.11127,0.55563 -0.12941,-2.18304 -0.12934,-19.53141 z"
+       style="opacity:1;fill:url(#linearGradient5153);fill-opacity:1;stroke:#000000;stroke-width:0.0421982;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <text
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       id="text4732-0"
+       y="117.09547"
+       x="94.616386"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;line-height:1;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png"><tspan
+         id="tspan4938"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;line-height:1;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';text-align:center;text-anchor:middle;stroke-width:0.264583"
+         y="117.09547"
+         x="94.616386"
+         sodipodi:role="line">Create Blocks</tspan></text>
+    <path
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       inkscape:connector-curvature="0"
+       id="path5662-9-2"
+       d="m 161.35539,134.24032 7e-5,-20.18424 0.22614,1.32886 c 2.01924,11.86537 3.07454,14.77435 6.67589,18.40237 l 0.92328,0.93009 -0.88175,1.0544 c -1.65672,1.98108 -2.41296,3.10076 -3.26592,4.83553 -1.10577,2.24893 -2.04838,5.52852 -3.03195,10.54889 -0.21285,1.08642 -0.44524,2.26621 -0.51642,2.62177 -0.11127,0.55581 -0.1294,-2.18374 -0.12934,-19.53767 z"
+       style="opacity:1;fill:url(#linearGradient5670-9-95);fill-opacity:1;stroke:#000000;stroke-width:0.0422049;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <rect
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       ry="2.7536592"
+       y="111.86002"
+       x="122.52061"
+       height="44.196239"
+       width="38.743378"
+       id="rect4728-6-3"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.422049;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <text
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       id="text4732-0-6"
+       y="117.20061"
+       x="141.99136"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;line-height:1;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png"><tspan
+         id="tspan5056"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;line-height:1;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';text-align:center;text-anchor:middle;stroke-width:0.264583"
+         y="117.20061"
+         x="141.99136"
+         sodipodi:role="line">Smooth </tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;line-height:1;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';text-align:center;text-anchor:middle;stroke-width:0.264583"
+         y="120.72839"
+         x="141.99136"
+         sodipodi:role="line"
+         id="tspan148652">Each Block</tspan></text>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       transform="translate(0,28.575012)"
+       id="g4862"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+      <rect
+         style="opacity:1;fill:#1f78b4;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect4770-6-1-7-0"
+         width="32.313"
+         height="4.9341259"
+         x="126.00418"
+         y="95.365997"
+         ry="2.467063" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="136.30667"
+         y="98.902138"
+         id="text4774-3-1"><tspan
+           sodipodi:role="line"
+           id="tspan4772-2-9"
+           x="136.30667"
+           y="98.902138"
+           style="font-size:3.175px;stroke-width:0.264583">Padding</tspan></text>
+    </g>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       id="g4872"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png"
+       transform="translate(0,22.225008)">
+      <rect
+         style="opacity:1;fill:#33a02c;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect4770-6-5-6"
+         width="32.161411"
+         height="4.9222064"
+         x="125.94444"
+         y="109.40894"
+         ry="2.4611032" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="138.54552"
+         y="113.00646"
+         id="text4774-8-5-2"><tspan
+           sodipodi:role="line"
+           id="tspan4772-5-7-3"
+           x="138.54552"
+           y="113.00646"
+           style="font-size:3.175px;stroke-width:0.264583">POA</tspan></text>
+    </g>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       id="g4877"
+       transform="translate(-0.18708867,21.649069)"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+      <rect
+         style="opacity:1;fill:#1f78b4;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect4770-6-1-8-6-6"
+         width="31.516283"
+         height="4.9341259"
+         x="126.26614"
+         y="117.65702"
+         ry="2.467063" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="135.53554"
+         y="121.05957"
+         id="text4774-6-2-4"><tspan
+           sodipodi:role="line"
+           id="tspan4772-0-5-0"
+           x="135.53554"
+           y="121.05957"
+           style="font-size:3.175px;stroke-width:0.264583">Trimming</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="0.35171971"
+       y="173.83681"
+       id="text4774-8-5-2-5-9-6"><tspan
+         sodipodi:role="line"
+         id="tspan4772-5-7-3-0-3-1"
+         x="0.35171971"
+         y="173.83681"
+         style="font-style:normal;font-variant:normal;font-weight:800;font-stretch:normal;font-size:3.175px;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Ultra-Bold';stroke-width:0.264583">v0.6.4 - Pasticcione</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="203.59802"
+       y="175.04063"
+       id="text4774-8-5-2-5-9-6-0"><tspan
+         sodipodi:role="line"
+         id="tspan4772-5-7-3-0-3-1-62"
+         x="203.59802"
+         y="175.04063"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';stroke-width:0.264583">Optional Steps</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="203.51617"
+       y="169.78284"
+       id="text4774-8-5-2-5-9-6-0-0"><tspan
+         sodipodi:role="line"
+         id="tspan4772-5-7-3-0-3-1-62-2"
+         x="203.51617"
+         y="169.78284"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';stroke-width:0.264583">Default Steps</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="203.51617"
+       y="180.39438"
+       id="text4774-8-5-2-5-9-6-0-0-3"><tspan
+         sodipodi:role="line"
+         id="tspan4772-5-7-3-0-3-1-62-2-7"
+         x="203.51617"
+         y="180.39438"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';stroke-width:0.264583">Mandatory I/O</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       x="203.59802"
+       y="185.70723"
+       id="text4774-8-5-2-5-9-6-0-0-3-5"><tspan
+         sodipodi:role="line"
+         id="tspan4772-5-7-3-0-3-1-62-2-7-9"
+         x="203.59802"
+         y="185.70723"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:2.82222px;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';stroke-width:0.264583">Optional I/O</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:6.35px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.529166"
+       x="0.039967395"
+       y="170.00258"
+       id="text4774-8-5-2-5-9-6-3"><tspan
+         sodipodi:role="line"
+         id="tspan4772-5-7-3-0-3-1-6"
+         x="0.039967395"
+         y="170.00258"
+         style="font-style:normal;font-variant:normal;font-weight:800;font-stretch:normal;font-size:6.35px;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Ultra-Bold';stroke-width:0.529166">smoothxg</tspan></text>
+    <path
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       inkscape:connector-curvature="0"
+       id="path5662-9-83"
+       d="m 208.6354,134.44288 7e-5,-19.01596 0.22614,1.25194 c 2.01924,11.17859 3.07454,13.9192 6.67589,17.33724 l 0.92328,0.87625 -0.88175,0.99337 c -1.65672,1.86641 -2.41296,2.92128 -3.26592,4.55565 -1.10577,2.11876 -2.04838,5.20853 -3.03195,9.93831 -0.21285,1.02354 -0.44524,2.13504 -0.51642,2.47003 -0.11127,0.52363 -0.1294,-2.05735 -0.12934,-18.40683 z"
+       style="opacity:1;fill:url(#linearGradient5670-9-07);fill-opacity:1;stroke:#000000;stroke-width:0.0421444;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <rect
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       ry="2.7263834"
+       y="112.2978"
+       x="169.8033"
+       height="43.758457"
+       width="38.748718"
+       id="rect4728-6-3-3-8"
+       style="opacity:1;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:0.421444;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <text
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       id="text4732-0-6-5-6"
+       y="117.12031"
+       x="189.20764"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;line-height:1;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';text-align:center;letter-spacing:0px;word-spacing:0px;text-anchor:middle;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png"><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;line-height:1;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';text-align:center;text-anchor:middle;stroke-width:0.264583"
+         y="117.12031"
+         x="189.20764"
+         sodipodi:role="line"
+         id="tspan27643">Lace Blocks Into</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:3.52778px;line-height:1;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';text-align:center;text-anchor:middle;stroke-width:0.264583"
+         y="120.64809"
+         x="189.69447"
+         sodipodi:role="line"
+         id="tspan31561">Smoothed Graph </tspan></text>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       transform="translate(0,30.162513)"
+       id="g4882"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png"
+       style="stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none">
+      <rect
+         style="opacity:1;fill:#33a02c;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect4770-6-1-7-0-1-3"
+         width="32.312801"
+         height="8.3547087"
+         x="172.87212"
+         y="94.194939"
+         ry="4.1773543" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none"
+         x="175.10611"
+         y="97.605675"
+         id="text4774-3-1-7-1"><tspan
+           sodipodi:role="line"
+           x="175.10611"
+           y="97.605675"
+           style="font-size:3.175px;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none"
+           id="tspan12407">Populate Smoothed</tspan><tspan
+           sodipodi:role="line"
+           x="175.10611"
+           y="98.399422"
+           style="font-size:3.175px;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none"
+           id="tspan15315" /><tspan
+           sodipodi:role="line"
+           x="175.10611"
+           y="99.193176"
+           style="font-size:3.175px;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none"
+           id="tspan15389" /><tspan
+           sodipodi:role="line"
+           x="175.10611"
+           y="99.986923"
+           style="font-size:3.175px;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none"
+           id="tspan15391" /><tspan
+           sodipodi:role="line"
+           x="175.10611"
+           y="100.78068"
+           style="font-size:3.175px;stroke-width:0.3;stroke-miterlimit:4;stroke-dasharray:none"
+           id="tspan15393">Graph From Blocks</tspan></text>
+    </g>
+    <path
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       inkscape:connector-curvature="0"
+       id="path5662-9"
+       d="m 66.77016,134.16967 7.2e-5,-20.2028 0.226143,1.33008 c 2.019233,11.87629 3.074533,14.78794 6.67589,18.4193 l 0.923276,0.93095 -0.881753,1.05537 c -1.656721,1.9829 -2.412952,3.1036 -3.265919,4.83997 -1.105766,2.25101 -2.048382,5.53362 -3.031949,10.5586 -0.212848,1.08742 -0.445234,2.2683 -0.516414,2.62419 -0.111271,0.55631 -0.129408,-2.18576 -0.129346,-19.55566 z"
+       style="opacity:1;fill:url(#linearGradient5670-9);fill-opacity:1;stroke:#000000;stroke-width:0.0422244;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png" />
+    <text
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       id="text4674"
+       y="187.96654"
+       x="-0.21820962"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;line-height:1.25;font-family:Kalam;-inkscape-font-specification:Kalam;text-align:start;letter-spacing:0px;word-spacing:0px;text-anchor:start;fill:#b3b3b3;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png"><tspan
+         y="187.96654"
+         x="-0.21820962"
+         sodipodi:role="line"
+         id="tspan4662"><tspan
+   id="tspan13637"
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:2.82222px;font-family:Kalam;-inkscape-font-specification:Kalam;text-align:start;text-anchor:start;fill:#b3b3b3;stroke-width:0.264583">CC-BY 4<tspan
+   style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:sans-serif;-inkscape-font-specification:sans-serif;text-align:start;text-anchor:start;stroke-width:0.264583"
+   id="tspan4675">.</tspan>0. Design by Zandra Fager</tspan>näs</tspan></text>
+    <g
+       id="g1064"
+       transform="translate(0,20.270711)">
+      <g
+         inkscape:export-ydpi="305.81"
+         inkscape:export-xdpi="305.81"
+         transform="matrix(0.61391124,0,0,0.61391124,219.02189,41.18545)"
+         id="g4625-7"
+         inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+        <path
+           id="path5862-0"
+           d="m 20.23118,100.05488 h -0.48685 v -2.349056 c 0,-0.0147 -0.0023,-0.0294 -0.0043,-0.0443 -7.68e-4,-0.0933 -0.03044,-0.18489 -0.09431,-0.25748 l -3.909119,-4.4655 c -0.0012,-0.002 -0.0023,-0.002 -0.0031,-0.003 -0.0233,-0.026 -0.05047,-0.0477 -0.07918,-0.0664 -0.0085,-0.006 -0.01709,-0.0105 -0.02599,-0.0155 -0.02488,-0.0136 -0.05128,-0.0248 -0.07844,-0.033 -0.0074,-0.002 -0.01398,-0.005 -0.02135,-0.007 -0.02952,-0.007 -0.06018,-0.0114 -0.09125,-0.0114 H 5.830109 c -0.438704,0 -0.795097,0.35679 -0.795097,0.79514 v 6.456956 h -0.48674 c -0.627574,0 -1.136437,0.50864 -1.136437,1.13644 v 5.90967 c 0,0.62735 0.508863,1.13632 1.136437,1.13632 h 0.486776 v 4.04536 c 0,0.43829 0.356395,0.79512 0.795099,0.79512 h 13.119104 c 0.438297,0 0.795097,-0.35679 0.795097,-0.79512 v -4.04536 h 0.48685 c 0.627391,0 1.136364,-0.50897 1.136364,-1.13632 v -5.9095 c -3.7e-5,-0.62776 -0.509011,-1.13643 -1.1364,-1.13643 z M 5.830127,93.597894 h 9.209619 v 4.06798 c 0,0.21965 0.178198,0.39755 0.397548,0.39755 h 3.511938 v 1.991706 H 5.830127 Z M 18.949269,112.06726 H 5.830127 v -3.83012 h 13.119105 v 3.83012 z"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="scsccccccccssscsssscsssscsscsccsscccccccccc"
+           style="stroke-width:0.193729" />
+        <flowRoot
+           xml:space="preserve"
+           id="flowRoot5864-93"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0.01%;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#e31a1c;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           transform="matrix(0.19372928,0,0,0.19372928,-84.462619,-258.69752)"><flowRegion
+             id="flowRegion5866-6"
+             style="fill:#e31a1c;fill-opacity:1"><rect
+               id="rect5868-0"
+               width="112"
+               height="53.599998"
+               x="474.39999"
+               y="-1904.0004"
+               style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';fill:#e31a1c;fill-opacity:1"
+               transform="scale(1,-1)" /></flowRegion><flowPara
+             id="flowPara5870-6"
+             style="font-size:32px;line-height:1.25;fill:#e31a1c;fill-opacity:1"><flowSpan
+   style="fill:#e31a1c;fill-opacity:1"
+   id="flowSpan213162">gfa</flowSpan> </flowPara></flowRoot>
+        <path
+           id="path6276-4-2"
+           d="m 5.8301556,93.589194 h 9.2096184 v 4.06798 c 0,0.21965 0.178198,0.39756 0.397549,0.39756 h 3.511938 v 1.991696 H 5.8301556 Z M 18.949297,112.05856 H 5.8301556 v -3.83013 H 18.949261 v 3.83013 z"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="ccsscccccccccc"
+           style="fill:#ffffff;stroke-width:0.193729" />
+      </g>
+      <g
+         inkscape:export-ydpi="305.81"
+         inkscape:export-xdpi="305.81"
+         transform="matrix(0.61391125,0,0,0.61391125,216.17432,38.412174)"
+         id="g4611-4"
+         inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+        <path
+           id="path5862-5-0"
+           d="m 24.86959,135.60281 h -0.486851 v -2.34906 c 0,-0.0147 -0.0023,-0.0294 -0.0043,-0.0443 -7.68e-4,-0.0933 -0.03044,-0.18489 -0.09431,-0.25748 l -3.909121,-4.4655 c -0.0012,-0.002 -0.0023,-0.002 -0.0031,-0.003 -0.0233,-0.026 -0.05047,-0.0477 -0.07918,-0.0664 -0.0085,-0.006 -0.01709,-0.0105 -0.02599,-0.0155 -0.02488,-0.0136 -0.05128,-0.0248 -0.07844,-0.033 -0.0074,-0.002 -0.01399,-0.005 -0.02135,-0.007 -0.02952,-0.007 -0.06018,-0.0114 -0.09125,-0.0114 h -9.607182 c -0.438704,0 -0.7950974,0.3568 -0.7950974,0.79515 v 6.45695 h -0.486739 c -0.6275743,0 -1.1364372,0.50864 -1.1364372,1.13644 v 5.90967 c 0,0.62736 0.5088629,1.13632 1.1364372,1.13632 h 0.4867756 v 4.04536 c 0,0.43829 0.3563948,0.79512 0.7950988,0.79512 h 13.119104 c 0.438297,0 0.795098,-0.35679 0.795098,-0.79512 v -4.04536 h 0.486849 c 0.627391,0 1.136365,-0.50896 1.136365,-1.13632 v -5.9095 c -3.7e-5,-0.62776 -0.509012,-1.13643 -1.136401,-1.13643 z m -14.401053,-6.45699 h 9.209619 v 4.06798 c 0,0.21965 0.178198,0.39755 0.397548,0.39755 h 3.511938 v 1.99171 H 10.468537 Z m 13.119142,18.46937 H 10.468537 v -3.83012 h 13.119105 v 3.83012 z"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="scsccccccccssscsssscsssscsscsccsscccccccccc"
+           style="stroke-width:0.193729" />
+        <flowRoot
+           xml:space="preserve"
+           id="flowRoot5864-5-1"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0.01%;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#33a02c;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           transform="matrix(0.19372928,0,0,0.19372928,-80.822294,-222.41935)"><flowRegion
+             id="flowRegion5866-8-6"
+             style="fill:#33a02c;fill-opacity:1"><rect
+               id="rect5868-9-6"
+               width="112"
+               height="53.599998"
+               x="474.39999"
+               y="-1904.0004"
+               style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';fill:#33a02c;fill-opacity:1"
+               transform="scale(1,-1)" /></flowRegion><flowPara
+             id="flowPara5870-5-7"
+             style="font-size:32px;line-height:1.25;fill:#ff7f00;fill-opacity:1">maf</flowPara></flowRoot>
+        <path
+           id="path6276-4-7-3"
+           d="m 10.468548,129.13712 h 9.209618 v 4.06798 c 0,0.21965 0.178198,0.39756 0.397549,0.39756 h 3.511938 v 1.99171 H 10.468548 Z m 13.119141,18.46937 H 10.468548 v -3.83012 h 13.119105 v 3.83012 z"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="ccsscccccccccc"
+           style="fill:#ffffff;stroke-width:0.193729" />
+      </g>
+    </g>
+    <rect
+       ry="2.467063"
+       y="135.49881"
+       x="173.75368"
+       height="4.9341259"
+       width="31.516283"
+       id="rect4770-6-8-5-4-1-4-2"
+       style="opacity:1;fill:#33a02c;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png"
+       inkscape:export-xdpi="305.81"
+       inkscape:export-ydpi="305.81" />
+    <text
+       id="text4774-5-7-6-5-5"
+       y="138.94435"
+       x="183.98425"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+       xml:space="preserve"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png"
+       inkscape:export-xdpi="305.81"
+       inkscape:export-ydpi="305.81"><tspan
+         style="font-size:3.175px;stroke-width:0.264583"
+         y="138.94435"
+         x="183.98425"
+         id="tspan4772-1-3-3-0-4"
+         sodipodi:role="line">Unchop</tspan></text>
+    <g
+       inkscape:export-ydpi="305.81"
+       inkscape:export-xdpi="305.81"
+       id="g4877-6"
+       transform="translate(-0.10680782,29.338038)"
+       inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+      <rect
+         style="opacity:1;fill:#1f78b4;fill-opacity:1;stroke:#000000;stroke-width:0.3;stroke-linecap:square;stroke-linejoin:bevel;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+         id="rect4770-6-1-8-6-6-6"
+         width="31.516283"
+         height="4.9341259"
+         x="126.26614"
+         y="117.65702"
+         ry="2.467063" />
+      <text
+         xml:space="preserve"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:3.175px;line-height:0.25;font-family:Arial;-inkscape-font-specification:Arial;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.264583"
+         x="138.60666"
+         y="121.05957"
+         id="text4774-6-2-4-89"><tspan
+           sodipodi:role="line"
+           id="tspan4772-0-5-0-8"
+           x="138.60666"
+           y="121.05957"
+           style="font-size:3.175px;stroke-width:0.264583">MAF</tspan></text>
+    </g>
+    <g
+       id="g50493"
+       transform="translate(0,19.243238)">
+      <g
+         inkscape:export-ydpi="305.81"
+         inkscape:export-xdpi="305.81"
+         id="g4802-7"
+         transform="translate(-40.694209,-22.153015)"
+         inkscape:export-filename="C:\Users\fagernaes\Pictures\eager2\eager2_workflow_review.png">
+        <path
+           id="path5862-6-5"
+           d="m 55.119878,135.60662 h -0.298883 v -1.44212 c 0,-0.009 -0.0014,-0.0181 -0.0026,-0.0272 -4.71e-4,-0.0573 -0.01869,-0.11351 -0.0579,-0.15807 l -2.399852,-2.74142 c -7.37e-4,-0.001 -0.0014,-0.001 -0.0019,-0.002 -0.0143,-0.016 -0.03098,-0.0293 -0.04861,-0.0408 -0.0052,-0.004 -0.01049,-0.006 -0.01595,-0.01 -0.01527,-0.008 -0.03148,-0.0152 -0.04816,-0.0203 -0.0045,-0.001 -0.0086,-0.003 -0.01311,-0.004 -0.01812,-0.004 -0.03695,-0.007 -0.05602,-0.007 h -5.897957 c -0.269326,0 -0.488119,0.21904 -0.488119,0.48815 v 3.964 h -0.298853 c -0.385275,0 -0.697672,0.31226 -0.697672,0.69767 v 3.62801 c 0,0.38514 0.312397,0.6976 0.697672,0.6976 h 0.298837 v 2.48349 c 0,0.26907 0.218795,0.48814 0.48812,0.48814 h 8.053966 c 0.269075,0 0.488119,-0.21904 0.488119,-0.48814 v -2.48349 h 0.298883 c 0.385162,0 0.697626,-0.31246 0.697626,-0.6976 v -3.62791 c -2.2e-5,-0.38539 -0.312487,-0.69766 -0.697648,-0.69766 z m -8.840969,-3.96402 h 5.653889 v 2.49738 c 0,0.13484 0.109398,0.24406 0.244059,0.24406 h 2.156018 v 1.22273 h -8.053966 z m 8.053989,11.33855 h -8.053989 v -2.35135 h 8.053966 v 2.35135 z"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="scsccccccccssscsssscsssscsscsccsscccccccccc"
+           style="stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none" />
+        <path
+           id="path6276-4-1-9"
+           d="m 46.278909,131.63726 h 5.653889 v 2.49738 c 0,0.13484 0.109397,0.24406 0.244059,0.24406 h 2.156019 v 1.22273 h -8.053967 z m 8.053989,11.33855 h -8.053989 v -2.35136 h 8.053967 v 2.35136 z"
+           inkscape:connector-curvature="0"
+           sodipodi:nodetypes="ccsscccccccccc"
+           style="fill:#ffffff;stroke-width:0.5;stroke-miterlimit:4;stroke-dasharray:none" />
+      </g>
+      <flowRoot
+         xml:space="preserve"
+         id="flowRoot5864-12"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0.01%;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';letter-spacing:0px;word-spacing:0px;fill:#e31a1c;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         transform="matrix(0.11893258,0,0,0.11893258,-49.84703,-106.78853)"><flowRegion
+           id="flowRegion5866-7"
+           style="fill:#e31a1c;fill-opacity:1"><rect
+             id="rect5868-09"
+             width="112"
+             height="53.599998"
+             x="474.39999"
+             y="-1904.0004"
+             style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'Maven Pro';-inkscape-font-specification:'Maven Pro Bold';fill:#e31a1c;fill-opacity:1"
+             transform="scale(1,-1)" /></flowRegion><flowPara
+           id="flowPara5870-3"
+           style="font-size:32px;line-height:1.25;fill:#e31a1c;fill-opacity:1">gfa </flowPara></flowRoot>
+    </g>
+  </g>
+</svg>

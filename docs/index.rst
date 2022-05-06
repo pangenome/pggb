@@ -73,6 +73,11 @@ The output graph (``*.smooth.fix.gfa``) is suitable for read mapping in `vg <htt
 A Nextflow version of ``pggb`` is currently developed on `nf-core/pangenome <https://github.com/nf-core/pangenome>`_.
 This pipeline presents an implementation that scales better on a cluster.
 
+Pipeline Workflow 
+=================
+
+.. image:: img/pggb-flow-diagram.png
+
 
 .. toctree::
     :maxdepth: 1
