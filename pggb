@@ -5,6 +5,7 @@ set -eo pipefail
 
 input_fasta=false
 output_dir=""
+temp_dir=""
 input_paf=false
 resume=false
 map_pct_id=95
@@ -49,7 +50,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:a:p:n:s:l:K:F:k:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -57,6 +58,7 @@ while true ; do
     case "$1" in
         -i|--input-fasta) input_fasta=$2 ; shift 2 ;;
         -o|--output-dir) output_dir=$2 ; shift 2 ;;
+        -D|--temp-dir) temp_dir=$2 ; shift 2 ;;
         -a|--input-paf) input_paf=$2 ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
         -n|--n-mappings) n_mappings=$2 ; shift 2 ;;
@@ -229,6 +231,7 @@ then
     echo "                                automatically runs odgi stats [default: off]"
     echo "   [general]"
     echo "    -o, --output-dir PATH       output directory"
+    echo "    -D, --temp-dir PATH         directory for temporary files"
     echo "    -a, --input-paf FILE        input PAF file; the wfmash alignment step is skipped"
     echo "    -r, --resume PATH           do not overwrite existing output from wfmash, seqwish, smoothxg in given directory"
     echo "                                [default: start pipeline from scratch in a new directory]"
@@ -293,6 +296,10 @@ if [[ "$output_dir" != "" ]]; then
 	prefix_smoothed="$output_dir"/$(basename "$prefix_smoothed")
 fi
 
+if [[ "$temp_dir" == "" ]]; then
+  temp_dir=$output_dir
+fi
+
 date=`date "+%m-%d-%Y_%H:%M:%S"`
 log_file="$prefix_smoothed".$date.log
 param_file="$prefix_smoothed".$date.params.yml
@@ -305,6 +312,7 @@ cat <<EOT | tee -a "$log_file" "$param_file" >/dev/null
 general:
   input-fasta:        $input_fasta
   output-dir:         $output_dir
+  temp-dir:           $temp_dir
   resume:             $resume
   compress:           $compress
   threads:            $threads
@@ -355,8 +363,8 @@ if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
   if [[ "$mapper" == "wfmash" ]];
   then
           wfmash_temp_dir=""
-          if [[ "$output_dir" != "" ]]; then
-            wfmash_temp_dir="-B $output_dir"
+          if [[ "$temp_dir" != "" ]]; then
+            wfmash_temp_dir="-B $temp_dir"
           fi
 
           ($timer -f "$fmt" wfmash \
@@ -383,6 +391,11 @@ then
     seqwish_paf=$input_paf
 fi
 if [[ ! -s $prefix_seqwish.seqwish.gfa || $resume == false ]]; then
+    seqwish_temp_dir=""
+    if [[ "$temp_dir" != "" ]]; then
+      seqwish_temp_dir="-b $temp_dir"
+    fi
+
     $timer -f "$fmt" seqwish \
         -t $threads \
         -s "$input_fasta" \
@@ -391,6 +404,7 @@ if [[ ! -s $prefix_seqwish.seqwish.gfa || $resume == false ]]; then
         -f $sparse_factor \
         -g "$prefix_seqwish".seqwish.gfa \
         -B $transclose_batch \
+        $seqwish_temp_dir \
         -P \
         2> >(tee -a "$log_file")
 fi
@@ -415,8 +429,8 @@ if [[ $keep_intermediate_files == true ]]; then
 fi
 
 smoothxg_temp_dir=""
-if [[ "$output_dir" != "" ]]; then
-  smoothxg_temp_dir="-b $output_dir"
+if [[ "$temp_dir" != "" ]]; then
+  smoothxg_temp_dir="-b $temp_dir"
 fi
 
 for i in $(seq 1 $smooth_iterations);
@@ -482,8 +496,8 @@ prefix_final_graph="$prefix_smoothed".smooth.final
 if [[ $normalize == true ]];
 then
     odgi_temp_dir=""
-    if [[ "$output_dir" != "" ]]; then
-      odgi_temp_dir="-T $output_dir"
+    if [[ "$temp_dir" != "" ]]; then
+      odgi_temp_dir="-T $temp_dir"
     fi
 
     # Remove redundancy and sort
