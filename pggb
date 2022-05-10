@@ -300,6 +300,12 @@ if [[ "$temp_dir" == "" ]]; then
   temp_dir=$output_dir
 fi
 
+if [[ "$temp_dir" != "" ]]; then
+  if [ ! -e "$temp_dir" ]; then
+    mkdir "$temp_dir"
+  fi
+fi
+
 date=`date "+%m-%d-%Y_%H:%M:%S"`
 log_file="$prefix_smoothed".$date.log
 param_file="$prefix_smoothed".$date.params.yml
