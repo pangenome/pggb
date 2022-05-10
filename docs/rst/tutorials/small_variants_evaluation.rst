@@ -137,7 +137,7 @@ Align each sequence against the reference with `nucmer <10.1186/gb-2004-5-2-r12>
         rm $CONTIG.fa
     done
 
-Using the ``nucmer2vcf.R`` script, wenerate VCF files for each sequence with respect to the reference with `nucmer <10.1186/gb-2004-5-2-r12>`_:
+Using the ``nucmer2vcf.R`` script, generate VCF files for each sequence with respect to the reference with `nucmer <10.1186/gb-2004-5-2-r12>`_:
 
 .. code-block:: bash
 
