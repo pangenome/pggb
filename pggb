@@ -399,7 +399,7 @@ fi
 if [[ ! -s $prefix_seqwish.seqwish.gfa || $resume == false ]]; then
     seqwish_temp_dir=""
     if [[ "$temp_dir" != "" ]]; then
-      seqwish_temp_dir="-b $temp_dir"
+      seqwish_temp_dir="--temp-dir $temp_dir"
     fi
 
     $timer -f "$fmt" seqwish \
@@ -498,14 +498,14 @@ do
     fi
 done
 
+odgi_temp_dir=""
+if [[ "$temp_dir" != "" ]]; then
+  odgi_temp_dir="--temp-dir $temp_dir"
+fi
+
 prefix_final_graph="$prefix_smoothed".smooth.final
 if [[ $normalize == true ]];
 then
-    odgi_temp_dir=""
-    if [[ "$temp_dir" != "" ]]; then
-      odgi_temp_dir="-T $temp_dir"
-    fi
-
     # Remove redundancy and sort
     ( $timer -f "$fmt" gfaffix "$prefix_smoothed".smooth.gfa -o "$prefix_final_graph".gfa | $timer -f "$fmt" pigz >"$prefix_final_graph".affixes.tsv.gz ) 2> >(tee -a "$log_file")
     ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_final_graph".gfa -o - -O \
@@ -565,7 +565,7 @@ then
     $timer -f "$fmt" odgi layout -i "$prefix_final_graph".og \
                        -o "$prefix_final_graph".og.lay \
                        -T "$prefix_final_graph".og.lay.tsv \
-                       -t $threads -P \
+                       -t $threads $odgi_temp_dir -P \
                        2> >(tee -a "$log_file")
 
     # this can be configured to draw the graph in different ways, based on the same layout
