@@ -302,9 +302,11 @@ fi
 if [[ "$temp_dir" == "" ]]; then
   temp_dir=$output_dir
 fi
+temp_dir_was_created=false
 if [[ "$temp_dir" != "" ]]; then
   if [ ! -e "$temp_dir" ]; then
     mkdir "$temp_dir"
+    temp_dir_was_created=true
   fi
 
   prefix_seqwish="$temp_dir"/$(basename "$prefix_seqwish")
@@ -699,6 +701,11 @@ else
   then
     rm -f "$prefix_smoothed".{gfa,og}
   fi
+fi
+
+if [[ $temp_dir_was_created == true ]];
+then
+  rm -r $temp_dir
 fi
 
 if [[ $compress == true ]];
