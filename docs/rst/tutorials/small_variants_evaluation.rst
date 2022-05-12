@@ -90,6 +90,15 @@ To call variants for each contig, execute:
 
 ``-H '?'`` avoids managing the path name hierarchy when calling variants, then emitting variants for each contig.
 
+To filter variants (by using nesting information from the pangenome graph) and realign reference and alternate alleles, execute:
+
+.. code-block:: bash
+
+    vcfbub -l 0 -a 100000 --input HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.39ffa23.e34d4cd.be6be64.smooth.final.chm13.vcf.gz | \
+        $RUN_VCFWAVE -I 1000 -t 48 | bgzip -@ 48 \
+        > HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.39ffa23.e34d4cd.be6be64.smooth.final.chm13.vcfbub.a100k.wave.vcf.gz
+
+
 -------------------------
 Graph statistics
 -------------------------
@@ -154,6 +163,7 @@ Using the ``nucmer2vcf.R`` script, generate VCF files for each sequence with res
         tabix $PREFIX.vcf.gz
     done
 
+
 Take SNPs from the PGGB VCF file:
 
 .. code-block:: bash
@@ -165,7 +175,7 @@ Take SNPs from the PGGB VCF file:
         echo $CONTIG
 
         bash vcf_preprocess.sh \
-            HPRCy1.MHC.s10k.p95.output/*.vcf.gz \
+            HPRCy1.MHC.s10k.p95.output/*.vcfbub.a100k.wave.vcf.gz \
             $CONTIG \
             1 \
             $REF
@@ -192,7 +202,7 @@ Compare nucmer-based SNPs with PGGB-based SNPs:
         rtg vcfeval \
             -t $REFSDF \
             -b $PREFIX.vcf.gz \
-            -c HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.*.smooth.final.chm13.bub100k.waved.${CONTIG}.max1.vcf.gz \
+            -c HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.*.smooth.final.chm13.vcfbub.a100k.wave.${CONTIG}.max1.vcf.gz \
             -T 16 \
             -o vcfeval/${CONTIG}
     done
@@ -201,6 +211,7 @@ Collect statistics:
 
 .. code-block:: bash
 
+    cd vcfeval
     (echo contig precision recall f1.score; grep None */*txt | sed 's,/summary.txt:,,' | tr -s ' ' | cut -f 1,7,8,9 -d ' ' ) | tr ' ' '\t' > statistics.tsv
 
 Plot statistics:
