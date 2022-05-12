@@ -95,7 +95,7 @@ To filter variants (by using nesting information from the pangenome graph) and r
 .. code-block:: bash
 
     vcfbub -l 0 -a 100000 --input HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.39ffa23.e34d4cd.be6be64.smooth.final.chm13.vcf.gz | \
-        $RUN_VCFWAVE -I 1000 -t 48 | bgzip -@ 48 \
+        vcfwave -I 1000 -t 48 | bgzip -@ 16 \
         > HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.39ffa23.e34d4cd.be6be64.smooth.final.chm13.vcfbub.a100k.wave.vcf.gz
 
 
