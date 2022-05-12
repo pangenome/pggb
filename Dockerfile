@@ -30,11 +30,11 @@ RUN apt-get update \
                        curl \
                        pigz \
                        tabix
-                        
-RUN git clone --recursive https://github.com/ekg/wfmash \
+
+RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout ad8aebae1be96847839778af534866bc9545adb9 \
+    && git checkout 48493fbe2d7e65b7e371b8940590c88dac13e4ad \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
