@@ -81,6 +81,25 @@ To build the MHC pangenome graph, execute:
 
     pggb -i HPRCy1.MHC.fa.gz -p 95 -n 90 -t 16 -G 13117,13219 -o HPRCy1.MHC.s10k.p95.output
 
+-------------------------
+Graph statistics
+-------------------------
+
+To collect basic graph statistics, execute:
+
+.. code-block:: bash
+
+    odgi stats -i HPRCy1.MHC.s10k.p95.output/*.final.gfa -t 16 -S
+
+.. code-block:: none
+
+    #length	nodes	edges	paths
+    5315371	309186	429323	126
+
+-------------------------
+Identify variants with vg
+-------------------------
+
 To call variants for each contig, execute:
 
 .. code-block:: bash
@@ -98,24 +117,25 @@ To filter variants (by using nesting information from the pangenome graph) and r
         vcfwave -I 1000 -t 48 | bgzip -@ 16 \
         > HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.39ffa23.e34d4cd.be6be64.smooth.final.chm13.vcfbub.a100k.wave.vcf.gz
 
-
--------------------------
-Graph statistics
--------------------------
-
-To collect basic graph statistics, execute:
+Take SNPs from the PGGB VCF file:
 
 .. code-block:: bash
 
-    odgi stats -i HPRCy1.MHC.s10k.p95.output/*.final.gfa -t 16 -S
+    REF=chm13#chr6:28380000-33300000.fa
+    NAMEREF=chm13
 
-.. code-block:: none
+    cut -f 1 HPRCy1.MHC.fa.gz.fai | grep chm13 -v | while read CONTIG; do
+        echo $CONTIG
 
-    #length	nodes	edges	paths
-    5315371	309186	429323	126
+        bash vcf_preprocess.sh \
+            HPRCy1.MHC.s10k.p95.output/*.vcfbub.a100k.wave.vcf.gz \
+            $CONTIG \
+            1 \
+            $REF
+    done
 
 -------------------------
-Small variants evaluation
+Identify variants with nucmer
 -------------------------
 
 Prepare the reference FASTA file:
@@ -164,7 +184,11 @@ Using the ``nucmer2vcf.R`` script, generate VCF files for each sequence with res
     done
 
 
-Take SNPs from the PGGB VCF file:
+-------------------------
+Variants evaluation
+-------------------------
+
+Get reference regions with ``nucmer`` alignments:
 
 .. code-block:: bash
 
@@ -174,11 +198,38 @@ Take SNPs from the PGGB VCF file:
     cut -f 1 HPRCy1.MHC.fa.gz.fai | grep chm13 -v | while read CONTIG; do
         echo $CONTIG
 
-        bash vcf_preprocess.sh \
-            HPRCy1.MHC.s10k.p95.output/*.vcfbub.a100k.wave.vcf.gz \
-            $CONTIG \
-            1 \
-            $REF
+        PREFIX=nucmer/${CONTIG}_vs_${NAMEREF}
+        show-coords -TH $PREFIX.delta | awk -v OFS='\t' '{print($8,$1,$2)}' | bedtools sort | bedtools merge > $PREFIX.bed
+    done
+
+Get reference regions with ``pggb`` alignments:
+
+.. code-block:: bash
+
+    HEADER_REF="chm13#chr6:28380000-33300000"
+
+    PATH_PGGB_PAF=HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.39ffa23.wfmash.paf
+
+    cut -f 1 HPRCy1.MHC.fa.gz.fai | grep chm13 -v | while read CONTIG; do
+        echo $CONTIG
+
+        awk -v nameref=$HEADER_REF -v namecontig=$CONTIG '$1 == nameref && $6 == namecontig' $PATH_PGGB_PAF | \
+            awk -v OFS='\t' '{print($1,$3,$4)}' | bedtools sort | bedtools merge > HPRCy1.MHC.s10k.p95.output/$CONTIG.bed
+        awk -v nameref=$HEADER_REF -v namecontig=$CONTIG '$6 == nameref && $1 == namecontig' $PATH_PGGB_PAF | \
+            awk -v OFS='\t' '{print($6,$8,$9)}' | bedtools sort | bedtools merge >> HPRCy1.MHC.s10k.p95.output/$CONTIG.bed
+    done
+
+Get reference regions with both ``nucmer`` and ``pggb`` alignments:
+
+.. code-block:: bash
+
+    mkdir -p nucmer_pggb_regions/
+
+    cut -f 1 HPRCy1.MHC.fa.gz.fai | grep chm13 -v | while read CONTIG; do
+        echo $CONTIG
+
+        PREFIX=nucmer/${CONTIG}_vs_${NAMEREF}
+        bedtools intersect -a $PREFIX.bed -b HPRCy1.MHC.s10k.p95.output/$CONTIG.bed > nucmer_pggb_regions/$CONTIG.bed
     done
 
 Prepare the reference in ``SDF`` format for variant evaluation with ``rtg vcfeval``:
@@ -204,6 +255,7 @@ Compare nucmer-based SNPs with PGGB-based SNPs:
             -b $PREFIX.vcf.gz \
             -c HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.*.smooth.final.chm13.vcfbub.a100k.wave.${CONTIG}.max1.vcf.gz \
             -T 16 \
+            -e nucmer_pggb_regions/$CONTIG.bed \
             -o vcfeval/${CONTIG}
     done
 
