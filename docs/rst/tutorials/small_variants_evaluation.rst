@@ -188,50 +188,6 @@ Using the ``nucmer2vcf.R`` script, generate VCF files for each sequence with res
 Variants evaluation
 -------------------------
 
-Get reference regions with ``nucmer`` alignments:
-
-.. code-block:: bash
-
-    REF=chm13#chr6:28380000-33300000.fa
-    NAMEREF=chm13
-
-    cut -f 1 HPRCy1.MHC.fa.gz.fai | grep chm13 -v | while read CONTIG; do
-        echo $CONTIG
-
-        PREFIX=nucmer/${CONTIG}_vs_${NAMEREF}
-        show-coords -TH $PREFIX.delta | awk -v OFS='\t' '{print($8,$1,$2)}' | bedtools sort | bedtools merge > $PREFIX.bed
-    done
-
-Get reference regions with ``pggb`` alignments:
-
-.. code-block:: bash
-
-    HEADER_REF="chm13#chr6:28380000-33300000"
-
-    PATH_PGGB_PAF=HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.39ffa23.wfmash.paf
-
-    cut -f 1 HPRCy1.MHC.fa.gz.fai | grep chm13 -v | while read CONTIG; do
-        echo $CONTIG
-
-        awk -v nameref=$HEADER_REF -v namecontig=$CONTIG '$1 == nameref && $6 == namecontig' $PATH_PGGB_PAF | \
-            awk -v OFS='\t' '{print($1,$3,$4)}' | bedtools sort | bedtools merge > HPRCy1.MHC.s10k.p95.output/$CONTIG.bed
-        awk -v nameref=$HEADER_REF -v namecontig=$CONTIG '$6 == nameref && $1 == namecontig' $PATH_PGGB_PAF | \
-            awk -v OFS='\t' '{print($6,$8,$9)}' | bedtools sort | bedtools merge >> HPRCy1.MHC.s10k.p95.output/$CONTIG.bed
-    done
-
-Get reference regions with both ``nucmer`` and ``pggb`` alignments:
-
-.. code-block:: bash
-
-    mkdir -p nucmer_pggb_regions/
-
-    cut -f 1 HPRCy1.MHC.fa.gz.fai | grep chm13 -v | while read CONTIG; do
-        echo $CONTIG
-
-        PREFIX=nucmer/${CONTIG}_vs_${NAMEREF}
-        bedtools intersect -a $PREFIX.bed -b HPRCy1.MHC.s10k.p95.output/$CONTIG.bed > nucmer_pggb_regions/$CONTIG.bed
-    done
-
 Prepare the reference in ``SDF`` format for variant evaluation with ``rtg vcfeval``:
 
 .. code-block:: bash
@@ -250,12 +206,17 @@ Compare nucmer-based SNPs with PGGB-based SNPs:
 
         PREFIX=nucmer/${CONTIG}_vs_${NAMEREF}
 
+        PATH_PGGB_VCF=HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.*.smooth.final.chm13.vcfbub.a100k.wave.${CONTIG}.max1.vcf.gz
+
+        # Merge regions closer than 1000 bps to define the callable regions where to evaluate the variants
+        dist=1000
+
         rtg vcfeval \
             -t $REFSDF \
             -b $PREFIX.vcf.gz \
-            -c HPRCy1.MHC.s10k.p95.output/HPRCy1.MHC.fa.gz.*.smooth.final.chm13.vcfbub.a100k.wave.${CONTIG}.max1.vcf.gz \
+            -c $PATH_PGGB_VCF \
             -T 16 \
-            -e nucmer_pggb_regions/$CONTIG.bed \
+            -e <(bedtools intersect -a <(bedtools merge -d $dist -i $PREFIX.vcf.gz ) -b <(bedtools merge -d $dist -i $PATH_PGGB_VCF)) \
             -o vcfeval/${CONTIG}
     done
 
