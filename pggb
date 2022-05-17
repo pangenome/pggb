@@ -12,6 +12,7 @@ map_pct_id=95
 n_mappings=false
 segment_length=10000
 block_length=false
+sparse_map=false
 mash_kmer=false
 mash_kmer_thres=false
 min_match_length=47
@@ -50,7 +51,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -68,6 +69,7 @@ while true ; do
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -F|--mash-kmer-thres) mash_kmer_thres=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
+        -x|--sparse-map) sparse_map=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -f|--sparse-factor) sparse_factor=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
@@ -189,6 +191,7 @@ then
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
     echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 95]"
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
+    echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: 19]"
     echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: 0.5]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
@@ -249,7 +252,7 @@ fi
 # Alignment
 mapper_letter='W'
 n_mappings_minus_1=$( echo "$n_mappings - 1" | bc )
-paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings_minus_1-K$mash_kmer-F$mash_kmer_thres
+paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings_minus_1-K$mash_kmer-F$mash_kmer_thres-x$sparse_map
 
 if [[ $no_merge_segments == true ]];
 then
@@ -261,6 +264,19 @@ if [[ $no_splits == true ]];
 then
     split_cmd=-N
     paf_spec="$paf_spec"-N
+fi
+
+if [[ $sparse_map == "auto" ]];
+then
+    # set sparse mapping using giant component heuristic
+    # we keep 10x log(n)/n mappings
+    # if this is < 1, otherwise we keep all
+    n=$n_haps
+    sparse_map_frac=$(echo "x=l($n)/$n * 10; if (x < 1) { x } else { 1 }"  | bc -l | cut -c -8)
+    sparse_map_cmd="-x $sparse_map_frac"
+elif [[ $sparse_map != false ]];
+then
+    sparse_map_cmd="-x $sparse_map"
 fi
 
 prefix_paf="$input_fasta".$(echo $paf_spec | sha256sum | head -c 7)
@@ -340,6 +356,7 @@ wfmash:
   n-mappings:         $n_mappings
   mash-kmer:          $mash_kmer
   mash-kmer-thres:    $mash_kmer_thres
+  sparse-map:         $sparse_map
   exclude-delim:      $exclude_delim
 seqwish:
   min-match-len:      $min_match_length
@@ -367,7 +384,7 @@ odgi:
 gfaffix:
   normalize:          $normalize
 vg:
-  deconstruct:        $vcf_spec  
+  deconstruct:        $vcf_spec
 reporting:
   multiqc:            $multiqc
 EOT
@@ -389,6 +406,7 @@ if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
               $split_cmd \
               $mash_kmer_cmd \
               $mash_kmer_thres_cmd \
+              $sparse_map_cmd \
               -p $map_pct_id \
               -n $n_mappings_minus_1 \
               $wfmash_temp_dir \
@@ -623,7 +641,7 @@ custom_data:
     description: This shows a 1D rendering of the built pangenome graph where the paths are colored according to path depth. Using the Spectra color palette with 4 levels of path depths, white indicates no depth, while grey, red, and yellow indicate depth 1, 2, and greater than or equal to 3, respectively.
   odgi_draw:
     section_name: ODGI 2D drawing
-    description: This image shows a 2D rendering of the built pangenome graph.    
+    description: This image shows a 2D rendering of the built pangenome graph.
 
 # Custom search patterns to find the image outputs
 sp:
@@ -638,7 +656,7 @@ sp:
   odgi_viz_depth:
     fn: \"*viz_depth_multiqc.png\"
   testing_name:
-    fn: \"*draw.png\"    
+    fn: \"*draw.png\"
 ignore_images: false
 
 # Make the custom content stuff come after the ODGI module output
