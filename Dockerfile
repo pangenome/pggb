@@ -33,7 +33,8 @@ RUN apt-get update \
                        bcftools \
                        samtools \
                        wget \
-                       pip
+                       pip \
+                       libcairo2-dev
 
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
