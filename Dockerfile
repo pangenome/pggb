@@ -29,7 +29,12 @@ RUN apt-get update \
                        time \
                        curl \
                        pigz \
-                       tabix
+                       tabix \
+                       bcftools \
+                       samtools \
+                       wget \
+                       pip \
+                       libcairo2-dev
 
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
@@ -59,6 +64,7 @@ RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi
 
+# Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN cargo --help
@@ -69,9 +75,26 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && git checkout 9581a29d6dfe1e76a98f8c360ed33adf0348fa27 \
     && cargo install --force --path . && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix
 
-RUN apt-get update && apt-get install -y pip && pip install multiqc==1.11 && apt-get install -y bcftools
+RUN pip install multiqc==1.11
 
-RUN apt-get install wget && wget https://github.com/vgteam/vg/releases/download/v1.39.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
+RUN wget https://github.com/vgteam/vg/releases/download/v1.39.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
+
+# Community detection dependencies
+RUN pip install igraph==0.9.10
+RUN pip install pycairo==1.16.2
+
+# Additional tools
+RUN git clone https://github.com/ekg/fastix.git \
+    && cd fastix \
+    && git pull \
+    && git checkout 331c1159ea16625ee79d1a82522e800c99206834 \
+    && cargo install --force --path . && mv /root/.cargo/bin/fastix /usr/local/bin/fastix
+
+RUN git clone https://github.com/ekg/pafplot.git \
+    && cd pafplot \
+    && git pull \
+    && git checkout 7dda24c0aeba8556b600d53d748ae3103ec85501 \
+    && cargo install --force --path . && mv /root/.cargo/bin/pafplot /usr/local/bin/pafplot
 
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb
