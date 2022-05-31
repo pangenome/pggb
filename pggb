@@ -453,6 +453,8 @@ do
     fi
     if [[ $i != "$smooth_iterations" ]]; then
         if [[ ! -s $prefix_smoothed.$i.gfa || $resume == false ]]; then
+            resume=false # smoothxg is not deterministic, then all subsequent steps need to be rerun for consistency
+
             poa_length=$(echo $target_poa_length | cut -f $i -d, )
             $timer -f "$fmt" smoothxg \
                    -t $threads \
@@ -476,7 +478,9 @@ do
                    2> >(tee -a "$log_file")
         fi
     else
-        if [[ ! -s $prefix_smoothed.gfa || $resume == false ]]; then
+        if [[ ! -s $prefix_smoothed.gfa || ($write_maf != false && ! -s ${prefix_smoothed_output}.maf) || $resume == false ]]; then
+            resume=false # smoothxg is not deterministic, then all subsequent steps need to be rerun for consistency
+
             poa_length=$(echo $target_poa_length | cut -f $i -d, )
             $timer -f "$fmt" smoothxg \
                    -t $threads \
@@ -509,15 +513,17 @@ if [[ "$temp_dir" != "" ]]; then
   odgi_temp_dir="--temp-dir $temp_dir"
 fi
 
-if [[ $normalize == true ]]; then
-    # Remove redundancy and sort
-    ( $timer -f "$fmt" gfaffix "$prefix_smoothed".gfa -o "$prefix_smoothed_output".final.gfa | $timer -f "$fmt" pigz > "$prefix_smoothed_output".final.affixes.tsv.gz ) 2> >(tee -a "$log_file")
-    ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o - -O \
-        | $timer -f "$fmt" odgi sort -P -p Ygs $odgi_temp_dir -t $threads -i - -o "$prefix_smoothed_output".final.og ) 2> >(tee -a "$log_file")
-    ( $timer -f "$fmt" odgi view -i "$prefix_smoothed_output".final.og -g > "$prefix_smoothed_output".final.gfa ) 2> >(tee -a "$log_file")
-else
-    mv "$prefix_smoothed".gfa "$prefix_smoothed_output".final.gfa
-    $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o "$prefix_smoothed_output".final.og 2> >(tee -a "$log_file")
+if [[ ! -s "$prefix_smoothed_output".final.gfa || $resume == false ]]; then
+    if [[ $normalize == true ]]; then
+        # Remove redundancy and sort
+        ( $timer -f "$fmt" gfaffix "$prefix_smoothed".gfa -o "$prefix_smoothed_output".final.gfa | $timer -f "$fmt" pigz > "$prefix_smoothed_output".final.affixes.tsv.gz ) 2> >(tee -a "$log_file")
+        ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o - -O \
+            | $timer -f "$fmt" odgi sort -P -p Ygs $odgi_temp_dir -t $threads -i - -o "$prefix_smoothed_output".final.og ) 2> >(tee -a "$log_file")
+        ( $timer -f "$fmt" odgi view -i "$prefix_smoothed_output".final.og -g > "$prefix_smoothed_output".final.gfa ) 2> >(tee -a "$log_file")
+    else
+        mv "$prefix_smoothed".gfa "$prefix_smoothed_output".final.gfa
+        $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o "$prefix_smoothed_output".final.og 2> >(tee -a "$log_file")
+    fi
 fi
 
 if [[ $multiqc == true ]]; then
@@ -538,22 +544,34 @@ fi
 
 if [[ $do_viz == true ]]; then
     # big problem: this assumes that there is no "Consensus_" in the input sequences
-    $timer -f "$fmt" odgi viz -i "$prefix_smoothed_output".final.og \
-                    -o "$prefix_smoothed_output".final.og.viz_multiqc.png \
-                    -x 1500 -y 500 -a 10 -I $consensus_prefix \
-                    2> >(tee -a "$log_file")
-    $timer -f "$fmt" odgi viz -i "$prefix_smoothed_output".final.og \
-                    -o "$prefix_smoothed_output".final.og.viz_pos_multiqc.png \
-                    -x 1500 -y 500 -a 10 -u -d -I $consensus_prefix \
-                    2> >(tee -a "$log_file")
-    $timer -f "$fmt" odgi viz -i "$prefix_smoothed_output".final.og \
-                    -o "$prefix_smoothed_output".final.og.viz_depth_multiqc.png \
-                    -x 1500 -y 500 -a 10 -m -I $consensus_prefix \
-                    2> >(tee -a "$log_file")
-    $timer -f "$fmt" odgi viz -i "$prefix_smoothed_output".final.og \
-                    -o "$prefix_smoothed_output".final.og.viz_inv_multiqc.png \
-                    -x 1500 -y 500 -a 10 -z -I $consensus_prefix \
-                    2> >(tee -a "$log_file")
+
+    if [[ ! -s "$prefix_smoothed_output".final.og.viz_multiqc.png || $resume == false ]]; then
+      $timer -f "$fmt" odgi viz -i "$prefix_smoothed_output".final.og \
+                      -o "$prefix_smoothed_output".final.og.viz_multiqc.png \
+                      -x 1500 -y 500 -a 10 -I $consensus_prefix \
+                      2> >(tee -a "$log_file")
+    fi
+
+    if [[ ! -s "$prefix_smoothed_output".final.og.viz_pos_multiqc.png || $resume == false ]]; then
+      $timer -f "$fmt" odgi viz -i "$prefix_smoothed_output".final.og \
+                      -o "$prefix_smoothed_output".final.og.viz_pos_multiqc.png \
+                      -x 1500 -y 500 -a 10 -u -d -I $consensus_prefix \
+                      2> >(tee -a "$log_file")
+    fi
+
+    if [[ ! -s "$prefix_smoothed_output".final.og.viz_depth_multiqc.png || $resume == false ]]; then
+      $timer -f "$fmt" odgi viz -i "$prefix_smoothed_output".final.og \
+                      -o "$prefix_smoothed_output".final.og.viz_depth_multiqc.png \
+                      -x 1500 -y 500 -a 10 -m -I $consensus_prefix \
+                      2> >(tee -a "$log_file")
+    fi
+
+    if [[ ! -s "$prefix_smoothed_output".final.og.viz_inv_multiqc.png || $resume == false ]]; then
+      $timer -f "$fmt" odgi viz -i "$prefix_smoothed_output".final.og \
+                      -o "$prefix_smoothed_output".final.og.viz_inv_multiqc.png \
+                      -x 1500 -y 500 -a 10 -z -I $consensus_prefix \
+                      2> >(tee -a "$log_file")
+    fi
 fi
 
 if [[ $do_layout == true ]]; then
@@ -561,27 +579,34 @@ if [[ $do_layout == true ]]; then
     #$timer -f "$fmt" odgi chop -i "$prefix_smoothed_output".final.og -c 100 -o ""$prefix_smoothed_output".final.chop.og \
     #    2> >(tee -a "$log_file")
 
-    # adding `-N g` to this call can help when rendering large, complex graphs that aren't globally linear
-    $timer -f "$fmt" odgi layout -i "$prefix_smoothed_output".final.og \
-                       -o "$prefix_smoothed_output".final.og.lay \
-                       -T "$prefix_smoothed_output".final.og.lay.tsv \
-                       -t $threads $odgi_temp_dir -P \
-                       2> >(tee -a "$log_file")
+    if [[ ! -s "$prefix_smoothed_output".final.og.lay || $resume == false ]]; then
+      # adding `-N g` to this call can help when rendering large, complex graphs that aren't globally linear
+      $timer -f "$fmt" odgi layout -i "$prefix_smoothed_output".final.og \
+                         -o "$prefix_smoothed_output".final.og.lay \
+                         -T "$prefix_smoothed_output".final.og.lay.tsv \
+                         -t $threads $odgi_temp_dir -P \
+                         2> >(tee -a "$log_file")
+    fi
 
-    # this can be configured to draw the graph in different ways, based on the same layout
-    # here we draw in default mode
-    $timer -f "$fmt" odgi draw -i "$prefix_smoothed_output".final.og \
-                     -c "$prefix_smoothed_output".final.og.lay \
-                     -p "$prefix_smoothed_output".final.og.lay.draw.png \
-                     -H 1000 \
-                     2> >(tee -a "$log_file")
-    # this attempts to add paths
-    $timer -f "$fmt" odgi draw -i "$prefix_smoothed_output".final.og \
-                     -c "$prefix_smoothed_output".final.og.lay \
-                     -p "$prefix_smoothed_output".final.og.lay.draw_multiqc.png \
-                     -C -w 20 \
-                     -H 1000 \
-                     2> >(tee -a "$log_file")
+    if [[ ! -s "$prefix_smoothed_output".final.og.lay.draw.png || $resume == false ]]; then
+      # this can be configured to draw the graph in different ways, based on the same layout
+      # here we draw in default mode
+      $timer -f "$fmt" odgi draw -i "$prefix_smoothed_output".final.og \
+                       -c "$prefix_smoothed_output".final.og.lay \
+                       -p "$prefix_smoothed_output".final.og.lay.draw.png \
+                       -H 1000 \
+                       2> >(tee -a "$log_file")
+    fi
+
+    if [[ ! -s "$prefix_smoothed_output".final.og.lay.draw_multiqc.png || $resume == false ]]; then
+      # this attempts to add paths
+      $timer -f "$fmt" odgi draw -i "$prefix_smoothed_output".final.og \
+                       -c "$prefix_smoothed_output".final.og.lay \
+                       -p "$prefix_smoothed_output".final.og.lay.draw_multiqc.png \
+                       -C -w 20 \
+                       -H 1000 \
+                       2> >(tee -a "$log_file")
+    fi
 fi
 
 if [[ $vcf_spec != false ]]; then
@@ -589,11 +614,13 @@ if [[ $vcf_spec != false ]]; then
     do
         ref=$(echo "$s" | cut -f 1 -d: )
         delim=$(echo "$s" | cut -f 2 -d: )
-        echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
         vcf="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').vcf
-        ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
-                 -H $delim -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
-        bcftools stats "$vcf" > "$vcf".stats
+        if [[ ! -s $vcf || $resume == false ]]; then
+          echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
+          ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
+                   -H $delim -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
+          bcftools stats "$vcf" > "$vcf".stats
+        fi
     done
 fi
 
