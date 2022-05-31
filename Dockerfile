@@ -57,7 +57,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout b0bc70fd42f7b263251d2802e47ab9102a27cd26 \
+    && git checkout 20fee54d5279dd8bb435fb95b93b386cc5eec997 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
@@ -72,12 +72,12 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout 9581a29d6dfe1e76a98f8c360ed33adf0348fa27 \
+    && git checkout ae153555fa9aa29fbc6057a9bcda1bc6597170d1 \
     && cargo install --force --path . && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix
 
 RUN pip install multiqc==1.11
 
-RUN wget https://github.com/vgteam/vg/releases/download/v1.39.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
+RUN wget https://github.com/vgteam/vg/releases/download/v1.40.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
 # Community detection dependencies
 RUN pip install igraph==0.9.10
