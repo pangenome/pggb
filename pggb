@@ -44,8 +44,7 @@ compress=false
 normalize=true
 vcf_spec=false
 
-if [ $# -eq 0 ];
-then
+if [ $# -eq 0 ]; then
     show_help=true
 fi
 
@@ -99,10 +98,8 @@ while true ; do
 done
 
 # if a PAF is given as input, we set the segment_length by to an arbitrary number, since we will skip the wfmash alignment process
-if [[ $input_paf != false ]];
-then
-    if [[ $segment_length == false ]];
-    then
+if [[ $input_paf != false ]]; then
+    if [[ $segment_length == false ]];     then
         segment_length=42
     fi
     mapper=EXTERNAL
@@ -111,40 +108,34 @@ fi
 if [[
        "$input_fasta" == false
     || $n_mappings == false
-   ]];
-then
+   ]]; then
     show_help=true
     >&2 echo "ERROR: mandatory arguments -i and -n"
 fi
 
-if (( "$n_mappings" < 2 ));
-then
+if (( "$n_mappings" < 2 )); then
     show_help=true
     >&2 echo "ERROR: -n must be greater than or equal to 2"
 fi
 
-if [[ $poa_threads == 0 ]];
-then
+if [[ $poa_threads == 0 ]]; then
     poa_threads=$threads
 fi
 
 block_length_cmd=""
-if [[ $block_length != false ]];
-then
+if [[ $block_length != false ]]; then
     block_length_cmd="-l $block_length"
 fi
 # wfmash auto-sets our block length based on its parameters
 
 mash_kmer_cmd=""
-if [[ $mash_kmer != false ]];
-then
+if [[ $mash_kmer != false ]]; then
     mash_kmer_cmd="-k $mash_kmer"
 fi
 # wfmash auto-sets our kmer length based on its parameters
 
 mash_kmer_thres_cmd=""
-if [[ $mash_kmer_thres != false ]];
-then
+if [[ $mash_kmer_thres != false ]]; then
     mash_kmer_thres_cmd="-H $mash_kmer_thres"
 fi
 # wfmash auto-sets our kmer frequency threshold based on its parameters
@@ -157,8 +148,7 @@ fi
 # - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params_cmd=""
-if [[ $poa_params == false ]];
-then
+if [[ $poa_params == false ]]; then
     poa_params_cmd="-P 1,19,39,3,81,1"
 else
     if [[ $poa_params == "asm5" ]]; then
@@ -174,13 +164,11 @@ else
     fi
 fi
 
-if [[ $n_haps == false ]];
-then
+if [[ $n_haps == false ]]; then
     n_haps=$n_mappings
 fi
 
-if [ $show_help ];
-then
+if [ $show_help ]; then
     padding=`printf %${#0}s` # prints as many spaces as the length of $0
     echo "usage: $0 -i <input-fasta> -n <n-mappings> [options]"
     echo "options:"
@@ -254,39 +242,33 @@ mapper_letter='W'
 n_mappings_minus_1=$( echo "$n_mappings - 1" | bc )
 paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings_minus_1-K$mash_kmer-F$mash_kmer_thres-x$sparse_map
 
-if [[ $no_merge_segments == true ]];
-then
+if [[ $no_merge_segments == true ]]; then
     merge_cmd=-M
     paf_spec="$paf_spec"-M
 fi
 
-if [[ $no_splits == true ]];
-then
+if [[ $no_splits == true ]]; then
     split_cmd=-N
     paf_spec="$paf_spec"-N
 fi
 
-if [[ $sparse_map == "auto" ]];
-then
+if [[ $sparse_map == "auto" ]]; then
     # set sparse mapping using giant component heuristic
     # we keep 10x log(n)/n mappings
     # if this is < 1, otherwise we keep all
     n=$n_haps
     sparse_map_frac=$(echo "x=l($n)/$n * 10; if (x < 1) { x } else { 1 }"  | bc -l | cut -c -8)
     sparse_map_cmd="-x $sparse_map_frac"
-elif [[ $sparse_map != false ]];
-then
+elif [[ $sparse_map != false ]]; then
     sparse_map_cmd="-x $sparse_map"
 fi
 
 prefix_paf="$input_fasta".$(echo $paf_spec | sha256sum | head -c 7)
-if [[ $input_paf != false ]];
-then
+if [[ $input_paf != false ]]; then
     prefix_paf=$input_paf
 fi
 
-if [[ $exclude_delim != false ]];
-then
+if [[ $exclude_delim != false ]]; then
     exclude_cmd="-Y "$exclude_delim
 else
     exclude_cmd=-X
@@ -391,8 +373,7 @@ EOT
 
 echo -e "\nRunning pggb\n" >> "$log_file"
 if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
-  if [[ "$mapper" == "wfmash" ]];
-  then
+  if [[ "$mapper" == "wfmash" ]]; then
           wfmash_temp_dir=""
           if [[ "$temp_dir" != "" ]]; then
             wfmash_temp_dir="-B $temp_dir"
@@ -418,8 +399,7 @@ fi
 
 # correct prefix_paf and ajdust input here accordingly
 seqwish_paf="$prefix_paf".$mapper.paf
-if [[ $input_paf != false ]];
-then
+if [[ $input_paf != false ]]; then
     seqwish_paf=$input_paf
 fi
 if [[ ! -s $prefix_seqwish.seqwish.gfa || $resume == false ]]; then
@@ -529,8 +509,7 @@ if [[ "$temp_dir" != "" ]]; then
   odgi_temp_dir="--temp-dir $temp_dir"
 fi
 
-if [[ $normalize == true ]];
-then
+if [[ $normalize == true ]]; then
     # Remove redundancy and sort
     ( $timer -f "$fmt" gfaffix "$prefix_smoothed".gfa -o "$prefix_smoothed_output".final.gfa | $timer -f "$fmt" pigz > "$prefix_smoothed_output".final.affixes.tsv.gz ) 2> >(tee -a "$log_file")
     ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o - -O \
@@ -541,13 +520,11 @@ else
     $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o "$prefix_smoothed_output".final.og 2> >(tee -a "$log_file")
 fi
 
-if [[ $multiqc == true ]];
-then
+if [[ $multiqc == true ]]; then
     do_stats=true
 fi
 
-if [[ $do_stats == true ]];
-then
+if [[ $do_stats == true ]]; then
     $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_seqwish".seqwish.gfa -o "$prefix_seqwish".seqwish.og 2> >(tee -a "$log_file")
     odgi stats -i "$prefix_seqwish".seqwish.og -m > "$prefix_seqwish".seqwish.og.stats.yaml 2>&1 | tee -a "$log_file"
     odgi stats -i "$prefix_smoothed_output".final.og -m  > "$prefix_smoothed_output".final.og.stats.yaml 2>&1 | tee -a "$log_file"
@@ -559,8 +536,7 @@ then
     fi
 fi
 
-if [[ $do_viz == true ]];
-then
+if [[ $do_viz == true ]]; then
     # big problem: this assumes that there is no "Consensus_" in the input sequences
     $timer -f "$fmt" odgi viz -i "$prefix_smoothed_output".final.og \
                     -o "$prefix_smoothed_output".final.og.viz_multiqc.png \
@@ -580,8 +556,7 @@ then
                     2> >(tee -a "$log_file")
 fi
 
-if [[ $do_layout == true ]];
-then
+if [[ $do_layout == true ]]; then
     # the 2D layout is "smoother" when we chop the nodes of the graph to a fixed maximum length
     #$timer -f "$fmt" odgi chop -i "$prefix_smoothed_output".final.og -c 100 -o ""$prefix_smoothed_output".final.chop.og \
     #    2> >(tee -a "$log_file")
@@ -609,8 +584,7 @@ then
                      2> >(tee -a "$log_file")
 fi
 
-if [[ $vcf_spec != false ]];
-then
+if [[ $vcf_spec != false ]]; then
     for s in $( echo "$vcf_spec" | tr ',' ' ' );
     do
         ref=$(echo "$s" | cut -f 1 -d: )
@@ -675,11 +649,9 @@ custom_content:
 fn_clean_exts:
   - \".gfa\""
 
-if [[ $multiqc == true ]];
-then
+if [[ $multiqc == true ]]; then
     echo "$multiqc_config" > "$output_dir"/multiqc_config.yaml
-    if [[ $output_dir == "" ]];
-    then
+    if [[ $output_dir == "" ]]; then
         $timer -f "$fmt" multiqc "$multiqc_out_dir" \
         -s \
         -o "$multiqc_out_dir" \
@@ -694,15 +666,13 @@ then
     fi
 fi
 
-if [[ $keep_intermediate_files == true ]];
-then
+if [[ $keep_intermediate_files == true ]]; then
   # `|| true` to avoid `mv` fail if there are missing files to move
   mv -f "$prefix_seqwish".seqwish.{gfa,og} "$output_dir" 2> /dev/null || true
   mv -f "$prefix_seqwish".*.prep.gfa "$output_dir" 2> /dev/null || true
   mv -f "$prefix_smoothed".[0-9]*.{gfa,og} "$output_dir" 2> /dev/null || true
 
-  if [[ $normalize == true ]];
-  then
+  if [[ $normalize == true ]]; then
     mv -f "$prefix_smoothed".{gfa,og} "$output_dir" 2> /dev/null || true
   fi
 
@@ -715,21 +685,17 @@ else
   rm -f "$prefix_seqwish".seqwish.{gfa,og}
   rm -f "$prefix_smoothed".[0-9]*.{gfa,og}
 
-  if [[ $normalize == true ]];
-  then
+  if [[ $normalize == true ]]; then
     rm -f "$prefix_smoothed".{gfa,og}
   fi
 fi
 
-if [[ $temp_dir_was_created == true ]];
-then
+if [[ $temp_dir_was_created == true ]]; then
   rm -r $temp_dir
 fi
 
-if [[ $compress == true ]];
-then
-    if [[ $input_paf == false ]];
-    then
+if [[ $compress == true ]]; then
+    if [[ $input_paf == false ]]; then
         pigz -f -q -p $threads "$prefix_paf"*.paf -v
     fi
     pigz -f -q -p $threads "$prefix_seqwish"*.{gfa,og} -v
