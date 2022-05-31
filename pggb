@@ -224,8 +224,8 @@ if [ $show_help ]; then
     echo "    -o, --output-dir PATH       output directory"
     echo "    -D, --temp-dir PATH         directory for temporary files"
     echo "    -a, --input-paf FILE        input PAF file; the wfmash alignment step is skipped"
-    echo "    -r, --resume PATH           do not overwrite existing output from wfmash, seqwish, smoothxg in given directory"
-    echo "                                [default: start pipeline from scratch in a new directory]"
+    echo "    -r, --resume                do not overwrite existing outputs in the given directory"
+    echo "                                [default: start pipeline from scratch]"
     echo "    -t, --threads N             number of compute threads to use in parallel steps"
     echo "    -T, --poa-threads N         number of compute threads to use during POA (set lower if you OOM during smoothing)"
     echo "    -A, --keep-temp-files       keep intermediate graphs"
@@ -233,7 +233,7 @@ if [ $show_help ]; then
     echo "                                and variant (.vcf) outputs with bgzip"
     echo "    -h, --help                  this text"
     echo
-    echo "Use wfmash, seqwish, smoothxg, and odgi to build and display a pangenome graph."
+    echo "Use wfmash, seqwish, smoothxg, odgi, gfaffix, and vg to build, project and display a pangenome graph."
     exit
 fi
 
