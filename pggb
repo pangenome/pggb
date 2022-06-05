@@ -513,18 +513,28 @@ if [[ "$temp_dir" != "" ]]; then
   odgi_temp_dir="--temp-dir $temp_dir"
 fi
 
-if [[ ! -s "$prefix_smoothed_output".final.gfa || $resume == false ]]; then
-    if [[ $normalize == true ]]; then
-        # Remove redundancy and sort
-        ( $timer -f "$fmt" gfaffix "$prefix_smoothed".gfa -o "$prefix_smoothed_output".final.gfa | $timer -f "$fmt" pigz > "$prefix_smoothed_output".final.affixes.tsv.gz ) 2> >(tee -a "$log_file")
-        ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o - -O \
-            | $timer -f "$fmt" odgi sort -P -p Ygs $odgi_temp_dir -t $threads -i - -o "$prefix_smoothed_output".final.og ) 2> >(tee -a "$log_file")
-        ( $timer -f "$fmt" odgi view -i "$prefix_smoothed_output".final.og -g > "$prefix_smoothed_output".final.gfa ) 2> >(tee -a "$log_file")
-    else
-        mv "$prefix_smoothed".gfa "$prefix_smoothed_output".final.gfa
-        $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o "$prefix_smoothed_output".final.og 2> >(tee -a "$log_file")
+if [[ $normalize == true ]]; then
+    # Remove redundancy and sort
+    if [[ ! -s "$prefix_smoothed_output".fix.gfa || ! -s "$prefix_smoothed_output".fix.affixes.tsv.gz || $resume == false ]]; then
+      ( $timer -f "$fmt" gfaffix "$prefix_smoothed".gfa -o "$prefix_smoothed".fix.gfa | $timer -f "$fmt" pigz > "$prefix_smoothed_output".fix.affixes.tsv.gz ) 2> >(tee -a "$log_file")
     fi
+
+    if [[ ! -s "$prefix_smoothed_output".final.og || $resume == false ]]; then
+      # Sort
+      ( $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed".fix.gfa -o - -O \
+          | $timer -f "$fmt" odgi sort -P -p Ygs $odgi_temp_dir -t $threads -i - -o "$prefix_smoothed_output".final.og ) 2> >(tee -a "$log_file")
+
+      resume=false # The PG-SGD sorting (`-pY`) is not deterministic, then all subsequent steps need to be rerun for consistency
+    fi
+    
+    if [[ ! -s "$prefix_smoothed_output".final.gfa || $resume == false ]]; then
+      ( $timer -f "$fmt" odgi view -i "$prefix_smoothed_output".final.og -g > "$prefix_smoothed_output".final.gfa ) 2> >(tee -a "$log_file")
+    fi
+else
+    mv "$prefix_smoothed".gfa "$prefix_smoothed_output".final.gfa
+    $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o "$prefix_smoothed_output".final.og 2> >(tee -a "$log_file")
 fi
+
 
 if [[ $multiqc == true ]]; then
     do_stats=true
@@ -698,6 +708,7 @@ if [[ $keep_intermediate_files == true ]]; then
   mv -f "$prefix_seqwish".seqwish.{gfa,og} "$output_dir" 2> /dev/null || true
   mv -f "$prefix_seqwish".*.prep.gfa "$output_dir" 2> /dev/null || true
   mv -f "$prefix_smoothed".[0-9]*.{gfa,og} "$output_dir" 2> /dev/null || true
+  mv -f "$prefix_smoothed".fix.gfa "$output_dir" 2> /dev/null || true
 
   if [[ $normalize == true ]]; then
     mv -f "$prefix_smoothed".{gfa,og} "$output_dir" 2> /dev/null || true
@@ -714,6 +725,7 @@ else
 
   if [[ $normalize == true ]]; then
     rm -f "$prefix_smoothed".{gfa,og}
+    rm -f "$prefix_smoothed".fix.gfa
   fi
 fi
 
