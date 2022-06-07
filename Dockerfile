@@ -77,7 +77,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
 
 RUN pip install multiqc==1.11
 
-RUN wget https://github.com/vgteam/vg/releases/download/v1.40.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
+RUN wget https://github.com/vgteam/vg/releases/download/v1.41.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
 # Community detection dependencies
 RUN pip install igraph==0.9.10
