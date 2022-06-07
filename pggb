@@ -472,7 +472,7 @@ do
                    $poa_params_cmd \
                    -O $poa_padding \
                    -Y $(echo "$pad_max_depth * $n_haps" | bc) \
-                   -d 0 -D 0 \
+                   -d 0 -D 0 -S \
                    -V \
                    -o "$prefix_smoothed".$i.gfa \
                    2> >(tee -a "$log_file")
@@ -498,7 +498,7 @@ do
                    $poa_params_cmd \
                    -O $poa_padding \
                    -Y $(echo "$pad_max_depth * $n_haps" | bc) \
-                   -d 0 -D 0 \
+                   -d 0 -D 0 -S \
                    $maf_params \
                    -Q $consensus_prefix \
                    $consensus_params \
