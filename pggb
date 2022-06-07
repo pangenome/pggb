@@ -10,7 +10,7 @@ input_paf=false
 resume=false
 map_pct_id=95
 n_mappings=false
-segment_length=10000
+segment_length=1000
 block_length=false
 sparse_map=false
 mash_kmer=false
@@ -174,7 +174,7 @@ if [ $show_help ]; then
     echo "options:"
     echo "   [wfmash]"
     echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
-    echo "    -s, --segment-length N      segment length for mapping [default: 10k]"
+    echo "    -s, --segment-length N      segment length for mapping [default: 1k]"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 5*segment-length]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
     echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 95]"
@@ -472,7 +472,7 @@ do
                    $poa_params_cmd \
                    -O $poa_padding \
                    -Y $(echo "$pad_max_depth * $n_haps" | bc) \
-                   -d 0 -D 0 \
+                   -d 0 -D 0 -S \
                    -V \
                    -o "$prefix_smoothed".$i.gfa \
                    2> >(tee -a "$log_file")
@@ -498,7 +498,7 @@ do
                    $poa_params_cmd \
                    -O $poa_padding \
                    -Y $(echo "$pad_max_depth * $n_haps" | bc) \
-                   -d 0 -D 0 \
+                   -d 0 -D 0 -S \
                    $maf_params \
                    -Q $consensus_prefix \
                    $consensus_params \
