@@ -23,17 +23,6 @@ colnames(dtNucmer) <- hdShowSnp
 dtSNPs <- dtNucmer[Allele_a1 != "." & Allele_a2 != "."]
 nR <- nrow(dtSNPs)
 
-dtVCF <- data.table(dtSNPs$Chrom_a1, dtSNPs$Pos_a1, rep(".", nR),
-                    dtSNPs$Allele_a1, dtSNPs$Allele_a2, rep(60, nR),
-                    rep(".", nR), # FILTER
-                    rep(".", nR), # INFO
-                    rep("GT:FRMR:FRMQ:STARTQ:ENDQ", nR), # FORMAT
-                    paste("1", dtSNPs$Strand_a1, dtSNPs$Strand_a2,
-                          dtSNPs$Pos_a1,
-                          dtSNPs$Pos_a2, sep = ":"))
-
-dtVCF <-dtVCF[order(dtVCF$V1, dtVCF$V2),] # Sort by CHROM and POS
-
 headerVcf <- c("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t")
 
 string1 <- "##fileformat=VCFv4.3"
@@ -50,10 +39,24 @@ if (file.exists(pathRefFai)) {
   stringRef <- paste0(stringRef, '\n', paste0("##contig=<ID=", dtFai$Chrom_id, ",length=", dtFai$Len_bp, ">"))
 }
 
+### append the vcf to the corresponding header (with the correct sample name)
 cat(string1, string2, string3,
     stringRef,
     stringH,
     file = pathOut, sep = "\n")
-### append the vcf to the corresponding header (with the correct sample name)
-fwrite(file = pathOut, append = T, x = dtVCF, quote = F,
-       sep = "\t", row.names = F, col.names = F)
+
+if (dim(dtSNPs)[1] > 0) {
+  dtVCF <- data.table(dtSNPs$Chrom_a1, dtSNPs$Pos_a1, rep(".", nR),
+                      dtSNPs$Allele_a1, dtSNPs$Allele_a2, rep(60, nR),
+                      rep(".", nR), # FILTER
+                      rep(".", nR), # INFO
+                      rep("GT:FRMR:FRMQ:STARTQ:ENDQ", nR), # FORMAT
+                      paste("1", dtSNPs$Strand_a1, dtSNPs$Strand_a2,
+                            dtSNPs$Pos_a1,
+                            dtSNPs$Pos_a2, sep = ":"))
+  
+  dtVCF <-dtVCF[order(dtVCF$V1, dtVCF$V2),] # Sort by CHROM and POS
+  
+  fwrite(file = pathOut, append = T, x = dtVCF, quote = F,
+         sep = "\t", row.names = F, col.names = F)
+}
