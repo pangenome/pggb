@@ -32,6 +32,8 @@ dtVCF <- data.table(dtSNPs$Chrom_a1, dtSNPs$Pos_a1, rep(".", nR),
                           dtSNPs$Pos_a1,
                           dtSNPs$Pos_a2, sep = ":"))
 
+dtVCF <-dtVCF[order(dtVCF$V1, dtVCF$V2),] # Sort by CHROM and POS
+
 headerVcf <- c("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\t")
 
 string1 <- "##fileformat=VCFv4.3"
