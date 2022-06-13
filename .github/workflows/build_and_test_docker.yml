@@ -9,9 +9,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build the Docker image
         run: docker build . --file Dockerfile --target binary --tag pggb
-      - name: Run a test on the DRB1-3123 dataset (wfmash)
+      - name: Run a test on the DRB1-3123 dataset (SPOA)
         run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#' -o drib1 -M -m && ls drib1/*"
+      - name: Run a test on the DRB1-3123 dataset (abPOA)
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#' -o drib1_abpoa -M -m -b && ls drib1_abpoa/*"
       - name: Run a test on the DRB1-3123 dataset (paf)
         run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -a data/paf/DRB1-3123.fa.15a1009.wfmash.paf -p 70 -s 3000 -G 2000 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#' -o drib2 -M -m && ls drib2/*"
-      - name: Run a test on the LPA dataset (wfmash)
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/LPA/LPA.fa.gz -p 95 -s 50000 -l 10000 -G 5000,5500 -n 90 -k 79 -t 2 -Z -O 0.001 -m"
+      - name: Run a test on the LPA dataset (SPOA global)
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/LPA/LPA.fa.gz -p 95 -s 50000 -l 10000 -G 5000,5500 -n 90 -k 79 -t 2 -Z -O 0.001 -m -z"
+      - name: Run a test on the LPA dataset (abPOA global)
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/LPA/LPA.fa.gz -p 95 -s 50000 -l 10000 -G 5000,5500 -n 90 -k 79 -t 2 -Z -O 0.001 -m -bz"
