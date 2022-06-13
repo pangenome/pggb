@@ -26,6 +26,8 @@ max_edge_jump=0
 target_poa_length=4001,4507
 poa_params=false
 poa_padding=0.03
+run_abpoa=false
+run_global_poa=false
 do_viz=true
 do_layout=true
 threads=1
@@ -50,7 +52,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NrmZV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -79,6 +81,8 @@ while true ; do
         -G|--poa-length-target) target_poa_length=$2 ; shift 2 ;;
         -P|--poa-params) poa_params=$2 ; shift 2 ;;
         -O|--poa-padding) poa_padding=$2 ; shift 2 ;;
+        -b|--run-abpoa) run_abpoa=true ; shift ;;
+        -z|--global-poa) run_global_poa=true ; shift ;;
         -M|--write-maf) write_maf=true ; shift ;;
         #-C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
         -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
@@ -197,6 +201,8 @@ if [ $show_help ]; then
     echo "                                may also be given as presets: asm5, asm10, asm15, asm20"
     echo "                                [default: 1,19,39,3,81,1 = asm5]"
     echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.03]"
+    echo "    -b, --run-abpoa             run abPOA [default: SPOA]"
+    echo "    -z, --global-poa            run the POA in global mode [default: local mode]"
     echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: 100]"
     echo "    -M, --write-maf             write MAF output representing merged POA blocks [default: off]"
     echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
@@ -359,6 +365,8 @@ smoothxg:
   block-ratio-min:    $block_ratio_min
   poa_threads:        $poa_threads
   poa_padding:        $poa_padding
+  run_abpoa:          $run_abpoa
+  run_global_poa:     $run_global_poa
 odgi:
   viz:                $do_viz
   layout:             $do_layout
@@ -445,6 +453,16 @@ if [[ "$temp_dir" != "" ]]; then
   smoothxg_temp_dir="-b $temp_dir"
 fi
 
+smoothxg_xpoa="-S"
+if [[ "$run_abpoa" == true ]]; then
+  smoothxg_xpoa=""
+fi
+
+smoothxg_poa_mode=""
+if [[ "$run_global_poa" == true ]]; then
+  smoothxg_poa_mode="-Z"
+fi
+
 for i in $(seq 1 $smooth_iterations);
 do
     input_gfa="$prefix_seqwish".seqwish.gfa
@@ -472,7 +490,8 @@ do
                    $poa_params_cmd \
                    -O $poa_padding \
                    -Y $(echo "$pad_max_depth * $n_haps" | bc) \
-                   -d 0 -D 0 -S \
+                   -d 0 -D 0 \
+                   $smoothxg_xpoa $smoothxg_poa_mode \
                    -V \
                    -o "$prefix_smoothed".$i.gfa \
                    2> >(tee -a "$log_file")
@@ -498,7 +517,8 @@ do
                    $poa_params_cmd \
                    -O $poa_padding \
                    -Y $(echo "$pad_max_depth * $n_haps" | bc) \
-                   -d 0 -D 0 -S \
+                   -d 0 -D 0 \
+                   $smoothxg_xpoa $smoothxg_poa_mode \
                    $maf_params \
                    -Q $consensus_prefix \
                    $consensus_params \
