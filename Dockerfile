@@ -59,6 +59,7 @@ RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && git pull \
     && git checkout 87264898fa81fbac4602d51a9840186bb82f4da1 \
     && git submodule update --init --recursive \
+    && sed -i 's/-march=native/-march=haswell/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
