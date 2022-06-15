@@ -25,7 +25,7 @@ max_path_jump=0
 max_edge_jump=0
 target_poa_length=4001,4507
 poa_params=false
-poa_padding=0.03
+poa_padding=0.001
 run_abpoa=false
 run_global_poa=false
 do_viz=true
@@ -200,7 +200,7 @@ if [ $show_help ]; then
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
     echo "                                may also be given as presets: asm5, asm10, asm15, asm20"
     echo "                                [default: 1,19,39,3,81,1 = asm5]"
-    echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.03]"
+    echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.001]"
     echo "    -b, --run-abpoa             run abPOA [default: SPOA]"
     echo "    -z, --global-poa            run the POA in global mode [default: local mode]"
     echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: 100]"
@@ -546,7 +546,7 @@ if [[ $normalize == true ]]; then
 
       resume=false # The PG-SGD sorting (`-pY`) is not deterministic, then all subsequent steps need to be rerun for consistency
     fi
-    
+
     if [[ ! -s "$prefix_smoothed_output".final.gfa || $resume == false ]]; then
       ( $timer -f "$fmt" odgi view -i "$prefix_smoothed_output".final.og -g > "$prefix_smoothed_output".final.gfa ) 2> >(tee -a "$log_file")
     fi
@@ -554,7 +554,7 @@ else
     if [[ ! -s "$prefix_smoothed_output".final.gfa || $resume == false ]]; then
       mv "$prefix_smoothed".gfa "$prefix_smoothed_output".final.gfa
     fi
-    
+
     if [[ ! -s "$prefix_smoothed_output".final.og || $resume == false ]]; then
       $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o "$prefix_smoothed_output".final.og 2> >(tee -a "$log_file")
     fi
