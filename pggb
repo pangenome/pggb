@@ -15,7 +15,7 @@ block_length=false
 sparse_map=false
 mash_kmer=false
 mash_kmer_thres=false
-min_match_length=47
+min_match_length=19
 sparse_factor=0
 transclose_batch=10000000
 n_haps=false
@@ -189,7 +189,7 @@ if [ $show_help ]; then
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
-    echo "    -k, --min-match-len N       filter exact matches below this length [default: 47]"
+    echo "    -k, --min-match-len N       filter exact matches below this length [default: 19]"
     echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
