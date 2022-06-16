@@ -39,7 +39,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout f3b149b3cf894c6a2d148a868b9d8a94e7d16c40 \
+    && git checkout 5321ea68e8216e835aa1f70361d2ee24700e9a43 \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
