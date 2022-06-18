@@ -92,7 +92,7 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && cd build \
     && cmake  -DCMAKE_BUILD_TYPE=Release .. \
     && cmake --build . \
-    && mv ... /usr/local/bin/vcfwave
+    && mv vcfwave /usr/local/bin/vcfwave
 
 # Community detection dependencies
 RUN pip install igraph==0.9.10
