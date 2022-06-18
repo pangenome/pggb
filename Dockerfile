@@ -17,6 +17,7 @@ RUN apt-get update \
                        g++ \
                        python3-dev \
                        pybind11-dev \
+                       bzip2 \
                        bc \
                        libatomic-ops-dev \
                        autoconf \
@@ -91,7 +92,7 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && cd vcflib \
     && mkdir -p build \
     && cd build \
-    && cmake  -DCMAKE_BUILD_TYPE=Release .. \
+    && cmake  -DCMAKE_BUILD_TYPE=Debug .. \
     && cmake --build . \
     && mv vcfwave /usr/local/bin/vcfwave
 
