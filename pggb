@@ -219,10 +219,12 @@ if [ $show_help ]; then
     echo "    -v, --skip-viz              don't render visualizations of the graph in 1D and 2D [default: make them]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
     echo "   [vg]"
-    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[,REF:DELIM]*"
+    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[:LEN][,REF:DELIM:[LEN]]*"
     echo "                                the paths matching ^REF are used as a reference, while the sample haplotypes"
     echo "                                are derived from path names, e.g. when DELIM=# and with '-V chm13:#',"
-    echo "                                a path named HG002#1#ctg would be assigned to sample HG002 phase 1 [default: off]"
+    echo "                                a path named HG002#1#ctg would be assigned to sample HG002 phase 1."
+    echo "                                If LEN is specified and greater than 0, the VCFs are decomposed, filtering "
+    echo "                                sites whose max allele length is greater than LEN. [default: off]"
     echo "   [multiqc]"
     echo "    -m, --multiqc               generate MultiQC report of graphs' statistics and visualizations,"
     echo "                                automatically runs odgi stats [default: off]"
@@ -649,12 +651,34 @@ if [[ $vcf_spec != false ]]; then
     do
         ref=$(echo "$s" | cut -f 1 -d: )
         delim=$(echo "$s" | cut -f 2 -d: )
+        pop_length=$(echo "$s" | cut -f 3 -d: )
+        if [[ -z $pop_length ]]; then
+          pop_length=0
+        fi
         vcf="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').vcf
         if [[ ! -s $vcf || $resume == false ]]; then
           echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
-          ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
-                   -H $delim -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
+          ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P "$ref" \
+                   -H "$delim" -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
           bcftools stats "$vcf" > "$vcf".stats
+        fi
+
+        if [[ $pop_length -gt 0 ]]; then
+          vcf_decomposed="$prefix_smoothed_output".final.decomposed.$(echo $ref | tr '/|' '_').vcf
+          if [[ ! -s $vcf_decomposed || $resume == false ]]; then
+            echo "[vg::deconstruct] decompose VCF"
+            vcf_decomposed_tmp="$prefix_smoothed_output".final.decomposed.$(echo $ref | tr '/|' '_').tmp.vcf
+            bgzip -c -@ 48 "$vcf" > "$vcf".gz
+            TEMPDIR=$(pwd) $timer -f "$fmt" vcfbub -l 0 -a $pop_length --input "$vcf".gz | TEMPDIR=$(pwd) $timer -f "$fmt" vcfwave -I 1000 -t $threads > "$vcf_decomposed_tmp"
+
+            #TODO: to remove when vcfwave will be bug-free
+            # The TYPE info sometimes is wrong/missing
+            # There are variants without the ALT allele
+            bcftools annotate -x INFO/TYPE "$vcf_decomposed_tmp"  | awk '$5 != "."' > "$vcf_decomposed"
+            rm "$vcf_decomposed_tmp" "$vcf".gz
+
+            bcftools stats "$vcf_decomposed" > "$vcf_decomposed".stats
+          fi
         fi
     done
 fi
