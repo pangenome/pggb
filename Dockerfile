@@ -80,6 +80,20 @@ RUN pip install multiqc==1.11
 
 RUN wget https://github.com/vgteam/vg/releases/download/v1.41.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
+RUN git clone https://github.com/pangenome/vcfbub \
+    && cd vcfbub \
+    && git pull \
+    && git checkout 26a1f0cb216a423f8547c4ad0e0ce38cb9d324b9 \
+    && cargo install --force --path . && mv /root/.cargo/bin/vcfbub /usr/local/bin/vcfbub
+
+RUN git clone --recursive https://github.com/vcflib/vcflib.git \
+    && cd vcflib \
+    && mkdir -p build \
+    && cd build \
+    && cmake  -DCMAKE_BUILD_TYPE=Release .. \
+    && cmake --build . \
+    && mv ... /usr/local/bin/vcfwave
+
 # Community detection dependencies
 RUN pip install igraph==0.9.10
 RUN pip install pycairo==1.16.2
