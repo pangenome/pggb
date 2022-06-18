@@ -16,6 +16,7 @@ RUN apt-get update \
                        make \
                        g++ \
                        python3-dev \
+                       pybind11-dev \
                        bc \
                        libatomic-ops-dev \
                        autoconf \
