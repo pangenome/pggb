@@ -17,7 +17,7 @@ RUN apt-get update \
                        g++ \
                        python3-dev \
                        pybind11-dev \
-                       bzip2 \
+                       libbz2-dev \
                        bc \
                        libatomic-ops-dev \
                        autoconf \
