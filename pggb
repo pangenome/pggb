@@ -664,10 +664,10 @@ if [[ $vcf_spec != false ]]; then
         fi
 
         if [[ $pop_length -gt 0 ]]; then
-          vcf_decomposed="$prefix_smoothed_output".final.decomposed.$(echo $ref | tr '/|' '_').vcf
+          vcf_decomposed="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').decomposed.vcf
           if [[ ! -s $vcf_decomposed || $resume == false ]]; then
             echo "[vg::deconstruct] decompose VCF"
-            vcf_decomposed_tmp="$prefix_smoothed_output".final.decomposed.$(echo $ref | tr '/|' '_').tmp.vcf
+            vcf_decomposed_tmp=$vcf_decomposed.tmp.vcf
             bgzip -c -@ 48 "$vcf" > "$vcf".gz
             TEMPDIR=$(pwd) $timer -f "$fmt" vcfbub -l 0 -a $pop_length --input "$vcf".gz | TEMPDIR=$(pwd) $timer -f "$fmt" vcfwave -I 1000 -t $threads > "$vcf_decomposed_tmp"
 
