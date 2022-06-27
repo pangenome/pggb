@@ -185,7 +185,7 @@ if [ $show_help ]; then
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
     echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: 19]"
-    echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: 0.1]"
+    echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: 0.001]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
