@@ -8,14 +8,14 @@ output_dir=""
 temp_dir=""
 input_paf=false
 resume=false
-map_pct_id=95
+map_pct_id=90
 n_mappings=false
 segment_length=5000
 block_length=false
 sparse_map=false
 mash_kmer=false
 mash_kmer_thres=false
-min_match_length=47
+min_match_length=19
 sparse_factor=0
 transclose_batch=10000000
 n_haps=false
@@ -23,9 +23,9 @@ block_ratio_min=0
 pad_max_depth=100
 max_path_jump=0
 max_edge_jump=0
-target_poa_length=4001,4507
+target_poa_length=700,900,1100
 poa_params=false
-poa_padding=0.03
+poa_padding=0.001
 run_abpoa=false
 run_global_poa=false
 do_viz=true
@@ -181,26 +181,26 @@ if [ $show_help ]; then
     echo "    -s, --segment-length N      segment length for mapping [default: 5k]"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 5*segment-length]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
-    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 95]"
+    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 90]"
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
     echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: 19]"
-    echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: 0.5]"
+    echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: 0.001]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
-    echo "    -k, --min-match-len N       filter exact matches below this length [default: 47]"
+    echo "    -k, --min-match-len N       filter exact matches below this length [default: 19]"
     echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
     echo "    -H, --n-haps N              number of haplotypes, if different than that set with -n [default: n-mappings]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
-    echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 4001,4507]"
+    echo "    -G, --poa-length-target N,M target sequence length for POA, one per pass [default: 700,900,1100]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
     echo "                                may also be given as presets: asm5, asm10, asm15, asm20"
     echo "                                [default: 1,19,39,3,81,1 = asm5]"
-    echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.03]"
+    echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(mean_seq_len) bp [default: 0.001]"
     echo "    -b, --run-abpoa             run abPOA [default: SPOA]"
     echo "    -z, --global-poa            run the POA in global mode [default: local mode]"
     echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: 100]"
@@ -548,7 +548,7 @@ if [[ $normalize == true ]]; then
 
       resume=false # The PG-SGD sorting (`-pY`) is not deterministic, then all subsequent steps need to be rerun for consistency
     fi
-    
+
     if [[ ! -s "$prefix_smoothed_output".final.gfa || $resume == false ]]; then
       ( $timer -f "$fmt" odgi view -i "$prefix_smoothed_output".final.og -g > "$prefix_smoothed_output".final.gfa ) 2> >(tee -a "$log_file")
     fi
@@ -556,7 +556,7 @@ else
     if [[ ! -s "$prefix_smoothed_output".final.gfa || $resume == false ]]; then
       mv "$prefix_smoothed".gfa "$prefix_smoothed_output".final.gfa
     fi
-    
+
     if [[ ! -s "$prefix_smoothed_output".final.og || $resume == false ]]; then
       $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o "$prefix_smoothed_output".final.og 2> >(tee -a "$log_file")
     fi
