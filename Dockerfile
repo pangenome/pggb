@@ -39,7 +39,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 19234a4a153ea3f3acce6f4ac192afc70bbb7fda \
+    && git checkout 0d121bc368502f531245733c1570a72b2817652d \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
@@ -48,7 +48,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout f209482924bbb7763d927029ee63cd16c5ddb44c \
+    && git checkout da0d2f0d81f1a3214ed34e2174bae73a0ea39296 \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
@@ -57,7 +57,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 7038bb68f07337b0e22411e15c38b46d899b46cc \
+    && git checkout f8868807dadbe1d4483fadc533f864bd340e4d60 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
@@ -78,7 +78,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
 
 RUN pip install multiqc==1.11
 
-RUN wget https://github.com/vgteam/vg/releases/download/v1.41.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
+RUN wget https://github.com/vgteam/vg/releases/download/v1.40.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
 # Community detection dependencies
 RUN pip install igraph==0.9.10
