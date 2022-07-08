@@ -8,14 +8,14 @@ output_dir=""
 temp_dir=""
 input_paf=false
 resume=false
-map_pct_id=95
+map_pct_id=90
 n_mappings=false
 segment_length=5000
 block_length=false
 sparse_map=false
 mash_kmer=false
 mash_kmer_thres=false
-min_match_length=47
+min_match_length=19
 sparse_factor=0
 transclose_batch=10000000
 n_haps=false
@@ -23,9 +23,9 @@ block_ratio_min=0
 pad_max_depth=100
 max_path_jump=0
 max_edge_jump=0
-target_poa_length=4001,4507
+target_poa_length=700,900,1100
 poa_params=false
-poa_padding=0.03
+poa_padding=0.001
 run_abpoa=false
 run_global_poa=false
 do_viz=true
@@ -181,26 +181,26 @@ if [ $show_help ]; then
     echo "    -s, --segment-length N      segment length for mapping [default: 5k]"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 5*segment-length]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
-    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 95]"
+    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 90]"
     echo "    -n, --n-mappings N          number of mappings to retain for each segment"
     echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: 19]"
-    echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: 0.5]"
+    echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: 0.001]"
     echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
     echo "                                the given delimiter character [default: all-vs-all and !self]"
     echo "   [seqwish]"
-    echo "    -k, --min-match-len N       filter exact matches below this length [default: 47]"
+    echo "    -k, --min-match-len N       filter exact matches below this length [default: 19]"
     echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
     echo "    -H, --n-haps N              number of haplotypes, if different than that set with -n [default: n-mappings]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
-    echo "    -G, --poa-length-target N,M target sequence length for POA, first pass = N, second pass = M [default: 4001,4507]"
+    echo "    -G, --poa-length-target N,M target sequence length for POA, one per pass [default: 700,900,1100]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
     echo "                                may also be given as presets: asm5, asm10, asm15, asm20"
     echo "                                [default: 1,19,39,3,81,1 = asm5]"
-    echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(longest_poa_seq) bp [default: 0.03]"
+    echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(mean_seq_len) bp [default: 0.001]"
     echo "    -b, --run-abpoa             run abPOA [default: SPOA]"
     echo "    -z, --global-poa            run the POA in global mode [default: local mode]"
     echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: 100]"
@@ -219,10 +219,12 @@ if [ $show_help ]; then
     echo "    -v, --skip-viz              don't render visualizations of the graph in 1D and 2D [default: make them]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
     echo "   [vg]"
-    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[,REF:DELIM]*"
+    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[:LEN][,REF:DELIM:[LEN]]*"
     echo "                                the paths matching ^REF are used as a reference, while the sample haplotypes"
     echo "                                are derived from path names, e.g. when DELIM=# and with '-V chm13:#',"
-    echo "                                a path named HG002#1#ctg would be assigned to sample HG002 phase 1 [default: off]"
+    echo "                                a path named HG002#1#ctg would be assigned to sample HG002 phase 1."
+    echo "                                If LEN is specified and greater than 0, the VCFs are decomposed, filtering "
+    echo "                                sites whose max allele length is greater than LEN. [default: off]"
     echo "   [multiqc]"
     echo "    -m, --multiqc               generate MultiQC report of graphs' statistics and visualizations,"
     echo "                                automatically runs odgi stats [default: off]"
@@ -546,7 +548,7 @@ if [[ $normalize == true ]]; then
 
       resume=false # The PG-SGD sorting (`-pY`) is not deterministic, then all subsequent steps need to be rerun for consistency
     fi
-    
+
     if [[ ! -s "$prefix_smoothed_output".final.gfa || $resume == false ]]; then
       ( $timer -f "$fmt" odgi view -i "$prefix_smoothed_output".final.og -g > "$prefix_smoothed_output".final.gfa ) 2> >(tee -a "$log_file")
     fi
@@ -554,7 +556,7 @@ else
     if [[ ! -s "$prefix_smoothed_output".final.gfa || $resume == false ]]; then
       mv "$prefix_smoothed".gfa "$prefix_smoothed_output".final.gfa
     fi
-    
+
     if [[ ! -s "$prefix_smoothed_output".final.og || $resume == false ]]; then
       $timer -f "$fmt" odgi build -t $threads -P -g "$prefix_smoothed_output".final.gfa -o "$prefix_smoothed_output".final.og 2> >(tee -a "$log_file")
     fi
@@ -649,12 +651,34 @@ if [[ $vcf_spec != false ]]; then
     do
         ref=$(echo "$s" | cut -f 1 -d: )
         delim=$(echo "$s" | cut -f 2 -d: )
+        pop_length=$(echo "$s" | cut -f 3 -d: )
+        if [[ -z $pop_length ]]; then
+          pop_length=0
+        fi
         vcf="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').vcf
         if [[ ! -s $vcf || $resume == false ]]; then
           echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
-          ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P $ref \
-                   -H $delim -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
+          ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P "$ref" \
+                   -H "$delim" -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
           bcftools stats "$vcf" > "$vcf".stats
+        fi
+
+        if [[ $pop_length -gt 0 ]]; then
+          vcf_decomposed="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').decomposed.vcf
+          if [[ ! -s $vcf_decomposed || $resume == false ]]; then
+            echo "[vg::deconstruct] decompose VCF"
+            vcf_decomposed_tmp=$vcf_decomposed.tmp.vcf
+            bgzip -c -@ 48 "$vcf" > "$vcf".gz
+            TEMPDIR=$(pwd) $timer -f "$fmt" vcfbub -l 0 -a $pop_length --input "$vcf".gz | TEMPDIR=$(pwd) $timer -f "$fmt" vcfwave -I 1000 -t $threads > "$vcf_decomposed_tmp"
+
+            #TODO: to remove when vcfwave will be bug-free
+            # The TYPE info sometimes is wrong/missing
+            # There are variants without the ALT allele
+            bcftools annotate -x INFO/TYPE "$vcf_decomposed_tmp"  | awk '$5 != "."' > "$vcf_decomposed"
+            rm "$vcf_decomposed_tmp" "$vcf".gz
+
+            bcftools stats "$vcf_decomposed" > "$vcf_decomposed".stats
+          fi
         fi
     done
 fi
