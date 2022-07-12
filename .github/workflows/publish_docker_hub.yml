@@ -21,4 +21,4 @@ jobs:
         docker login -u pangenome -p $DOCKER_PASSWORD 
 
     - name: Build and push the Docker image
-      run: tag=$(date +%s) && docker build . --file Dockerfile --tag pangenome/pggb:$tag && docker push pangenome/pggb:$tag
+      run: tag=$(date +%s) && docker build . --file Dockerfile --tag pangenome/pggb && docker push pangenome/pggb
