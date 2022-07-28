@@ -45,6 +45,7 @@ keep_intermediate_files=false
 compress=false
 normalize=true
 vcf_spec=false
+show_version=false
 
 if [ $# -eq 0 ]; then
     show_help=true
@@ -52,7 +53,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec: -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -96,10 +97,20 @@ while true ; do
         -Z|--compress) compress=true ; shift ;;
         -V|--vcf-spec) vcf_spec=$2 ; shift 2 ;;
         -h|--help) show_help=true ; shift ;;
+        --version) show_version=true ; shift ;;
         --) shift ; break ;;
         *) echo "$2" "Internal error!" ; exit 1 ;;
     esac
 done
+
+if [ $show_version == true ]; then
+    SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+    cd "$SCRIPT_DIR"
+    GIT_VERSION=$(git describe --always --tags)
+    echo "pggb $GIT_VERSION"
+    cd - &> /dev/null
+    exit
+fi
 
 # if a PAF is given as input, we set the segment_length by to an arbitrary number, since we will skip the wfmash alignment process
 if [[ $input_paf != false ]]; then
