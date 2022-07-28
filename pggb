@@ -250,6 +250,7 @@ if [ $show_help ]; then
     echo "    -A, --keep-temp-files       keep intermediate graphs"
     echo "    -Z, --compress              compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz,"
     echo "                                and variant (.vcf) outputs with bgzip"
+    echo "    --version                   display the version of pggb"
     echo "    -h, --help                  this text"
     echo
     echo "Use wfmash, seqwish, smoothxg, odgi, gfaffix, and vg to build, project and display a pangenome graph."
