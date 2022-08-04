@@ -39,7 +39,7 @@ pggb -i in.fa \       # input file in FASTA format
      -V 'ref:#:1000'  # make a VCF against "ref" decomposing variants >1000bp
 ```
 
-The final output will be called `outdir/input.fa*smooth.gfa`.
+The final output will match `outdir/in.fa.*final.gfa`.
 By default, several intermediate files are produced.
 We render 1D and 2D visualizations of the graph with `odgi`, which are very useful to understand the result of the build.
 
