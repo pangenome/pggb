@@ -1,4 +1,4 @@
-<a href="https://github.com/pangenome/pggb/tree/master/data/images/logo"><img src="https://raw.githubusercontent.com/pangenome/pggb/master/data/images/logo/PGGB_logo_a34ab696.crop.png" height=50% width=50% alt="PanGenome Graph Builder"></a>
+<a href="https://github.com/pangenome/pggb/tree/master/data/images/logo"><img src="https://raw.githubusercontent.com/pangenome/pggb/master/data/images/logo/PGGB_logo_a34ab696.png" alt="PanGenome Graph Builder"></a>
 
 # pggb: the PanGenome Graph Builder
 
