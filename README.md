@@ -5,39 +5,38 @@
 ![Publish container to github container registry](https://github.com/pangenome/pggb/workflows/Publish%20container%20to%20github%20container%20registry/badge.svg)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/pggb)
 
-PGGB builds [pangenome](https://doi.org/10.1146%2Fannurev-genom-120219-080406) [variation graphs](https://doi.org/10.1038/nbt.4227) from a set of input sequences.
+`pggb` builds [pangenome](https://doi.org/10.1146%2Fannurev-genom-120219-080406) [variation graphs](https://doi.org/10.1038/nbt.4227) from a set of input sequences.
 
 A pangenome variation graph is a kind of generic multiple sequence alignment.
 It lets us understand any kind of sequence variation between a collection of genomes.
 It shows us similarity where genomes walk through the same parts of the graph, and differences where they do not.
 
-PGGB generates this kind of graph using an all-to-all alignment of input sequences ([wfmash](https://github.com/waveygang/wfmash)), graph induction ([seqwish](https://doi.org/10.1101/2022.02.14.480413)), and progressive normalization ([smoothxg](https://github.com/pangenome/smoothxg), [gfaffix](https://github.com/marschall-lab/GFAffix)).
-After construction, PGGB generates diagnostic visualizations of the graph ([odgi](https://doi.org/10.1093/bioinformatics/btac308)).
+`pggb` generates this kind of graph using an all-to-all alignment of input sequences ([wfmash](https://github.com/waveygang/wfmash)), graph induction ([seqwish](https://doi.org/10.1101/2022.02.14.480413)), and progressive normalization ([smoothxg](https://github.com/pangenome/smoothxg), [gfaffix](https://github.com/marschall-lab/GFAffix)).
+After construction, `pggb` generates diagnostic visualizations of the graph ([odgi](https://doi.org/10.1093/bioinformatics/btac308)).
 A variant call report (in VCF) representing both small and large variants may be generated based on any reference genome included in the graph ([vg](https://github.com/vgteam/vg)).
-PGGB writes its output in [GFAv1](https://github.com/GFA-spec/GFA-spec/blob/master/GFA1.md) format, which can be used as input by numerous "genome graph" and pangenome tools, such as the VG and ODGI toolkits.
+`pggb` writes its output in [GFAv1](https://github.com/GFA-spec/GFA-spec/blob/master/GFA1.md) format, which can be used as input by numerous "genome graph" and pangenome tools, such as the VG and ODGI toolkits.
 
-PGGB has been tested at scale in the Human Pangenome Reference Consortium (HPRC) as a method to build a graph from the [draft human pangenome](https://doi.org/10.1101/2022.07.09.499321).
+`pggb` has been tested at scale in the Human Pangenome Reference Consortium (HPRC) as a method to build a graph from the [draft human pangenome](https://doi.org/10.1101/2022.07.09.499321).
 
-Documentation (WIP) at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/).
+Documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/) and paper manuscript  (WIP).
 
 ## quick start
 
 First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Docker, `guix`, or by manually building its dependencies.
 
-Put your sequences in one FASTA file and index it with `samtools faidx`.
+Put your sequences in one FASTA file (`in.fa`) and index it with `samtools faidx`.
 If you have many genomes, we recommend using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
 
-To build a graph from `input.fa`, which contains 9 haplotypes, in the directory `output`, scaffolding the graph using 10kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
+To build a graph from `in.fa`, which contains 9 haplotypes, in the directory `output`, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
 
-```
-pggb \
-    -i input.fa \
-    -o output \
-    -t 16 \
-    -p 90 \
-    -s 10000 \
-    -n 9 \
-    -v
+```bash
+pggb -i in.fa \     # input file in FASTA format
+     -n 9 \         # number of haplotypes
+     -o output \    # output directory
+     -t 16 \        # number of threads (defaults to 1)
+     -p 90 \        # (default) minimum average nucleotide identity for a seed mapping
+     -s 5k \        # (default) segment length
+     -V ref:#:1000  # make a VCF against "ref" decomposing variants >1000bp
 ```
 
 The final output will be called `outdir/input.fa*smooth.gfa`.
@@ -46,33 +45,61 @@ We render 1D and 2D visualizations of the graph with `odgi`, which are very usef
 
 See also [this step-by-step example](https://pggb.readthedocs.io/en/latest/rst/quick_start.html) for more information.
 
+## usage
 
-## suggested settings for different organisms
+Pangenome graphs let us understand multi-way relationships between many genomes.
+They are thus models of many-way sequence alignments.
+A goal of `pggb` is to reduce the complexity of designing these alignments, which are notoriously [difficult to design](https://doi.org/10.1101%2Fgr.174920.114).
 
-Human, whole genome, 90 haplotypes: `pggb -p 98 -s 100000 -n 90 -k 311 -G 13117,13219 ...`
+### key parameters
 
-15 helicobacter genomes, 5% divergence: `-p 90 -s 20000 -n 15 -H 15 -k 79 -G 7919,8069 ...`, and 15 at higher (10%) divergence `pggb -p 90 -s 20000 -n 15 -k 19 -P 1,7,11,2,33,1 -G 4457,4877,5279 ...`
+The overall structure of `pggb`'s output graph is defined by three parameters: genome number (`-n`), segment length (`-s`), and pairwise identity (`-p`).
+Genome number is a given, but varies in ways that are difficult to infer and is thus left up to the user.
+Segment length defines the seed length used by the "MashMap3" homology mapper in `wfmash`.
+The pairwise identity is the minimum allowed pairwise identity between seeds, which is estimated using a mash-type approximation based on k-mer Jaccard.
+Mappings are initiated from collinear chains of around 5 seeds (`-l, --block-length`), and extended greedily as far as possible, allowing up to `-n` minus 1 mappings at each query position.
 
-Yeast genomes, 5% divergence: `pggb -p 95 -s 20000 -n 7 -k 29 -G 7919,8069 ...`
+An additional parameter, `-k`, can also greatly affect graph structure by pruning matches shorter than a given threshold from the initial graph model.
+In effect, `-k N` removes any match shorter than `N`bp from the initial alignment.
+This filter removes potentially ambiguous pairwise alignments from consideration in establishing the initial scaffold of the graph.
+
+The inital graph is defined by parameters to `wfmash` and `seqwish`.
+But due to the ambiguities generated across the many pairwise alignments we use as input, this graph can be locally very complex.
+To regularize it we orchestrate a series of graph transformations.
+First, with `smoothxg`, we "smooth" it by locally realigning sequences to each other with a traditional multiple sequence alignment (we specifically apply [POA](https://doi.org/10.1093/bioinformatics/18.3.452)).
+This process repeats multiple times to smooth over any boundary effects that may occur due to binning errors near MSA boundaries.
+Finally, we apply `gfaffix` to remove forks where both alternatives have the same sequence.
+
+### example settings for different organisms
+
+We suggest using default parameters for initial tests.
+For instance `pggb -i in.fa.gz -o out1 -t 16 -n 100` would be a minimial build command for a 100-genome pangenome from `in.fa.gz`.
+The default parameters provide a good balance between runtime and graph quality for small-to-medium (1kbp-100Mbp) problems.
+
+However, some changes may be required for given pangenome build or research focus.
+Changing parameter settings is also essential to understand the stability of conclusions drawn from the
+
+In preparation of a manuscript on `pggb`, we have developed a [set of example pangenome builds for a collection of diverse species](https://github.com/pangenome/pggb-paper/blob/main/workflows/AllSpecies.md#all-species). (These also use cross-validation against [`nucmer`](https://mummer4.github.io/) to evaluate graph quality.)
+
+Human, whole genome, 90 haplotypes: `pggb -p 98 -s 50k -n 90 -k 79 ...`
+
+15 helicobacter genomes, 5% divergence: `pggb -n 15 -k 79 ...`, and 15 at higher (10%) divergence `pggb -n 15 -k 19 -P asm20 ...`
+
+Yeast genomes, 5% divergence: `pggb ...` defaults should work well.
 
 Aligning 9 MHC class II assemblies from vertebrate genomes (5-10% divergence): `pggb -p 90 -s 5000 -n 9 -k 29 -G 3079,3559 ...`
 
 ## example build using MHC class II ALTs from GRCh38
 
-Using a test from the `data/HLA` directory in this repo:
+Using a test from the data/HLA directory in this repo:
 
-```sh
+```bash
 git clone --recursive https://github.com/pangenome/pggb
 cd pggb
-./pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o out -M
+./pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 500 -n 10 -t 16 -V 'gi|568815561:#' -o out -M
 ```
 
-[comment]: <> (a series of consensus graphs at different levels of variant resolution)
 This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, and several diagnostic images (all in the directory `out/`).
-By default, the outputs are named according to the input file and the construction parameters.
-Adding `-v` render 1D and 2D diagnostic images of the graph.
-(These are not enabled by default because they sometimes require manual configuration. Additionally, the 2D layout can take a while.)
-By default, redundant structures in the graph are collapsed by applying [GFAffix](https://github.com/marschall-lab/GFAffix).
 We also call variants with `-V` with respect to the reference `gi|568815561:#`.
 
 ### 1D graph visualization
@@ -90,6 +117,53 @@ We also call variants with `-V` with respect to the reference `gi|568815561:#`.
 - Each colored rectangle represents a node of a path. The node’s x-coordinates are on the x-axis and the y-coordinates are on the y-axis, respectively.
 - A bubble indicates that here some paths have a diverging sequence or it can represent a repeat region.
 
+## extension
+
+The pipeline is provided as a single script with configurable command-line options.
+Users should consider taking this script as a starting point for their own pangenome project.
+For instance, you might consider swapping out `wfmash` with `minimap2` or another PAF-producing long-read aligner.
+If the graph is small, it might also be possible to use `abPOA` or `spoa` to generate it directly.
+On the other hand, maybe you're starting with an assembly overlap graph which can be converted to blunt-ended GFA using _[gimbricate](https://github.com/ekg/gimbricate)_.
+You might have a validation process based on alignment of sequences to the graph, which should be added at the end of the process.
+
+## downstream
+
+The resulting graph can then be manipulated with `odgi` for transformation, analysis, simplification, validation, interrogation, and visualization.
+It can also be loaded into any of the GFA-based mapping tools, including _[vg](https://github.com/vgteam/vg)_ `map`, `mpmap`, `giraffe`, and _[GraphAligner](https://github.com/maickrau/GraphAligner)_.
+Alignments to the graph can be used to make variant calls (`vg call`) and coverage vectors over the pangenome, which can be useful for phylogeny and association analyses.
+Using `odgi matrix`, we can render the graph in a sparse matrix format suitable for direct use in a variety of statistical frameworks, including phylogenetic tree construction, PCA, or association studies.
+
+## scalability
+
+`pggb`'s initial use is as a mechanism to generate variation graphs from the contig sets produced by the human pangenome project.
+Although its design represents efforts to scale these approaches to collections of many human genomes, it is not intended to be human-specific.
+
+## principles
+
+### pangenome alignment
+
+It's straightforward to generate a pangenome graph by the all-pairs alignment of a set of input sequences.
+And it's good: this provides a completely _unbiased_ view of the pangenome.
+However, all-to-all alignment scales very poorly, with the square of the number of sequences, making it untenable for even small collections of genomes (~10s).
+To make matters worse, existing standards for alignment are based on k-mer matching, which can require processing enormous numbers of seeds when aligning repetitive sequences.
+
+We answer this new alignment issue with the mashmap and WFA-based algorithms in `wfmash`.
+`wfmash` provides a practical way to generate alignments between the sequences.
+Its design focuses on the long, collinear homologies that are often "orthologous" in a phylogenetic context.
+Crucially, `wfmash` is robust to repetitive sequences, and it can be adjusted using probabilistic thresholds for segment alignment identity.
+Finally, `seqwish` converts the alignments directly into a graph model.
+This allows us to define the base graph structure using a few free parameters, as discussed above.
+
+### graph normalization
+
+The manifold nature of typical variation graphs means that they are very likely to look linear locally.
+By running a stochastic 1D layout algorithm that attempts to match graph distances (as given by paths) between nodes and
+their distances in the layout, we execute a kind of multi-dimensional scaling (MDS). In the aggregate, we see that
+regions that are linear (the chains of nodes and bubbles) in the graph tend to co-localize in the 1D sort.
+Applying an MSA algorithm (in this case, `abPOA` or `spoa`) to each of these chunks enforces a local linearity and
+homogenizes the alignment representation. This smoothing step thus yields a graph that is locally as we expect: partially
+ordered, and linear as the base DNA molecules are, but globally can represent large structural variation. The homogenization
+also rectifies issues with the initial wfa-based alignment.
 
 ## installation
 
@@ -218,64 +292,6 @@ pip install multiqc --user
 ```
 
 The docker image already contains v1.11 of `MultiQC`.
-
-## example parameter settings by organism
-
-### human
-
-For the HPRCy1 data we currently run `pggb` with the following parameters on all chromosomes:
-
-`pggb -i chr'$i'.pan.fa -o chr'$i'.pan -t 48 -p 98 -s 100000 -n 90 -k 311 -O 0.03 -T 48 -v -V chm13:#,grch38:# -Z`
-
-### other organisms
-
-If you are building graphs with `pggb` using other organisms, please report back to us. We are happy to find the best parameter settings for your experiment and help out!
-
-## extension
-
-The pipeline is provided as a single script with configurable command-line options.
-Users should consider taking this script as a starting point for their own pangenome project.
-For instance, you might consider swapping out `wfmash` with `minimap2` or another PAF-producing long-read aligner.
-If the graph is small, it might also be possible to use `abPOA` or `spoa` to generate it directly.
-On the other hand, maybe you're starting with an assembly overlap graph which can be converted to blunt-ended GFA using _[gimbricate](https://github.com/ekg/gimbricate)_.
-You might have a validation process based on alignment of sequences to the graph, which should be added at the end of the process.
-
-## downstream
-
-The resulting graph can then be manipulated with `odgi` for transformation, analysis, simplification, validation, interrogation, and visualization.
-It can also be loaded into any of the GFA-based mapping tools, including _[vg](https://github.com/vgteam/vg)_ `map`, `mpmap`, `giraffe`, and _[GraphAligner](https://github.com/maickrau/GraphAligner)_.
-Alignments to the graph can be used to make variant calls (`vg call`) and coverage vectors over the pangenome, which can be useful for phylogeny and association analyses.
-Using `odgi matrix`, we can render the graph in a sparse matrix format suitable for direct use in a variety of statistical frameworks, including phylogenetic tree construction, PCA, or association studies.
-
-## scalability
-
-`pggb`'s initial use is as a mechanism to generate variation graphs from the contig sets produced by the human pangenome project.
-Although its design represents efforts to scale these approaches to collections of many human genomes, it is not intended to be human-specific.
-
-## principles
-
-It's straightforward to generate a pangenome graph by the all-pairs alignment of a set of input sequences.
-This can scale poorly, but it has ideal sensitivity.
-The mashmap/wfa alignment algorithm in `wfmash` is a very fast way to generate alignments between the sequences.
-Crucially, it is robust to repetitive sequences (the initial mash mapping step is linear in the space of the genome
-irrespective of its sequence context), and it can be adjusted using probabilistic thresholds for segment alignment identity.
-This allows us to define the base graph structure using a few free parameters: we consider the best-n candidate alignments
-for each N-bp segment, where the alignments must have at least a given identity threshold.
-
-The wfa-based alignments can break down in the case of large indels, yielding ambiguous and difficult-to-interpret alignments.
-But, we should not use such regions of the alignments directly in the graph construction, as this can increase graph complexity.
-We ignore such regions by preventing `seqwish` from closing the graph through matches less than `-k, --min-match-len` bp.
-In effect, this filter to the input to `seqwish` forces structural variations and regions of very low identity to be
-represented as bubbles. This reduces the local topological complexity of the graph at the cost of increasing its redundancy.
-
-The manifold nature of typical variation graphs means that they are very likely to look linear locally.
-By running a stochastic 1D layout algorithm that attempts to match graph distances (as given by paths) between nodes and
-their distances in the layout, we execute a kind of multi-dimensional scaling (MDS). In the aggregate, we see that
-regions that are linear (the chains of nodes and bubbles) in the graph tend to co-localize in the 1D sort.
-Applying an MSA algorithm (in this case, `abPOA` or `spoa`) to each of these chunks enforces a local linearity and
-homogenizes the alignment representation. This smoothing step thus yields a graph that is locally as we expect: partially
-ordered, and linear as the base DNA molecules are, but globally can represent large structural variation. The homogenization
-also rectifies issues with the initial wfa-based alignment.
 
 ## authors
 
