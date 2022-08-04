@@ -30,13 +30,13 @@ If you have many genomes, we recommend using the [PanSN prefix naming pattern](h
 To build a graph from `in.fa`, which contains 9 haplotypes, in the directory `output`, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
 
 ```bash
-pggb -i in.fa \     # input file in FASTA format
-     -n 9 \         # number of haplotypes
-     -o output \    # output directory
-     -t 16 \        # number of threads (defaults to 1)
-     -p 90 \        # (default) minimum average nucleotide identity for a seed mapping
-     -s 5k \        # (default) segment length
-     -V ref:#:1000  # make a VCF against "ref" decomposing variants >1000bp
+pggb -i in.fa \       # input file in FASTA format
+     -n 9 \           # number of haplotypes
+     -o output \      # output directory
+     -t 16 \          # number of threads (defaults to 1)
+     -p 90 \          # (default) minimum average nucleotide identity for a seed mapping
+     -s 5k \          # (default) segment length
+     -V 'ref:#:1000'  # make a VCF against "ref" decomposing variants >1000bp
 ```
 
 The final output will be called `outdir/input.fa*smooth.gfa`.
@@ -87,7 +87,7 @@ Human, whole genome, 90 haplotypes: `pggb -p 98 -s 50k -n 90 -k 79 ...`
 
 Yeast genomes, 5% divergence: `pggb ...` defaults should work well.
 
-Aligning 9 MHC class II assemblies from vertebrate genomes (5-10% divergence): `pggb -p 90 -s 5000 -n 9 -k 29 -G 3079,3559 ...`
+Aligning 9 MHC class II assemblies from vertebrate genomes (5-10% divergence): `pggb -p 90 -s 5k -n 9 -k 29 ...`
 
 ## example build using MHC class II ALTs from GRCh38
 
