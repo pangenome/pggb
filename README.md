@@ -18,7 +18,7 @@ A variant call report (in VCF) representing both small and large variants may be
 
 `pggb` has been tested at scale in the Human Pangenome Reference Consortium (HPRC) as a method to build a graph from the [draft human pangenome](https://doi.org/10.1101/2022.07.09.499321).
 
-Documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/) and paper manuscript  (WIP).
+Documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/) and [pggb paper manuscript](https://github.com/pangenome/pggb-paper) (WIP).
 
 ## quick start
 
@@ -33,7 +33,7 @@ To build a graph from `in.fa`, which contains 9 haplotypes, in the directory `ou
 pggb -i in.fa \       # input file in FASTA format
      -n 9 \           # number of haplotypes
      -o output \      # output directory
-     -t 16 \          # number of threads (defaults to 1)
+     -t 16 \          # number of threads (defaults to `getconf _NPROCESSORS_ONLN`)
      -p 90 \          # (default) minimum average nucleotide identity for a seed mapping
      -s 5k \          # (default) segment length
      -V 'ref:#:1000'  # make a VCF against "ref" decomposing variants >1000bp
@@ -70,28 +70,35 @@ First, with `smoothxg`, we "smooth" it by locally realigning sequences to each o
 This process repeats multiple times to smooth over any boundary effects that may occur due to binning errors near MSA boundaries.
 Finally, we apply `gfaffix` to remove forks where both alternatives have the same sequence.
 
-### example settings for different organisms
+### bringing your pangenome into focus
 
 We suggest using default parameters for initial tests.
 For instance `pggb -i in.fa.gz -o out1 -t 16 -n 100` would be a minimial build command for a 100-genome pangenome from `in.fa.gz`.
 The default parameters provide a good balance between runtime and graph quality for small-to-medium (1kbp-100Mbp) problems.
 
-However, some changes may be required for given pangenome build or research focus.
-Changing parameter settings is also essential to understand the stability of conclusions drawn from the
+However, we find that parameters may still need to be adjusted to fine-tune `pggb` to a given problem.
+Furthermore, it is a good idea to explore a range of settings of the pipeline's key graph-shaping parameters (`-s`, `-p`, `-k`) to appreciate the degree to which changes in parameters may or may-not affect results.
+These parameters must be tuned so that the graph resolves structures of interest (variants and homologies) that are implied by the sequence space of the pangenome.
+
+### example builds for diverse species
 
 In preparation of a manuscript on `pggb`, we have developed a [set of example pangenome builds for a collection of diverse species](https://github.com/pangenome/pggb-paper/blob/main/workflows/AllSpecies.md#all-species). (These also use cross-validation against [`nucmer`](https://mummer4.github.io/) to evaluate graph quality.)
 
-Human, whole genome, 90 haplotypes: `pggb -p 98 -s 50k -n 90 -k 79 ...`
+Examples:
 
-15 helicobacter genomes, 5% divergence: `pggb -n 15 -k 79 ...`, and 15 at higher (10%) divergence `pggb -n 15 -k 19 -P asm20 ...`
+- Human, whole genome, 90 haplotypes: `pggb -p 98 -s 50k -n 90 -k 79 ...`
+- 15 helicobacter genomes, 5% divergence: `pggb -n 15 -k 79`, and 15 at higher (10%) divergence `pggb -n 15 -k 19 -P asm20 ...`
+- Yeast genomes, 5% divergence: `pggb`'s defaults should work well, just set `-n`.
+- Aligning 9 MHC class II assemblies from vertebrate genomes (5-10% divergence): `pggb -n 9 -k 29 ...`
+- A few thousand bacterial genomes `pggb -x auto -n 2146 ...`. In general mapping sparsification (`-x auto`) is a good idea when you have many hundreds to thousands of genomes.
 
-Yeast genomes, 5% divergence: `pggb ...` defaults should work well.
+`pggb` defaults to using the number of threads as logical processors on the system (the thread count given by `getconf _NPROCESSORS_ONLN`).
+Use `-t` to set an appropriate level of parallelism if you can't use all the processors on your system.
 
-Aligning 9 MHC class II assemblies from vertebrate genomes (5-10% divergence): `pggb -p 90 -s 5k -n 9 -k 29 ...`
+## visual diagnostics
 
-## example build using MHC class II ALTs from GRCh38
-
-Using a test from the data/HLA directory in this repo:
+To guide graph building, `pggb` provides several visual diagnostic outputs.
+Here, we explain them using a test from the [`data/HLA`](https://github.com/pangenome/pggb/tree/master/data/HLA) directory in this repo:
 
 ```bash
 git clone --recursive https://github.com/pangenome/pggb
@@ -99,7 +106,7 @@ cd pggb
 ./pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 500 -n 10 -t 16 -V 'gi|568815561:#' -o out -M
 ```
 
-This yields a variation graph in GFA format, a multiple sequence alignment in MAF format, and several diagnostic images (all in the directory `out/`).
+This yields a variation graph in GFA format, a multiple sequence alignment in MAF format (`-M`), and several diagnostic images (all in the directory `out/`).
 We also call variants with `-V` with respect to the reference `gi|568815561:#`.
 
 ### 1D graph visualization

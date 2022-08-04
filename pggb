@@ -30,7 +30,7 @@ run_abpoa=false
 run_global_poa=false
 do_viz=true
 do_layout=true
-threads=1
+threads=$(getconf _NPROCESSORS_ONLN 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || echo 1)
 poa_threads=0
 mapper=wfmash
 no_merge_segments=false
@@ -245,7 +245,7 @@ if [ $show_help ]; then
     echo "    -a, --input-paf FILE        input PAF file; the wfmash alignment step is skipped"
     echo "    -r, --resume                do not overwrite existing outputs in the given directory"
     echo "                                [default: start pipeline from scratch]"
-    echo "    -t, --threads N             number of compute threads to use in parallel steps"
+    echo "    -t, --threads N             number of compute threads to use in parallel steps [default: "$threads"]"
     echo "    -T, --poa-threads N         number of compute threads to use during POA (set lower if you OOM during smoothing)"
     echo "    -A, --keep-temp-files       keep intermediate graphs"
     echo "    -Z, --compress              compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz,"
