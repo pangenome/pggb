@@ -5,12 +5,20 @@
 ![Publish container to github container registry](https://github.com/pangenome/pggb/workflows/Publish%20container%20to%20github%20container%20registry/badge.svg)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/pggb)
 
-This pangenome graph construction pipeline renders a collection of sequences into a pangenome graph (in the variation graph model).
-Its goal is to build a graph that is locally directed and acyclic while preserving large-scale variation.
-Maintaining local linearity is important for the interpretation, visualization, and reuse of the pangenome graphs.
+PGGB builds [pangenome](https://doi.org/10.1146%2Fannurev-genom-120219-080406) [variation graphs](https://doi.org/10.1038/nbt.4227) from a set of input sequences.
 
-[**WORK IN PROGRESS**] Read the full documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/).
+A pangenome variation graph can be understood as a kind of multiple sequence alignment.
+It lets us understand any kind of sequence variation between a collection of genomes.
+It shows us similarity where genomes walk through the same parts of the graph, and differences where they do not.
 
+PGGB generates this kind of graph using an all-to-all alignment of input sequences ([wfmash](https://github.com/waveygang/wfmash)), graph induction ([seqwish](https://doi.org/10.1101/2022.02.14.480413)), and progressive normalization ([smoothxg](https://github.com/pangenome/smoothxg), [gfaffix](https://github.com/marschall-lab/GFAffix)).
+After construction, PGGB generates diagnostic visualizations of the graph ([odgi](https://doi.org/10.1093/bioinformatics/btac308)).
+A variant call report (in VCF) representing both small and large variants may be generated based on any reference genome included in the graph ([vg](https://github.com/vgteam/vg)).
+PGGB writes its output in [GFAv1](https://github.com/GFA-spec/GFA-spec/blob/master/GFA1.md) format, which can be used as input by numerous "genome graph" and pangenome tools, such as the VG and ODGI toolkits.
+
+PGGB has been tested at scale in the Human Pangenome Reference Consortium (HPRC) as a method to build a graph from the [draft human pangenome](https://doi.org/10.1101/2022.07.09.499321).
+
+Documentation (WIP) at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/).
 
 ## quick start
 
