@@ -7,7 +7,7 @@
 
 PGGB builds [pangenome](https://doi.org/10.1146%2Fannurev-genom-120219-080406) [variation graphs](https://doi.org/10.1038/nbt.4227) from a set of input sequences.
 
-A pangenome variation graph can be understood as a kind of multiple sequence alignment.
+A pangenome variation graph is a kind of generic multiple sequence alignment.
 It lets us understand any kind of sequence variation between a collection of genomes.
 It shows us similarity where genomes walk through the same parts of the graph, and differences where they do not.
 
