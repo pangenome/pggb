@@ -245,7 +245,7 @@ if [ $show_help ]; then
     echo "    -a, --input-paf FILE        input PAF file; the wfmash alignment step is skipped"
     echo "    -r, --resume                do not overwrite existing outputs in the given directory"
     echo "                                [default: start pipeline from scratch]"
-    echo "    -t, --threads N             number of compute threads to use in parallel steps"
+    echo "    -t, --threads N             number of compute threads to use in parallel steps [default: "$threads"]"
     echo "    -T, --poa-threads N         number of compute threads to use during POA (set lower if you OOM during smoothing)"
     echo "    -A, --keep-temp-files       keep intermediate graphs"
     echo "    -Z, --compress              compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz,"
