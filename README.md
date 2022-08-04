@@ -3,9 +3,7 @@
 ![Publish container to github container registry](https://github.com/pangenome/pggb/workflows/Publish%20container%20to%20github%20container%20registry/badge.svg)
 [![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/pggb)
 
-# pggb
-
-## the PanGenome Graph Builder
+# pggb: the PanGenome Graph Builder
 
 This pangenome graph construction pipeline renders a collection of sequences into a pangenome graph (in the variation graph model).
 Its goal is to build a graph that is locally directed and acyclic while preserving large-scale variation.
