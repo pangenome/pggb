@@ -49,7 +49,7 @@ See also [this step-by-step example](https://pggb.readthedocs.io/en/latest/rst/q
 
 Pangenome graphs let us understand multi-way relationships between many genomes.
 They are thus models of many-way sequence alignments.
-A goal of `pggb` is to reduce the complexity of designing these alignments, which are notoriously [difficult to design](https://doi.org/10.1101%2Fgr.174920.114).
+A goal of `pggb` is to reduce the complexity of making these alignments, which are notoriously [difficult to design](https://doi.org/10.1101%2Fgr.174920.114).
 
 ### key parameters
 
