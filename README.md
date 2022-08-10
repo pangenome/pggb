@@ -13,8 +13,8 @@ It shows us similarity where genomes walk through the same parts of the graph, a
 
 `pggb` generates this kind of graph using an all-to-all alignment of input sequences ([wfmash](https://github.com/waveygang/wfmash)), graph induction ([seqwish](https://doi.org/10.1101/2022.02.14.480413)), and progressive normalization ([smoothxg](https://github.com/pangenome/smoothxg), [gfaffix](https://github.com/marschall-lab/GFAffix)).
 After construction, `pggb` generates diagnostic visualizations of the graph ([odgi](https://doi.org/10.1093/bioinformatics/btac308)).
-A variant call report (in VCF) representing both small and large variants may be generated based on any reference genome included in the graph ([vg](https://github.com/vgteam/vg)).
-`pggb` writes its output in [GFAv1](https://github.com/GFA-spec/GFA-spec/blob/master/GFA1.md) format, which can be used as input by numerous "genome graph" and pangenome tools, such as the VG and ODGI toolkits.
+A variant call report (in VCF) representing both small and large variants can be generated based on any reference genome included in the graph ([vg](https://github.com/vgteam/vg)).
+`pggb` writes its output in [GFAv1](https://github.com/GFA-spec/GFA-spec/blob/master/GFA1.md) format, which can be used as input by numerous "genome graph" and pangenome tools, such as the [vg](https://github.com/vgteam/vg) and [odgi](https://doi.org/10.1093/bioinformatics/btac308) toolkits.
 
 `pggb` has been tested at scale in the Human Pangenome Reference Consortium (HPRC) as a method to build a graph from the [draft human pangenome](https://doi.org/10.1101/2022.07.09.499321).
 
@@ -22,7 +22,7 @@ Documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/) an
 
 ## quick start
 
-First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Docker, `guix`, or by manually building its dependencies.
+First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Docker/Singularity, `bioconda`, `guix`, or by manually building its dependencies.
 
 Put your sequences in one FASTA file (`in.fa`) and index it with `samtools faidx`.
 If you have many genomes, we recommend using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
@@ -41,7 +41,7 @@ pggb -i in.fa \       # input file in FASTA format
 
 The final output will match `outdir/in.fa.*final.gfa`.
 By default, several intermediate files are produced.
-We render 1D and 2D visualizations of the graph with `odgi`, which are very useful to understand the result of the build.
+We render 1D and 2D visualizations of the graph with [odgi](https://doi.org/10.1093/bioinformatics/btac308), which are very useful to understand the result of the build.
 
 See also [this step-by-step example](https://pggb.readthedocs.io/en/latest/rst/quick_start.html) for more information.
 
@@ -63,7 +63,7 @@ An additional parameter, `-k`, can also greatly affect graph structure by prunin
 In effect, `-k N` removes any match shorter than `N`bp from the initial alignment.
 This filter removes potentially ambiguous pairwise alignments from consideration in establishing the initial scaffold of the graph.
 
-The inital graph is defined by parameters to `wfmash` and `seqwish`.
+The initial graph is defined by parameters to `wfmash` and `seqwish`.
 But due to the ambiguities generated across the many pairwise alignments we use as input, this graph can be locally very complex.
 To regularize it we orchestrate a series of graph transformations.
 First, with `smoothxg`, we "smooth" it by locally realigning sequences to each other with a traditional multiple sequence alignment (we specifically apply [POA](https://doi.org/10.1093/bioinformatics/18.3.452)).
@@ -73,7 +73,7 @@ Finally, we apply `gfaffix` to remove forks where both alternatives have the sam
 ### bringing your pangenome into focus
 
 We suggest using default parameters for initial tests.
-For instance `pggb -i in.fa.gz -o out1 -t 16 -n 100` would be a minimial build command for a 100-genome pangenome from `in.fa.gz`.
+For instance `pggb -i in.fa.gz -o out1 -t 16 -n 100` would be a minimal build command for a 100-genome pangenome from `in.fa.gz`.
 The default parameters provide a good balance between runtime and graph quality for small-to-medium (1kbp-100Mbp) problems.
 
 However, we find that parameters may still need to be adjusted to fine-tune `pggb` to a given problem.
@@ -82,7 +82,8 @@ These parameters must be tuned so that the graph resolves structures of interest
 
 ### example builds for diverse species
 
-In preparation of a manuscript on `pggb`, we have developed a [set of example pangenome builds for a collection of diverse species](https://github.com/pangenome/pggb-paper/blob/main/workflows/AllSpecies.md#all-species). (These also use cross-validation against [`nucmer`](https://mummer4.github.io/) to evaluate graph quality.)
+In preparation of a manuscript on `pggb`, we have developed a [set of example pangenome builds for a collection of diverse species](https://github.com/pangenome/pggb-paper/blob/main/workflows/AllSpecies.md#all-species).
+(These also use cross-validation against [`nucmer`](https://mummer4.github.io/) to evaluate graph quality.)
 
 Examples:
 
@@ -130,13 +131,13 @@ The pipeline is provided as a single script with configurable command-line optio
 Users should consider taking this script as a starting point for their own pangenome project.
 For instance, you might consider swapping out `wfmash` with `minimap2` or another PAF-producing long-read aligner.
 If the graph is small, it might also be possible to use `abPOA` or `spoa` to generate it directly.
-On the other hand, maybe you're starting with an assembly overlap graph which can be converted to blunt-ended GFA using _[gimbricate](https://github.com/ekg/gimbricate)_.
+On the other hand, maybe you're starting with an assembly overlap graph which can be converted to blunt-ended GFA using [gimbricate](https://github.com/ekg/gimbricate).
 You might have a validation process based on alignment of sequences to the graph, which should be added at the end of the process.
 
 ## downstream
 
-The resulting graph can then be manipulated with `odgi` for transformation, analysis, simplification, validation, interrogation, and visualization.
-It can also be loaded into any of the GFA-based mapping tools, including _[vg](https://github.com/vgteam/vg)_ `map`, `mpmap`, `giraffe`, and _[GraphAligner](https://github.com/maickrau/GraphAligner)_.
+The resulting graph can then be manipulated with [odgi](https://doi.org/10.1093/bioinformatics/btac308) for transformation, analysis, simplification, validation, interrogation, and visualization.
+It can also be loaded into any of the GFA-based mapping tools, including [vg](https://github.com/vgteam/vg) `map`, `mpmap`, `giraffe`, and [GraphAligner](https://github.com/maickrau/GraphAligner).
 Alignments to the graph can be used to make variant calls (`vg call`) and coverage vectors over the pangenome, which can be useful for phylogeny and association analyses.
 Using `odgi matrix`, we can render the graph in a sparse matrix format suitable for direct use in a variety of statistical frameworks, including phylogenetic tree construction, PCA, or association studies.
 
@@ -185,49 +186,49 @@ Then, put the `pggb` bash script in your path to complete installation.
 `pggb` recipes for Bioconda are available at https://anaconda.org/bioconda/pggb.
 To install the latest version using `Conda` execute:
 
-``` bash
+```bash
 conda install -c bioconda pggb
 ```
 
 ### guix
 
-```
+```bash
 git clone https://github.com/ekg/guix-genomics
 cd guix-genomics
 GUIX_PACKAGE_PATH=. guix package -i pggb
 ```
 
-### docker / Singularity
+### Docker / Singularity
 
 To simplify installation and versioning, we have an automated GitHub action that pushes the current docker build to the GitHub registry.
 To use it, first pull the actual image:
 
-```sh
+```bash
 docker pull ghcr.io/pangenome/pggb:latest
 ```
 
 Or if you want to pull a specific snapshot from [https://github.com/orgs/pangenome/packages/container/package/pggb](https://github.com/orgs/pangenome/packages/container/package/pggb):
 
-```sh
+```bash
 docker pull ghcr.io/pangenome/pggb:TAG
 ```
 
 You can pull the docker image also from [dockerhub](https://hub.docker.com/r/pangenome/pggb):
 
-```shell
+```bash
 docker pull pangenome/pggb
 ```
 
 Going in the `pggb` directory
 
-```sh
+```bash
 git clone --recursive https://github.com/pangenome/pggb.git
 cd pggb
 ```
 
 you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
-```sh
+```bash
 docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
 
@@ -235,13 +236,13 @@ The `-v` argument of `docker run` always expects a full path: `If you intended t
 
 If you want to experiment around, you can build a docker image locally using the `Dockerfile`:
 
-```sh
+```bash
 docker build --target binary -t ${USER}/pggb:latest .
 ```
 
 Staying in the `pggb` directory, we can run `pggb` with the locally build image:
 
-```sh
+```bash
 docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
 #### Singularity
@@ -250,20 +251,20 @@ Many managed HPCs utilize Singularity as a secure alternative to docker. Fortuna
 
 First pull the docker file and create a Singularity SIF image from the dockerfile. This might take a few minutes.
 
-```sh
+```bash
 singularity pull docker://ghcr.io/pangenome/pggb:latest
 ```
 
 Next clone the `pggb` repo and `cd` into it
 
-```sh
+```bash
 git clone --recursive https://github.com/pangenome/pggb.git
 cd pggb
 ```
 
 Finally, run `pggb` from the Singularity image. For Singularity to be able to read and write files to a directory on the host operating system, we need to 'bind' that directory using the `-B` option and pass the `pggb` command as an argument.
 
-```sh
+```bash
 singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
 
@@ -273,7 +274,7 @@ singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-
 
 `abPOA` of `pggb` uses SIMD instructions which require AVX. The currently built docker image has `-march=haswell` set. This means the docker image can be run by processors that support AVX256 or later. If you have a processor that supports AVX512, it is recommended to rebuild the docker image locally, removing the line
 
-```sh
+```bash
 && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
 ```
 
@@ -294,7 +295,7 @@ Many thanks go to [@Zethson](https://github.com/zethson) and [@Imipenem](https:/
 
 #### installation
 
-```sh
+```bash
 pip install multiqc --user
 ```
 
