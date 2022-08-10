@@ -20,7 +20,8 @@ The input is a FASTA file (e.g. ``input.fa``) containing all sequences to build 
 Step 1 - Sequence Preparation
 -----------------------------
 
-Put your sequences in one FASTA file ``input.fa`` and index it with ``samtools faidx input.fa``. If you have many genomes, we suggest using the `PanSN-spec <https://github.com/pangenome/PanSN-spec>`_ naming pattern.
+Put your sequences in one FASTA file ``input.fa`` and index it with ``samtools faidx input.fa``.
+If you have many genomes, we suggest using the `PanSN-spec <https://github.com/pangenome/PanSN-spec>`_ naming pattern.
 
 -----------------------
 Step 2 - Graph Building
@@ -31,14 +32,19 @@ To build a graph from a 9-haplotype ``input.fa``, in the directory ``output``, s
 .. code-block:: bash
 
     pggb \
-    -i input.fa \ #the input FASTA file
-    -o output \   #the output directory
-    -p 90 \       #the sequence identity
-    -s 5000 \     #the segment length
-    -n 9  \       #the number of haplotypes
-    -t 16         #the number of threads
+    -i input.fa \    # input file in FASTA format
+    -o output \      # output directory
+    -n 9  \          # number of haplotypes
+    -t 16            # number of threads (defaults to ``getconf _NPROCESSORS_ONLN``)
+    -p 90 \          # (default) minimum average nucleotide identity for a seed mapping
+    -s 5000 \        # (default) segment length
+    -V 'ref:#:1000'  # make a VCF against "ref" decomposing variants >1000bp
 
-The final process output will be called ``outdir/input.fa*smooth.fix.gfa``. By default, several intermediate files are produced.
+
+The final process output will be called ``outdir/input.fa*smooth.fix.gfa``.
+By default, several intermediate files are produced.
+We render 1D and 2D visualizations of the graph with `odgi <https://doi.org/10.1093/bioinformatics/btac308>`_, which are very useful to understand the result of the build.
+
 
 .. _quick_start_example:
 

@@ -11,7 +11,7 @@ Manual-mode
 
    <br />
 
-You'll need `wfmash <https://github.com/ekg/wfmash>`_, `seqwish <https://github.com/ekg/seqwish>`_, `smoothxg <https://github.com/pangenome/smoothxg>`_, 
+You'll need `wfmash <https://github.com/waveygang/wfmash>`_, `seqwish <https://github.com/ekg/seqwish>`_, `smoothxg <https://github.com/pangenome/smoothxg>`_,
 `odgi <https://github.com/pangenome/odgi>`_, `gfaffix <https://github.com/marschall-lab/GFAffix>`_, `bcftools <https://github.com/samtools/bcftools>`_ and `vg <https://github.com/vgteam/vg>`_ 
 in your shell's ``PATH``. They can be build from source, or installed via Bioconda.
 Then, add the ``pggb`` bash script to your ``PATH`` to complete the installation. 
@@ -57,14 +57,21 @@ Or if you want to pull a specific snapshot from `https://github.com/orgs/pangeno
     docker pull ghcr.io/pangenome/pggb:TAG
 
 
-Going in the ``pggb`` directory
+You can pull the docker image also from `dockerhub <https://hub.docker.com/r/pangenome/pggb>`_:
+
+.. code-block:: bash
+
+    docker pull pangenome/pggb
+
+
+As an example, going in the ``pggb`` directory
 
 .. code-block:: bash
 
     git clone --recursive https://github.com/pangenome/pggb.git
     cd pggb
 
-You can run the container using the human leukocyte antigen (HLA) data provided in this repo:
+you can run the container using the human leukocyte antigen (HLA) data provided in this repo:
 
 .. code-block:: bash
 
@@ -103,6 +110,35 @@ If you have a processor that supports AVX512, it is recommended to rebuild the d
 
 
 from the ``Dockerfile``. This can lead to better performance in the ``abPOA`` step on machines which have AVX512 support.
+
+Singularity
+======
+
+Many managed HPCs utilize Singularity as a secure alternative to docker.
+Fortunately, docker images can be run through Singularity seamlessly.
+
+First pull the docker file and create a Singularity SIF image from the dockerfile.
+This might take a few minutes.
+
+.. code-block:: bash
+
+    singularity pull docker://ghcr.io/pangenome/pggb:latest
+
+
+Next clone the `pggb` repo and `cd` into it
+
+.. code-block:: bash
+
+    git clone --recursive https://github.com/pangenome/pggb.git
+    cd pggb
+
+
+Finally, run `pggb` from the Singularity image.
+For Singularity to be able to read and write files to a directory on the host operating system, we need to 'bind' that directory using the `-B` option and pass the `pggb` command as an argument.
+
+.. code-block:: bash
+    singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
+
 
 Nextflow
 ========

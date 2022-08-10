@@ -31,8 +31,8 @@ To build a graph from `in.fa`, which contains 9 haplotypes, in the directory `ou
 
 ```bash
 pggb -i in.fa \       # input file in FASTA format
-     -n 9 \           # number of haplotypes
      -o output \      # output directory
+     -n 9 \           # number of haplotypes
      -t 16 \          # number of threads (defaults to `getconf _NPROCESSORS_ONLN`)
      -p 90 \          # (default) minimum average nucleotide identity for a seed mapping
      -s 5k \          # (default) segment length
@@ -198,7 +198,7 @@ cd guix-genomics
 GUIX_PACKAGE_PATH=. guix package -i pggb
 ```
 
-### Docker / Singularity
+### Docker
 
 To simplify installation and versioning, we have an automated GitHub action that pushes the current docker build to the GitHub registry.
 To use it, first pull the actual image:
@@ -219,20 +219,21 @@ You can pull the docker image also from [dockerhub](https://hub.docker.com/r/pan
 docker pull pangenome/pggb
 ```
 
-Going in the `pggb` directory
+As an example, going in the `pggb` directory
 
 ```bash
 git clone --recursive https://github.com/pangenome/pggb.git
 cd pggb
 ```
 
-you can run the container using the example [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
+you can run the container using the [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```bash
 docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
 
-The `-v` argument of `docker run` always expects a full path: `If you intended to pass a host directory, use absolute path.` This is taken care of by using `${PWD}`.
+The `-v` argument of `docker run` always expects a full path. `If you intended to pass a host directory, use absolute path.`
+This is taken care of by using `${PWD}`.
 
 If you want to experiment around, you can build a docker image locally using the `Dockerfile`:
 
@@ -245,11 +246,25 @@ Staying in the `pggb` directory, we can run `pggb` with the locally build image:
 ```bash
 docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
-#### Singularity
 
-Many managed HPCs utilize Singularity as a secure alternative to docker. Fortunately, docker images can be run through Singularity seamlessly.
+#### Docker and AVX
 
-First pull the docker file and create a Singularity SIF image from the dockerfile. This might take a few minutes.
+`abPOA` of `pggb` uses SIMD instructions which require AVX. The currently built docker image has `-march=haswell` set. This means the docker image can be run by processors that support AVX256 or later. If you have a processor that supports AVX512, it is recommended to rebuild the docker image locally, removing the line
+
+```bash
+&& sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
+```
+
+from the `Dockerfile`. This can lead to better performance in the `abPOA` step on machines which have AVX512 support.
+
+
+### Singularity
+
+Many managed HPCs utilize Singularity as a secure alternative to docker.
+Fortunately, docker images can be run through Singularity seamlessly.
+
+First pull the docker file and create a Singularity SIF image from the dockerfile.
+This might take a few minutes.
 
 ```bash
 singularity pull docker://ghcr.io/pangenome/pggb:latest
@@ -262,23 +277,13 @@ git clone --recursive https://github.com/pangenome/pggb.git
 cd pggb
 ```
 
-Finally, run `pggb` from the Singularity image. For Singularity to be able to read and write files to a directory on the host operating system, we need to 'bind' that directory using the `-B` option and pass the `pggb` command as an argument.
+Finally, run `pggb` from the Singularity image.
+For Singularity to be able to read and write files to a directory on the host operating system, we need to 'bind' that directory using the `-B` option and pass the `pggb` command as an argument.
 
 ```bash
 singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
 
-
-
-#### AVX
-
-`abPOA` of `pggb` uses SIMD instructions which require AVX. The currently built docker image has `-march=haswell` set. This means the docker image can be run by processors that support AVX256 or later. If you have a processor that supports AVX512, it is recommended to rebuild the docker image locally, removing the line
-
-```bash
-&& sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
-```
-
-from the `Dockerfile`. This can lead to better performance in the `abPOA` step on machines which have AVX512 support.
 
 ### nextflow
 

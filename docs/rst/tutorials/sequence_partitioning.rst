@@ -88,7 +88,7 @@ Community detection
 -------------------------
 
 We need to obtain the mutual relationship between the input assemblies in order to detect the underlying communities.
-To compute the pairwise mappings with `wfmash <https://github.com/ekg/wfmash>`_, execute:
+To compute the pairwise mappings with `wfmash <https://github.com/waveygang/wfmash>`_, execute:
 
 .. code-block:: bash
 

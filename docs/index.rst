@@ -30,7 +30,7 @@ Core packages
     :align: center
 
     * - |wfmash|
-      - **Pairwise sequence alignment with** `wfmash <https://github.com/ekg/wfmash>`_
+      - **Pairwise sequence alignment with** `wfmash <https://github.com/waveygang/wfmash>`_
 
         + `mashmap <https://github.com/marbl/MashMap>`_ variant for approximate mappings
         + `wavefront-guided <https://github.com/ekg/wflign>`_ global alignment for long secs
