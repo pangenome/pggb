@@ -36,7 +36,10 @@ RUN apt-get update \
                        samtools \
                        wget \
                        pip \
-                       libcairo2-dev
+                       libcairo2-dev \
+    && apt-get clean \
+    && apt-get purge  \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
@@ -46,6 +49,9 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
     && sed -i 's/-march=native//g' src/common/wflign/deps/WFA/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
+    && rm -rf deps \
+    && rm -rf .git \
+    && rm -rf build \
     && cd ../
 
 RUN git clone --recursive https://github.com/ekg/seqwish \
@@ -55,6 +61,9 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
+    && rm -rf deps \
+    && rm -rf .git \
+    && rm -rf build \
     && cd ../
 
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
@@ -66,7 +75,10 @@ RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
-    && cp deps/odgi/bin/odgi /usr/local/bin/odgi
+    && cp deps/odgi/bin/odgi /usr/local/bin/odgi \
+    && rm -rf deps \
+    && rm -rf .git \
+    && rm -rf build
 
 # Rust
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
@@ -77,7 +89,11 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
     && git checkout ae153555fa9aa29fbc6057a9bcda1bc6597170d1 \
-    && cargo install --force --path . && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix
+    && cargo install --force --path . \
+    && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix \
+    && rm -rf deps \
+    && rm -rf .git \
+    && rm -rf build
 
 RUN pip install multiqc==1.11
 
@@ -87,7 +103,11 @@ RUN git clone https://github.com/pangenome/vcfbub \
     && cd vcfbub \
     && git pull \
     && git checkout 26a1f0cb216a423f8547c4ad0e0ce38cb9d324b9 \
-    && cargo install --force --path . && mv /root/.cargo/bin/vcfbub /usr/local/bin/vcfbub
+    && cargo install --force --path . \
+    && mv /root/.cargo/bin/vcfbub /usr/local/bin/vcfbub \
+    && rm -rf deps \
+    && rm -rf .git \
+    && rm -rf build
 
 RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && cd vcflib \
@@ -95,7 +115,10 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && mkdir -p build \
     && cd build \
     && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . -- -j $(nproc) \
-    && mv vcfwave /usr/local/bin/vcfwave
+    && mv vcfwave /usr/local/bin/vcfwave \
+    && rm -rf deps \
+    && rm -rf .git \
+    && rm -rf build
 
 # Community detection dependencies
 RUN pip install igraph==0.9.10
@@ -106,13 +129,21 @@ RUN git clone https://github.com/ekg/fastix.git \
     && cd fastix \
     && git pull \
     && git checkout 331c1159ea16625ee79d1a82522e800c99206834 \
-    && cargo install --force --path . && mv /root/.cargo/bin/fastix /usr/local/bin/fastix
+    && cargo install --force --path . && \
+    mv /root/.cargo/bin/fastix /usr/local/bin/fastix \
+    && rm -rf deps \
+    && rm -rf .git \
+    && rm -rf build
 
 RUN git clone https://github.com/ekg/pafplot.git \
     && cd pafplot \
     && git pull \
     && git checkout 7dda24c0aeba8556b600d53d748ae3103ec85501 \
-    && cargo install --force --path . && mv /root/.cargo/bin/pafplot /usr/local/bin/pafplot
+    && cargo install --force --path . \
+    && mv /root/.cargo/bin/pafplot /usr/local/bin/ \
+    && rm -rf deps \
+    && rm -rf .git \
+    && rm -rf build
 
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb
