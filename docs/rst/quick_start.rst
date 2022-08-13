@@ -20,19 +20,26 @@ The input is a FASTA file (e.g. ``input.fa``) containing all sequences to build 
 Step 1 - Sequence Preparation
 -----------------------------
 
-Put your sequences in one FASTA file ``input.fa`` and index it with ``samtools faidx input.fa``.
+Put your sequences in one FASTA file ``in.fa``, optioanlli compress it with ``bgzip``, and index it with ``samtools faidx in.fa`` (or ``samtools faidx in.fa.gz`` for compressed input).
 If you have many genomes, we suggest using the `PanSN-spec <https://github.com/pangenome/PanSN-spec>`_ naming pattern.
 
 -----------------------
-Step 2 - Graph Building
+Step 2 - Sequence partitioning (OPTIONAL)
 -----------------------
 
-To build a graph from a 9-haplotype ``input.fa``, in the directory ``output``, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
+If you have whole-genome assemblies, you might consider `partitioning your sequences into communities <https://pggb.readthedocs.io/en/latest/rst/tutorials/sequence_partitioning.html>`_, which usually correspond to the different chromosomes of the genomes.
+Then, you can run ``pggb`` on each community (set of sequences) independently.
+
+-----------------------
+Step 3 - Graph Building
+-----------------------
+
+To build a graph from a 9-haplotype ``in.fa``, in the directory ``output``, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
 
 .. code-block:: bash
 
     pggb \
-    -i input.fa \    # input file in FASTA format
+    -i in.fa \       # input file in FASTA format
     -o output \      # output directory
     -n 9  \          # number of haplotypes
     -t 16            # number of threads (defaults to ``getconf _NPROCESSORS_ONLN``)
@@ -42,8 +49,7 @@ To build a graph from a 9-haplotype ``input.fa``, in the directory ``output``, s
 
 
 The final process output will be called ``outdir/input.fa*smooth.fix.gfa``.
-By default, several intermediate files are produced.
-We render 1D and 2D visualizations of the graph with `odgi <https://doi.org/10.1093/bioinformatics/btac308>`_, which are very useful to understand the result of the build.
+By default, we render 1D and 2D visualizations of the graph with `odgi <https://doi.org/10.1093/bioinformatics/btac308>`_, which are very useful to understand the result of the build.
 
 
 .. _quick_start_example:

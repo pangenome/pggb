@@ -22,12 +22,15 @@ Documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/) an
 
 ## quick start
 
-First, [install `pggb`](https://github.com/pangenome/pggb#installation) using Docker/Singularity, `bioconda`, `guix`, or by manually building its dependencies.
+1) Install `pggb` with [Docker](https://github.com/pangenome/pggb#docker), [Singularity](https://github.com/pangenome/pggb#singularity), [bioconda](https://github.com/pangenome/pggb#bioconda), [guix](https://github.com/pangenome/pggb#guix), or by [manually building its dependencies](https://github.com/pangenome/pggb#manual-mode).
 
-Put your sequences in one FASTA file (`in.fa`) and index it with `samtools faidx`.
+2) Put your sequences in one FASTA file (`in.fa`), optionally compress it with `bgzip`, and index it with `samtools faidx`.
 If you have many genomes, we recommend using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
 
-To build a graph from `in.fa`, which contains 9 haplotypes, in the directory `output`, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
+3) [*OPTIONAL*] If you have whole-genome assemblies, you might consider [partitioning your sequences into communities](https://pggb.readthedocs.io/en/latest/rst/tutorials/sequence_partitioning.html), which usually correspond to the different chromosomes of the genomes.
+Then, you can run `pggb` on each community (set of sequences) independently.
+
+4) To build a graph from `in.fa`, which contains, for example, 9 haplotypes, in the directory `output`, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
 
 ```bash
 pggb -i in.fa \       # input file in FASTA format
@@ -40,8 +43,7 @@ pggb -i in.fa \       # input file in FASTA format
 ```
 
 The final output will match `outdir/in.fa.*final.gfa`.
-By default, several intermediate files are produced.
-We render 1D and 2D visualizations of the graph with [odgi](https://doi.org/10.1093/bioinformatics/btac308), which are very useful to understand the result of the build.
+By default, we render 1D and 2D visualizations of the graph with [odgi](https://doi.org/10.1093/bioinformatics/btac308), which are very useful to understand the result of the build.
 
 See also [this step-by-step example](https://pggb.readthedocs.io/en/latest/rst/quick_start.html) for more information.
 
