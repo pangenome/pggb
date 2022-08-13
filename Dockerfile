@@ -94,7 +94,7 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && git checkout 6dbe2f656730fc6240f0c2866446ed8a1c344efd \
     && mkdir -p build \
     && cd build \
-    && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug .. \
+    && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . \
     && mv vcfwave /usr/local/bin/vcfwave
 
 # Community detection dependencies
