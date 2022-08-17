@@ -69,9 +69,8 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout f8868807dadbe1d4483fadc533f864bd340e4d60 \
+    && git checkout 2e869a434138c6f5ce9db9e066a2b14a8a0f30c6 \
     && git submodule update --init --recursive \
-    && sed -i 's/-march=native/-march=haswell/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
