@@ -621,6 +621,13 @@ if [[ $do_viz == true ]]; then
                       -x 1500 -y 500 -a 10 -z -I $consensus_prefix \
                       2> >(tee -a "$log_file")
     fi
+
+    if [[ ! -s "$prefix_smoothed_output".final.og.viz_O_multiqc.png || $resume == false ]]; then
+      $timer -f "$fmt" odgi viz -i "$prefix_smoothed_output".final.og \
+                      -o "$prefix_smoothed_output".final.og.viz_O_multiqc.png \
+                      -x 1500 -y 500 -a 10 -O -I $consensus_prefix \
+                      2> >(tee -a "$log_file")
+    fi
 fi
 
 if [[ $do_layout == true ]]; then
@@ -699,6 +706,9 @@ multiqc_out_dir=$(dirname "$input_fasta")
 
 multiqc_config="# Report section config for nice titles and descriptions
 custom_data:
+  odgi_O:
+    section_name: ODGI Compressed 1D visualization
+    description: This image shows a 1D rendering of the built pangenome graph. The graph nodes are arranged from left to right, forming the pangenome sequence. Summarization of path coverage across all paths. A heatmap color-coding from https://colorbrewer2.org/#type=diverging&scheme=RdBu&n=11 is used. Dark blue means highest coverage. Dark red means lowest coverage. The path names are placed on the left. The black lines under the paths are the links, which represent the graph topology.
   odgi_viz:
     section_name: ODGI 1D visualization
     description: This image shows a 1D rendering of the built pangenome graph. The graph nodes are arranged from left to right, forming the pangenome sequence. The colored bars represent the paths versus the pangenome sequence in a binary matrix. The path names are placed on the left. The black lines under the paths are the links, which represent the graph topology.
@@ -717,6 +727,8 @@ custom_data:
 
 # Custom search patterns to find the image outputs
 sp:
+  odgi_O:
+    fn: \"*O_multiqc.png\"
   odgi_draw:
     fn: \"*draw_multiqc.png\"
   odgi_viz:
@@ -739,6 +751,7 @@ module_order:
 # Set the order that the custom content plots should come in
 custom_content:
   order:
+    - odgi_O
     - odgi_viz
     - odgi_viz_pos
     - odgi_viz_inv
