@@ -64,7 +64,7 @@ while true ; do
         -D|--temp-dir) temp_dir=$2 ; shift 2 ;;
         -a|--input-paf) input_paf=$2 ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
-        -n|--n-mappings) n_mappings=$2 ; shift 2 ;;
+        -n|--n-haplotypes) n_mappings=$2 ; shift 2 ;;
         -s|--segment-length) segment_length=$2 ; shift 2 ;;
         -l|--block-length) block_length=$2 ; shift 2 ;;
         -N|--no-splits) no_splits=true ; shift ;;
@@ -75,7 +75,7 @@ while true ; do
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -f|--sparse-factor) sparse_factor=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
-        -H|--n-haps) n_haps=$2 ; shift 2 ;;
+        -H|--n-haplotypes-smooth) n_haps=$2 ; shift 2 ;;
         -d|--pad-max-depth) pad_max_depth=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
@@ -185,15 +185,15 @@ fi
 
 if [ $show_help ]; then
     padding=`printf %${#0}s` # prints as many spaces as the length of $0
-    echo "usage: $0 -i <input-fasta> -n <n-mappings> [options]"
+    echo "usage: $0 -i <input-fasta> -n <n-haplotypes> [options]"
     echo "options:"
     echo "   [wfmash]"
     echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
     echo "    -s, --segment-length N      segment length for mapping [default: 5k]"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 5*segment-length]"
-    echo "    -N, --no-split              disable splitting of input sequences during mapping [enabled by default]"
     echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 90]"
-    echo "    -n, --n-mappings N          number of mappings to retain for each segment"
+    echo "    -n, --n-haplotypes N        number of haplotypes"
+    echo "    -N, --no-split              disable splitting of input sequences during mapping [default: enabled]"
     echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: 19]"
     echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: 0.001]"
@@ -204,7 +204,7 @@ if [ $show_help ]; then
     echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
-    echo "    -H, --n-haps N              number of haplotypes, if different than that set with -n [default: n-mappings]"
+    echo "    -H, --n-haplotypes-smooth N number of haplotypes, if different than that set with -n [default: -n]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
     echo "    -G, --poa-length-target N,M target sequence length for POA, one per pass [default: 700,900,1100]"
