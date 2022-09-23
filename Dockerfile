@@ -44,7 +44,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout b7fe8d900c28bd6dcae5ac4661ec4902f9798687 \
+    && git checkout a8e4daae6c0e61c898a799d34bb91c16655d268d \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native//g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
