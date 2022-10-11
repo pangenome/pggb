@@ -44,7 +44,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout a8e4daae6c0e61c898a799d34bb91c16655d268d \
+    && git checkout e7ab130028ddafb587c29c302ec62cfb63a8569e \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native//g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
@@ -55,7 +55,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout da0d2f0d81f1a3214ed34e2174bae73a0ea39296 \
+    && git checkout bea906eb37b6029f144da79dd1d807dd4fee8edf \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
