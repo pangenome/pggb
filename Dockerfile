@@ -14,7 +14,7 @@ RUN apt-get update \
                        bash \
                        cmake \
                        make \
-                       g++ \
+                       g++-11 \
                        python3-dev \
                        pybind11-dev \
                        libbz2-dev \
@@ -55,7 +55,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout da0d2f0d81f1a3214ed34e2174bae73a0ea39296 \
+    && git checkout bea906eb37b6029f144da79dd1d807dd4fee8edf \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
