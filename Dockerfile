@@ -57,7 +57,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
     && git pull \
     && git checkout bea906eb37b6029f144da79dd1d807dd4fee8edf \
     && git submodule update --init --recursive \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DCMAKE_C_FLAGS="-mcx16" -DCMAKE_CXX_FLAGS="-mcx16" -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
     && cd ../ \
     && rm -rf seqwish
