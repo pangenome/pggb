@@ -5,6 +5,13 @@ name: build and test docker image
 jobs:
   build_and_test:
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: ubuntu-latest
+            arch: aarch64
     steps:
       - uses: actions/checkout@v2
       - name: Build the Docker image for x86_64
