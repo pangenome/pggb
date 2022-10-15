@@ -5,20 +5,9 @@ name: build and test docker image
 jobs:
   build_and_test:
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            arch: x86_64
-          - os: ubuntu-latest
-            arch: aarch64
     steps:
       - uses: actions/checkout@v2
-      - name: Build the Docker image for x86_64
-        if: matrix.arch == 'x86_64'
-        run: sed -i 's/cmake -H. -DCMAKE_BUILD_TYPE=Generic  -Bbuild &&/cmake -H. -DCMAKE_BUILD_TYPE=Generic -DCMAKE_C_FLAGS="-mcx16" -DCMAKE_CXX_FLAGS="-mcx16" -Bbuild &&/g' Dockerfile && docker build . --file Dockerfile --target binary --tag pggb
-      - name: Build the Docker image for not x86_64 (ARM)
-        if: matrix.arch != 'x86_64'
+      - name: Build the Docker image
         run: docker build . --file Dockerfile --target binary --tag pggb
       - name: Run a test on the DRB1-3123 dataset (SPOA)
         run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#:10000' -o drib1 -M -m && ls drib1/*"
