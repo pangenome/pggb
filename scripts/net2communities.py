@@ -70,7 +70,7 @@ if args.plot:
 
     ig.plot(
         partition,
-        target = f'{args.edge_list}.communities.pdf',
+        target = f'{output_prefix}.communities.pdf',
         vertex_size=50,
         #vertex_color=['blue', 'red', 'green', 'yellow'],
         vertex_label=name_list,
