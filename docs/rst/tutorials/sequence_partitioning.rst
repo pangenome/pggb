@@ -4,6 +4,8 @@
 Sequence partitioning
 ####################
 
+**Author**: `Andrea Guarracino <https://github.com/AndreaGuarracino>`_
+
 ========
 Synopsis
 ========

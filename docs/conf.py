@@ -20,13 +20,13 @@ sys.path.insert(0, os.path.abspath('../lib/'))
 # -- Project information -----------------------------------------------------
 
 project = u'pggb'
-copyright = '2022, Erik Garrison, .... Revision v0.3.1-a86ce52'
+copyright = '2022, Erik Garrison, .... Revision v0.4.1-5ed8066'
 author = u'Erik Garrison, ...'
 
 # The short X.Y version
-version = 'v0.3.1'
+version = 'v0.4.1'
 # The full version, including alpha/beta/rc tags
-release = 'a86ce52'
+release = '5ed8066'
 
 
 # -- General configuration ---------------------------------------------------
@@ -129,7 +129,7 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (master_doc, 'pggb.tex', u'pggb documentation',
-     u'Erik Garrison, ...', 'manual'),
+     u'Garrison, E., Guarracino, A., Heumos, S., Villani, ..., Colonna, V., Prins, P.', 'manual'),
 ]
 
 # -- Options for manual page output ------------------------------------------
