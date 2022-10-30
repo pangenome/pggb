@@ -346,6 +346,7 @@ if [ ! -e "$temp_dir" ]; then
   mkdir "$temp_dir"
   temp_dir_was_created=true
 fi
+prefix_mappings_paf="$temp_dir"/$(basename "$prefix_paf")
 prefix_seqwish="$temp_dir"/$(basename "$prefix_seqwish")
 prefix_smoothed="$temp_dir"/$(basename "$prefix_smoothed")
 
@@ -428,13 +429,31 @@ if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
               --tmp-base $temp_dir \
               $merge_cmd \
               "$input_fasta" \
-              > "$prefix_paf".$mapper.paf) 2> >(tee -a "$log_file")
+              --approx-map \
+              > "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
+
+          ($timer -f "$fmt" wfmash \
+              -s $segment_length \
+              -l $block_length \
+              -p $map_pct_id \
+              -n $n_mappings_minus_1 \
+              $split_cmd \
+              $sparse_map_cmd \
+              -k $mash_kmer \
+              -H $mash_kmer_thres \
+              $exclude_cmd \
+              -t $threads \
+              --tmp-base $temp_dir \
+              $merge_cmd \
+              "$input_fasta" \
+              -i "$prefix_mappings_paf".mappings.$mapper.paf \
+              > "$prefix_paf".alignments.$mapper.paf) 2> >(tee -a "$log_file")
   fi
 fi
 
 # adjust seqwish_paf
 if [[ "$input_paf" == false ]]; then
-    seqwish_paf="$prefix_paf".$mapper.paf
+    seqwish_paf="$prefix_paf".alignments.$mapper.paf
 else
     seqwish_paf="$input_paf"
 fi
@@ -780,6 +799,7 @@ fi
 if [[ $keep_intermediate_files == true ]]; then
   if [[ "$output_dir" != "$temp_dir" ]]; then
     # `|| true` to avoid `mv` fail if there are missing files to move
+    mv -f "$prefix_mappings_paf".mappings.$mapper.paf "$output_dir" 2> /dev/null || true
     mv -f "$prefix_seqwish".seqwish.{gfa,og} "$output_dir" 2> /dev/null || true
     mv -f "$prefix_seqwish".*.prep.gfa "$output_dir" 2> /dev/null || true
     mv -f "$prefix_smoothed".[0-9]*.{gfa,og} "$output_dir" 2> /dev/null || true
