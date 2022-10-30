@@ -113,25 +113,6 @@ Citation
 
 | **IN PREPARATION**
 
-Core Functionalities
---------------------
-
-**Click on the images below for more details.**
-
-.. |tutorial_one| image:: img/tutorial_one.png
-    :target: rst/tutorials/tutorial_one.html
-
-.. list-table::
-    :widths: 40 60
-    :align: center
-
-    * - |tutorial_one|
-      - **Tutorial one**
-
-        + Step 1
-        + Step 2
-        + Step 3
-
 ------
 Index
 ------

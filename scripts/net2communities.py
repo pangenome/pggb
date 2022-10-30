@@ -8,6 +8,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-e', '--edge-list', dest='edge_list', help="edge list representing the pairs of sequences mapped in the network", required=True)
 parser.add_argument('-w', '--edge-weights', dest='edge_weights', help="list of edge weights", required=True)
 parser.add_argument('-n', '--vertice-names', dest='vertice_names', help="'id to sequence name' map", required=True)
+parser.add_argument('--output-prefix', dest='output_prefix', default="", help="prefix to add to the output filenames")
 parser.add_argument('--accurate-detection', dest='accurate', default=False, action='store_true', help="accurate community detection (slower)")
 parser.add_argument('--plot', dest='plot', default=False, action='store_true', help="plot the network, coloring by community and labeling with contig/scaffold names (it assumes PanSN naming)")
 
@@ -50,12 +51,14 @@ with open(args.vertice_names) as f:
 
         id_2_name_dict[int(id)] = name
 
+output_prefix = args.output_prefix if args.output_prefix else args.edge_weights
+
 for id_community, id_members in enumerate(partition):
-    with open(f'{args.edge_weights}.community.{id_community}.txt', 'w') as fw:
+    with open(f'{output_prefix}.community.{id_community}.txt', 'w') as fw:
         for id in id_members:
             fw.write(f'{id_2_name_dict[id]}\n')
 
-
+# Write the plot
 if args.plot:
     print('Plotting on PDF')
 
@@ -67,7 +70,7 @@ if args.plot:
 
     ig.plot(
         partition,
-        target = f'{args.edge_list}.communities.pdf',
+        target = f'{output_prefix}.communities.pdf',
         vertex_size=50,
         #vertex_color=['blue', 'red', 'green', 'yellow'],
         vertex_label=name_list,

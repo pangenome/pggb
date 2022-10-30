@@ -2,7 +2,7 @@
 Assuming you have Python already, install Sphinx:
 
 ```
-pip install sphinx
+pip install sphinx sphinx_rtd_theme
 ```
 
 Then, go into your documentation directory
