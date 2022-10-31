@@ -818,6 +818,7 @@ if [[ $keep_intermediate_files == true ]]; then
     prefix_smoothed="$output_dir"/$(basename "$prefix_smoothed")
   fi
 else
+  rm -f "$prefix_mappings_paf".mappings.$mapper.paf
   rm -f "$prefix_seqwish".seqwish.{gfa,og}
   rm -f "$prefix_smoothed".[0-9]*.{gfa,og}
 
