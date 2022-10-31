@@ -413,41 +413,45 @@ EOT
 
 
 echo -e "\nRunning pggb\n" >> "$log_file"
-if [[ ! -s $prefix_paf.$mapper.paf || $resume == false ]]; then
-  if [[ "$mapper" == "wfmash" ]]; then
-          ($timer -f "$fmt" wfmash \
-              -s $segment_length \
-              -l $block_length \
-              -p $map_pct_id \
-              -n $n_mappings_minus_1 \
-              $split_cmd \
-              $sparse_map_cmd \
-              -k $mash_kmer \
-              -H $mash_kmer_thres \
-              $exclude_cmd \
-              -t $threads \
-              --tmp-base $temp_dir \
-              $merge_cmd \
-              "$input_fasta" \
-              --approx-map \
-              > "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
+if [[ "$input_paf" == false ]]; then
+  if [[ ! -s "$prefix_paf".alignments.$mapper.paf || $resume == false ]]; then
 
-          ($timer -f "$fmt" wfmash \
-              -s $segment_length \
-              -l $block_length \
-              -p $map_pct_id \
-              -n $n_mappings_minus_1 \
-              $split_cmd \
-              $sparse_map_cmd \
-              -k $mash_kmer \
-              -H $mash_kmer_thres \
-              $exclude_cmd \
-              -t $threads \
-              --tmp-base $temp_dir \
-              $merge_cmd \
-              "$input_fasta" \
-              -i "$prefix_mappings_paf".mappings.$mapper.paf \
-              > "$prefix_paf".alignments.$mapper.paf) 2> >(tee -a "$log_file")
+    # Check if also the mappings are missing, else do not recompute them when $resume == true
+    if [[ ! -s "$prefix_paf".mappings.$mapper.paf || $resume == false ]]; then
+      ($timer -f "$fmt" wfmash \
+          -s $segment_length \
+          -l $block_length \
+          -p $map_pct_id \
+          -n $n_mappings_minus_1 \
+          $split_cmd \
+          $sparse_map_cmd \
+          -k $mash_kmer \
+          -H $mash_kmer_thres \
+          $exclude_cmd \
+          -t $threads \
+          --tmp-base $temp_dir \
+          $merge_cmd \
+          "$input_fasta" \
+          --approx-map \
+          > "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
+      fi
+
+      ($timer -f "$fmt" wfmash \
+          -s $segment_length \
+          -l $block_length \
+          -p $map_pct_id \
+          -n $n_mappings_minus_1 \
+          $split_cmd \
+          $sparse_map_cmd \
+          -k $mash_kmer \
+          -H $mash_kmer_thres \
+          $exclude_cmd \
+          -t $threads \
+          --tmp-base $temp_dir \
+          $merge_cmd \
+          "$input_fasta" \
+          -i "$prefix_mappings_paf".mappings.$mapper.paf \
+          > "$prefix_paf".alignments.$mapper.paf) 2> >(tee -a "$log_file")
   fi
 fi
 
