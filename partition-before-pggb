@@ -76,7 +76,7 @@ input_temp_dir=false
 input_paf=false
 resume=false
 threads=$THREADS
-poa_threads=$THREADS
+poa_threads=0
 keep_intermediate_files=false
 compress=false
 show_version=false
@@ -353,6 +353,9 @@ prefix_mappings_paf="$temp_dir"/$(basename "$prefix_paf")
 prefix_seqwish="$temp_dir"/$(basename "$prefix_seqwish")
 prefix_smoothed="$temp_dir"/$(basename "$prefix_smoothed")
 
+if [[ $poa_threads == 0 ]]; then
+    poa_threads=$threads
+fi
 
 date=`date "+%m-%d-%Y_%H:%M:%S"`
 log_file="$prefix_smoothed_output".$date.log
