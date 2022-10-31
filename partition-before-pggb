@@ -440,16 +440,36 @@ if [[ ! -s "$prefix_mappings_paf".mappings.$mapper.paf.edges.list.txt \
   || ! -s "$prefix_mappings_paf".mappings.$mapper.paf.edges.weights.txt \
   || ! -s "$prefix_mappings_paf".mappings.$mapper.paf.vertices.id2name.txt
   || $resume == false ]]; then
-  python3 "$SCRIPT_DIR"/scripts/paf2net.py -p "$prefix_mappings_paf".mappings.$mapper.paf
+  ($timer -f "$fmt" python3 "$SCRIPT_DIR"/scripts/paf2net.py -p "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
 fi
 
-#ToDo if not exist what????
-python3 "$SCRIPT_DIR"/scripts/net2communities.py \
-    -e "$prefix_mappings_paf".mappings.$mapper.paf.edges.list.txt \
-    -w "$prefix_mappings_paf".mappings.$mapper.paf.edges.weights.txt \
-    -n "$prefix_mappings_paf".mappings.$mapper.paf.vertices.id2name.txt \
-    --accurate-detection --output-prefix "$prefix_paf"
+# Not perfect, but at least one community will exist
+if [[ ! -s "$prefix_paf".community.0.txt  || $resume == false ]]; then
+  ($timer -f "$fmt" python3 "$SCRIPT_DIR"/scripts/net2communities.py \
+      -e "$prefix_mappings_paf".mappings.$mapper.paf.edges.list.txt \
+      -w "$prefix_mappings_paf".mappings.$mapper.paf.edges.weights.txt \
+      -n "$prefix_mappings_paf".mappings.$mapper.paf.vertices.id2name.txt \
+      --accurate-detection --output-prefix "$prefix_paf") 2> >(tee -a "$log_file")
+fi
 
+ls "$prefix_paf".community.*.txt | while read community; do
+  prefix_fasta="$output_dir"/$(basename "$community" .txt)
+  if [[ $compress == true ]]; then
+    if [[ ! -s "$prefix_fasta".fa.gz || $resume == false ]]; then
+      ($timer -f "$fmt" samtools faidx "$input_fasta" $(cat "$community") | \
+        bgzip -@ "$threads" -c > "$prefix_fasta".fa.gz) 2> >(tee -a "$log_file")
+      ($timer -f "$fmt" samtools faidx "$prefix_fasta".fa.gz) 2> >(tee -a "$log_file")
+    fi
+  else
+    if [[ ! -s "$prefix_fasta".fa || $resume == false ]]; then
+      ($timer -f "$fmt" samtools faidx "$input_fasta" $(cat "$community") \
+        > "$prefix_fasta".fa) 2> >(tee -a "$log_file")
+      ($timer -f "$fmt" samtools faidx "$prefix_fasta".fa) 2> >(tee -a "$log_file")
+    fi
+  fi
+done
+
+# Command lines preparation
 params=""
 if [[ $no_splits != false ]]; then
   params="$params --no-splits"
@@ -469,7 +489,7 @@ fi
 if [[ $write_maf != false ]]; then
   params="$params -m $write_maf"
 fi
-#consensus_spec=false # Disabled due to PGGB's #133 and #182 issuesecho "PGGB $params"
+#consensus_spec=false # Disabled due to PGGB's #133 and #182 issues
 if [[ $do_viz != true || $do_layout != true ]]; then
   params="$params --skip-viz"
 fi
@@ -499,50 +519,37 @@ if [[ $compress != false ]]; then
   params="$params --compress"
 fi
 
-ls "$prefix_paf".community.*.txt | while read community; do
-  samtools faidx "$input_fasta" $(cat "$community") | \
-    bgzip -@ "$threads" -c > "$community".fa.gz
-  samtools faidx "$community".fa.gz
-done
 
-ls "$prefix_paf".community.*.txt | while read community; do
-  echo "pggb -i $community.fa.gz \\"
-  echo "     -o $community.out \\"
-  echo "     -p $segment_length -l $block_length -p $map_pct_id -n $n_mappings -K $mash_kmer -F $mash_kmer_thres \\"
-  echo "     -k $min_match_length -f $sparse_factor -B $transclose_batch \\"
-  echo "     -H $n_haps -j $max_path_jump -e $max_edge_jump -G $target_poa_length -P $poa_params -O $poa_padding -d $pad_max_depth -Q $consensus_prefix \\"
-  echo "    $params"
-done
 
-#todo manage compression
-#todo manage temporary files cleaning
-#-------------------------------------------------------------------------------
+if [[ $compress == true ]]; then
+  fasta_ext="fa.gz"
+else
+  fasta_ext="fa"
+fi
+echo ""
+ls "$prefix_paf".community.*.$fasta_ext | while read community; do
+cat <<EOT | tee -a "$log_file" "$param_file"
+pggb -i $community \\
+     -o $community.out \\
+     -p $segment_length -l $block_length -p $map_pct_id -n $n_mappings -K $mash_kmer -F $mash_kmer_thres \\
+     -k $min_match_length -f $sparse_factor -B $transclose_batch \\
+     -H $n_haps -j $max_path_jump -e $max_edge_jump -G $target_poa_length -P $poa_params -O $poa_padding -d $pad_max_depth -Q $consensus_prefix \\
+     $params
+EOT
+done
+echo ""
 
 if [[ $keep_intermediate_files == true ]]; then
   if [[ "$output_dir" != "$temp_dir" ]]; then
     # `|| true` to avoid `mv` fail if there are missing files to move
     mv -f "$prefix_mappings_paf".mappings.$mapper.paf "$output_dir" 2> /dev/null || true
-    mv -f "$prefix_seqwish".seqwish.{gfa,og} "$output_dir" 2> /dev/null || true
-    mv -f "$prefix_seqwish".*.prep.gfa "$output_dir" 2> /dev/null || true
-    mv -f "$prefix_smoothed".[0-9]*.{gfa,og} "$output_dir" 2> /dev/null || true
-    mv -f "$prefix_smoothed".fix.gfa "$output_dir" 2> /dev/null || true
-
-    if [[ $normalize == true ]]; then
-      mv -f "$prefix_smoothed".{gfa,og} "$output_dir" 2> /dev/null || true
-    fi
-
-    # Since these temporary files have just been moved to a different folder
-    prefix_seqwish="$output_dir"/$(basename "$prefix_seqwish")
-    prefix_smoothed="$output_dir"/$(basename "$prefix_smoothed")
+    mv -f "$prefix_paf".community.*.txt "$output_dir" 2> /dev/null || true
+    mv -f "$prefix_mappings_paf".mappings.$mapper.paf.*.txt "$output_dir" 2> /dev/null || true
   fi
 else
-  rm -f "$prefix_seqwish".seqwish.{gfa,og}
-  rm -f "$prefix_smoothed".[0-9]*.{gfa,og}
-
-  if [[ $normalize == true ]]; then
-    rm -f "$prefix_smoothed".{gfa,og}
-    rm -f "$prefix_smoothed".fix.gfa
-  fi
+  rm -f "$prefix_mappings_paf".mappings.$mapper.paf
+  rm -f "$prefix_paf".community.*.txt
+  rm -f "$prefix_mappings_paf".mappings.$mapper.paf.*.txt
 fi
 
 if [[ $temp_dir_was_created == true ]]; then
@@ -550,17 +557,10 @@ if [[ $temp_dir_was_created == true ]]; then
 fi
 
 if [[ $compress == true ]]; then
-    if [[ $input_paf == false ]]; then
-        pigz -f -q -p $threads "$prefix_paf"*.paf -v
-    fi
-    pigz -f -q -p $threads "$prefix_seqwish"*.{gfa,og} -v
-    if [[ $write_maf != false ]]; then
-      pigz -f -q -p $threads "$prefix_seqwish"*.maf -v
-    fi
-    if [[ $vcf_spec != false ]]; then
-      ls "$prefix_seqwish"*.vcf | while read f; do bgzip "$f" -f -@ $threads; done
-    fi
-    if [[ $do_layout == true ]]; then
-        pigz -f -q -p $threads "$prefix_smoothed_output".final.og.lay.tsv -v
+    # FASTA files have already been compressed
+    if [[ $keep_intermediate_files == true ]]; then
+      pigz -f -q -p $threads "$prefix_paf"*.paf -v
+      ls "$output_dir"/*.txt | while read f; do pigz -f -q -p $threads "$f" -v; done
     fi
 fi
+#-------------------------------------------------------------------------------
