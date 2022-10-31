@@ -1,0 +1,566 @@
+#!/usr/bin/env bash
+
+# exit when any command fails
+set -eo pipefail
+
+
+# wfmash's default values
+SEGMENT_LENGTH=5000
+BLOCK_LENGTH=$(echo "$SEGMENT_LENGTH * 5" | bc)
+MAP_PCT_ID=90
+MASH_KMER=19
+MASH_KMER_THRES=0.001
+
+# wfmash's parameters
+input_fasta=false
+segment_length=$SEGMENT_LENGTH
+block_length=$BLOCK_LENGTH
+map_pct_id=$MAP_PCT_ID
+n_mappings=false
+no_splits=false
+sparse_map=false
+mash_kmer=$MASH_KMER
+mash_kmer_thres=$MASH_KMER_THRES
+exclude_delim=false
+
+# seqwish's default values
+MIN_MATCH_LENGTH=19
+SPARSE_FACTOR=0
+TRANSCLOSE_BATCH=10000000
+
+# seqwish's parameters
+min_match_length=$MIN_MATCH_LENGTH
+sparse_factor=$SPARSE_FACTOR
+transclose_batch=$TRANSCLOSE_BATCH
+
+# smoothxg's default values
+MAX_PATH_JUMP=0
+MAX_EDGE_JUMP=0
+TARGET_POA_LENGTH=700,900,1100
+POA_PADDING=0.001
+PAD_MAX_DEPTH=100
+CONSENSUS_PREFIX=Consensus_
+
+# smoothxg's parameters
+n_haps=false
+max_path_jump=$MAX_PATH_JUMP
+max_edge_jump=$MAX_EDGE_JUMP
+target_poa_length=$TARGET_POA_LENGTH
+poa_params=false
+poa_padding=$POA_PADDING
+pad_max_depth=$PAD_MAX_DEPTH
+run_abpoa=false
+run_global_poa=false
+write_maf=false
+consensus_spec=false # Disabled due to PGGB's #133 and #182 issues
+consensus_prefix=$CONSENSUS_PREFIX
+
+# odgi's parameters
+do_viz=true
+do_layout=true
+do_stats=false
+
+# vg's parameter
+vcf_spec=false
+
+# multiqc's parameter
+multiqc=false
+
+# default values
+OUTPUT_DIR=$(pwd)
+THREADS=$(getconf _NPROCESSORS_ONLN 2>/dev/null || getconf NPROCESSORS_ONLN 2>/dev/null || echo 1)
+
+# general parameters
+output_dir=$OUTPUT_DIR
+temp_dir=false
+input_paf=false
+resume=false
+threads=$THREADS
+poa_threads=$THREADS
+keep_intermediate_files=false
+compress=false
+show_version=false
+show_help=false
+
+# not exposed parameters
+no_merge_segments=false
+block_ratio_min=0
+normalize=true
+
+
+if [ $# -eq 0 ]; then
+    show_help=true
+fi
+
+# read the options
+cmd=$0" "$@
+TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
+eval set -- "$TEMP"
+
+# extract options and their arguments into variables.
+while true ; do
+    case "$1" in
+        -i|--input-fasta) input_fasta=$2 ; shift 2 ;;
+        -s|--segment-length) segment_length=$2 ; shift 2 ;;
+        -l|--block-length) block_length=$2 ; shift 2 ;;
+        -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
+        -n|--n-haplotypes) n_mappings=$2 ; shift 2 ;;
+        -N|--no-splits) no_splits=true ; shift ;;
+        -x|--sparse-map) sparse_map=$2 ; shift 2 ;;
+        -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
+        -F|--mash-kmer-thres) mash_kmer_thres=$2 ; shift 2 ;;
+        -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
+        -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
+        -f|--sparse-factor) sparse_factor=$2 ; shift 2 ;;
+        -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
+        -H|--n-haplotypes-smooth) n_haps=$2 ; shift 2 ;;
+        -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
+        -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
+        -G|--poa-length-target) target_poa_length=$2 ; shift 2 ;;
+        -P|--poa-params) poa_params=$2 ; shift 2 ;;
+        -O|--poa-padding) poa_padding=$2 ; shift 2 ;;
+        -d|--pad-max-depth) pad_max_depth=$2 ; shift 2 ;;
+        -b|--run-abpoa) run_abpoa=true ; shift ;;
+        -z|--global-poa) run_global_poa=true ; shift ;;
+        -M|--write-maf) write_maf=true ; shift ;;
+        #-C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
+        -Q|--consensus-prefix) consensus_prefix=$2 ; shift 2 ;;
+        -v|--skip-viz) do_viz=false ; do_layout=false; shift ;;
+        -S|--do-stats) do_stats=true ; shift ;;
+        -V|--vcf-spec) vcf_spec=$2 ; shift 2 ;;
+        -m|--multiqc) multiqc=true ; shift ;;
+        -o|--output-dir) output_dir=$2 ; shift 2 ;;
+        -D|--temp-dir) temp_dir=$2 ; shift 2 ;;
+        -a|--input-paf) input_paf=$2 ; shift 2 ;;
+        -r|--resume) resume=true ; shift ;;
+        -t|--threads) threads=$2 ; shift 2 ;;
+        -T|--poa-threads) poa_threads=$2 ; shift 2 ;;
+        -A|--keep-temp-files) keep_intermediate_files=true ; shift ;;
+        -Z|--compress) compress=true ; shift ;;
+        --version) show_version=true ; shift ;;
+        -h|--help) show_help=true ; shift ;;
+        --) shift ; break ;;
+        *) echo "$2" "Internal error!" ; exit 1 ;;
+    esac
+done
+
+if [ $show_version == true ]; then
+    SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+    cd "$SCRIPT_DIR"
+    GIT_VERSION=$(git describe --always --tags)
+    echo "pggb $GIT_VERSION"
+    cd - &> /dev/null
+    exit
+fi
+
+if [ $show_help == true ]; then
+    padding=`printf %${#0}s` # prints as many spaces as the length of $0
+    echo "usage: $0 -i <input-fasta> -n <n-haplotypes> [options]"
+    echo "options:"
+    echo "   [wfmash]"
+    echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
+    echo "    -s, --segment-length N      segment length for mapping [default: 5k]"
+    echo "    -l, --block-length N        minimum block length filter for mapping [default: 5*segment-length]"
+    echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: 90]"
+    echo "    -n, --n-haplotypes N        number of haplotypes"
+    echo "    -N, --no-split              disable splitting of input sequences during mapping [default: enabled]"
+    echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
+    echo "    -K, --mash-kmer N           kmer size for mapping [default: 19]"
+    echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: 0.001]"
+    echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
+    echo "                                the given delimiter character [default: all-vs-all and !self]"
+    echo "   [seqwish]"
+    echo "    -k, --min-match-len N       filter exact matches below this length [default: 19]"
+    echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
+    echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
+    echo "   [smoothxg]"
+    echo "    -H, --n-haplotypes-smooth N number of haplotypes, if different than that set with -n [default: -n]"
+    echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
+    echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
+    echo "    -G, --poa-length-target N,M target sequence length for POA, one per pass [default: 700,900,1100]"
+    echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
+    echo "                                may also be given as presets: asm5, asm10, asm15, asm20"
+    echo "                                [default: 1,19,39,3,81,1 = asm5]"
+    echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(mean_seq_len) bp [default: 0.001]"
+    echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: 100]"
+    echo "    -b, --run-abpoa             run abPOA [default: SPOA]"
+    echo "    -z, --global-poa            run the POA in global mode [default: local mode]"
+    echo "    -M, --write-maf             write MAF output representing merged POA blocks [default: off]"
+    echo "    -Q, --consensus-prefix P    use this prefix for consensus path names [default: Consensus_]"
+    #echo "    -C, --consensus-spec SPEC   consensus graph specification: write consensus graphs to"
+    #echo "                                BASENAME.cons_[spec].gfa; where each spec contains at least a min_len parameter"
+    #echo "                                (which defines the length of divergences from consensus paths to preserve in the"
+    #echo "                                output), optionally a file containing reference paths to preserve in the output,"
+    #echo "                                a flag (y/n) indicating whether we should also use the POA consensus paths, a"
+    #echo "                                minimum coverage of consensus paths to retain (min_cov), and a maximum allele"
+    #echo "                                length (max_len, defaults to 1e6); implies -a; example:"
+    #echo "                                cons,100,1000:refs1.txt:n,1000:refs2.txt:y:2.3:1000000,10000"
+    #echo "                                [default: off]"
+    echo "   [odgi]"
+    echo "    -v, --skip-viz              don't render visualizations of the graph in 1D and 2D [default: make them]"
+    echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
+    echo "   [vg]"
+    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[:LEN][,REF:DELIM:[LEN]]*"
+    echo "                                the paths matching ^REF are used as a reference, while the sample haplotypes"
+    echo "                                are derived from path names, e.g. when DELIM=# and with '-V chm13:#',"
+    echo "                                a path named HG002#1#ctg would be assigned to sample HG002 phase 1."
+    echo "                                If LEN is specified and greater than 0, the VCFs are decomposed, filtering "
+    echo "                                sites whose max allele length is greater than LEN. [default: off]"
+    echo "   [multiqc]"
+    echo "    -m, --multiqc               generate MultiQC report of graphs' statistics and visualizations,"
+    echo "                                automatically runs odgi stats [default: off]"
+    echo "   [general]"
+    echo "    -o, --output-dir PATH       output directory"
+    echo "    -D, --temp-dir PATH         directory for temporary files"
+    echo "    -a, --input-paf FILE        input PAF file; the wfmash alignment step is skipped"
+    echo "    -r, --resume                do not overwrite existing outputs in the given directory"
+    echo "                                [default: start pipeline from scratch]"
+    echo "    -t, --threads N             number of compute threads to use in parallel steps [default: "$threads"]"
+    echo "    -T, --poa-threads N         number of compute threads to use during POA (set lower if you OOM during smoothing)"
+    echo "    -A, --keep-temp-files       keep intermediate graphs"
+    echo "    -Z, --compress              compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz,"
+    echo "                                and variant (.vcf) outputs with bgzip"
+    echo "    --version                   display the version of pggb"
+    echo "    -h, --help                  this text"
+    echo
+    echo "Use wfmash, seqwish, smoothxg, odgi, gfaffix, and vg to build, project and display a pangenome graph."
+    exit
+fi
+
+# Mandatory parameters
+if [[ "$input_fasta" == false || $n_mappings == false ]]; then
+    show_help=true
+    >&2 echo "ERROR: mandatory arguments -i and -n"
+fi
+
+if (( "$n_mappings" < 2 )); then
+    show_help=true
+    >&2 echo "ERROR: -n must be greater than or equal to 2"
+fi
+
+
+# Alignment
+if [[ $input_paf == false ]]; then
+  mapper=wfmash
+  mapper_letter='W'
+else
+  mapper=external
+  mapper_letter='E'
+fi
+
+n_mappings_minus_1=$( echo "$n_mappings - 1" | bc )
+
+paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings_minus_1-K$mash_kmer-F$mash_kmer_thres-x$sparse_map
+
+split_cmd=""
+if [[ $no_splits == true ]]; then
+    split_cmd=-N
+    paf_spec="$paf_spec"-N
+fi
+
+# Normalization (in this part of the code because $n_haps is used for the 'auto' mapping sparsification)
+if [[ $n_haps == false ]]; then
+    n_haps=$n_mappings
+fi
+
+sparse_map_cmd=""
+if [[ $sparse_map == "auto" ]]; then
+    # set sparse mapping using giant component heuristic
+    # we keep 10x log(n)/n mappings
+    # if this is < 1, otherwise we keep all
+    n=$n_haps
+    sparse_map_frac=$(echo "x=l($n)/$n * 10; if (x < 1) { x } else { 1 }"  | bc -l | cut -c -8)
+    sparse_map_cmd="-x $sparse_map_frac"
+elif [[ $sparse_map != false ]]; then
+    sparse_map_cmd="-x $sparse_map"
+fi
+
+merge_cmd=""
+if [[ $no_merge_segments == true ]]; then
+    merge_cmd=-M
+    paf_spec="$paf_spec"-M
+fi
+
+if [[ $exclude_delim != false ]]; then
+    exclude_cmd="-Y "$exclude_delim
+    paf_spec="$paf_spec"-Y
+else
+    exclude_cmd=-X
+    paf_spec="$paf_spec"-X
+fi
+
+if [[ "$input_paf" == false ]]; then
+    prefix_paf="$input_fasta".$(echo "$paf_spec" | sha256sum | head -c 7)
+else
+    prefix_paf="$input_paf"
+fi
+
+
+# Graph induction
+prefix_seqwish="$prefix_paf".$(echo k$min_match_length-f$sparse_factor-B$transclose_batch | sha256sum | head -c 7)
+
+# poa param suggestions from minimap2
+# - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
+# - asm10, --poa-params 1,9,16,2,41,1, ~1 divergence
+# - asm20, --poa-params 1,4,6,2,26,1, ~5% divergence
+# between asm10 and asm20 ~ 1,7,11,2,33,1
+poa_params_cmd=""
+if [[ $poa_params == false ]]; then
+    poa_params_cmd="-P 1,19,39,3,81,1"
+else
+    if [[ $poa_params == "asm5" ]]; then
+        poa_params_cmd="-P 1,19,39,3,81,1"
+    elif [[ $poa_params == "asm10" ]]; then
+        poa_params_cmd="-P 1,9,16,2,41,1"
+    elif [[ $poa_params == "asm15" ]]; then
+        poa_params_cmd="-P 1,7,11,2,33,1"
+    elif [[ $poa_params == "asm20" ]]; then
+        poa_params_cmd="-P 1,4,6,2,26,1"
+    else
+        poa_params_cmd="-P $poa_params"
+    fi
+fi
+
+block_id_min=$(echo "scale=4; $map_pct_id / 100.0" | bc)
+prefix_smoothed="$prefix_seqwish".$(echo h$n_haps-G$target_poa_length-j$max_path_jump-e$max_edge_jump-d$pad_max_depth-I$block_id_min-R$block_ratio_min-p$poa_params-O$poa_padding | sha256sum | head -c 7).smooth
+prefix_smoothed_output="$prefix_smoothed"
+
+
+fmt="%C\n%Us user %Ss system %P cpu %es total %MKb max memory"
+timer=$(which time)
+
+
+# Directories
+if [ ! -e "$output_dir" ]; then
+  mkdir "$output_dir"
+fi
+prefix_paf="$output_dir"/$(basename "$prefix_paf")
+prefix_smoothed_output="$output_dir"/$(basename "$prefix_smoothed")
+
+# If the temporary directory is not explicitly set, set it equal to the output directory
+if [[ "$temp_dir" == false ]]; then
+  temp_dir="$output_dir" # NOTE: the output directory always exists before this statement
+fi
+temp_dir_was_created=false
+if [ ! -e "$temp_dir" ]; then
+  mkdir "$temp_dir"
+  temp_dir_was_created=true
+fi
+prefix_mappings_paf="$temp_dir"/$(basename "$prefix_paf")
+prefix_seqwish="$temp_dir"/$(basename "$prefix_seqwish")
+prefix_smoothed="$temp_dir"/$(basename "$prefix_smoothed")
+
+
+date=`date "+%m-%d-%Y_%H:%M:%S"`
+log_file="$prefix_smoothed_output".$date.log
+param_file="$prefix_smoothed_output".$date.params.yml
+
+# write parameters to log_file:
+echo -e "Starting pggb on $date\n" > "$log_file"
+echo -e "Command: $cmd\n" >> "$log_file"
+echo -e "PARAMETERS\n" >> "$log_file"
+cat <<EOT | tee -a "$log_file" "$param_file" >/dev/null
+general:
+  input-fasta:        $input_fasta
+  output-dir:         $output_dir
+  temp-dir:           $temp_dir
+  resume:             $resume
+  compress:           $compress
+  threads:            $threads
+  poa_threads:        $poa_threads
+wfmash:
+  mapping-tool:       $mapper
+  segment-length:     $segment_length
+  block-length:       $block_length
+  map-pct-id:         $map_pct_id
+  n-mappings:         $n_mappings
+  no-splits:          $no_splits
+  sparse-map:         $sparse_map
+  mash-kmer:          $mash_kmer
+  mash-kmer-thres:    $mash_kmer_thres
+  exclude-delim:      $exclude_delim
+  no-merge-segments:  $no_merge_segments
+seqwish:
+  min-match-len:      $min_match_length
+  sparse-factor:      $sparse_factor
+  transclose-batch:   $transclose_batch
+smoothxg:
+  n-haps:             $n_haps
+  path-jump-max:      $max_path_jump
+  edge-jump-max:      $max_edge_jump
+  poa-length-target:  $target_poa_length
+  poa-params:         ${poa_params_cmd:3}
+  poa_padding:        $poa_padding
+  run_abpoa:          $run_abpoa
+  run_global_poa:     $run_global_poa
+  pad-max-depth:      $pad_max_depth
+  write-maf:          $write_maf
+  consensus-spec:     $consensus_spec
+  consensus-prefix:   $consensus_prefix
+  block-id-min:       $block_id_min
+  block-ratio-min:    $block_ratio_min
+odgi:
+  viz:                $do_viz
+  layout:             $do_layout
+  stats:              $do_stats
+gfaffix:
+  normalize:          $normalize
+vg:
+  deconstruct:        $vcf_spec
+reporting:
+  multiqc:            $multiqc
+EOT
+
+#-------------------------------------------------------------------------------
+echo -e "\nRunning partitioning\n" >> "$log_file"
+if [[ "$input_paf" == false ]]; then
+  if [[ ! -s "$prefix_paf".mappings.$mapper.paf || $resume == false ]]; then
+    ($timer -f "$fmt" wfmash \
+        -s $segment_length \
+        -l $block_length \
+        -p $map_pct_id \
+        -n $n_mappings_minus_1 \
+        $split_cmd \
+        $sparse_map_cmd \
+        -k $mash_kmer \
+        -H $mash_kmer_thres \
+        $exclude_cmd \
+        -t $threads \
+        --tmp-base $temp_dir \
+        $merge_cmd \
+        "$input_fasta" \
+        --approx-map \
+        > "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
+    fi
+fi
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+if [[ ! -s "$prefix_mappings_paf".mappings.$mapper.paf.edges.list.txt \
+  || ! -s "$prefix_mappings_paf".mappings.$mapper.paf.edges.weights.txt \
+  || ! -s "$prefix_mappings_paf".mappings.$mapper.paf.vertices.id2name.txt
+  || $resume == false ]]; then
+  python3 "$SCRIPT_DIR"/scripts/paf2net.py -p "$prefix_mappings_paf".mappings.$mapper.paf
+fi
+
+#ToDo if not exist what????
+python3 "$SCRIPT_DIR"/scripts/net2communities.py \
+    -e "$prefix_mappings_paf".mappings.$mapper.paf.edges.list.txt \
+    -w "$prefix_mappings_paf".mappings.$mapper.paf.edges.weights.txt \
+    -n "$prefix_mappings_paf".mappings.$mapper.paf.vertices.id2name.txt \
+    --accurate-detection --output-prefix "$prefix_paf"
+
+params=""
+if [[ $no_splits != false ]]; then
+  params="$params --no-splits"
+fi
+if [[ $sparse_map != false ]]; then
+  params="$params -x $sparse_map"
+fi
+if [[ $exclude_delim != false ]]; then
+  params="$params -Y $exclude_delim"
+fi
+if [[ $run_abpoa != false ]]; then
+  params="$params --run-abpoa"
+fi
+if [[ $run_global_poa != false ]]; then
+  params="$params --global-poa"
+fi
+if [[ $write_maf != false ]]; then
+  params="$params -m $write_maf"
+fi
+#consensus_spec=false # Disabled due to PGGB's #133 and #182 issuesecho "PGGB $params"
+if [[ $do_viz != true || $do_layout != true ]]; then
+  params="$params --skip-viz"
+fi
+if [[ $run_abpoa != false ]]; then
+  params="$params --do-stats"
+fi
+if [[ $vcf_spec != false ]]; then
+  params="$params -V $vcf_spec"
+fi
+if [[ $multiqc != false ]]; then
+  params="$params --multiqc"
+fi
+# the output directory will be set for each community
+params="$params --temp-dir $temp_dir" # todo if specified, the same for all communities
+if [[ $input_paf != false ]]; then
+  params="$params -a $input_paf"
+fi
+if [[ $resume != false ]]; then
+  params="$params --resume"
+fi
+params="$params --threads $threads"
+params="$params --poa-threads $poa_threads"
+if [[ $keep_intermediate_files != false ]]; then
+  params="$params --keep-temp-file"
+fi
+if [[ $compress != false ]]; then
+  params="$params --compress"
+fi
+
+ls "$prefix_paf".community.*.txt | while read community; do
+  samtools faidx "$input_fasta" $(cat "$community") | \
+    bgzip -@ "$threads" -c > "$community".fa.gz
+  samtools faidx "$community".fa.gz
+done
+
+ls "$prefix_paf".community.*.txt | while read community; do
+  echo "pggb -i $community.fa.gz \\"
+  echo "     -o $community.out \\"
+  echo "     -p $segment_length -l $block_length -p $map_pct_id -n $n_mappings -K $mash_kmer -F $mash_kmer_thres \\"
+  echo "     -k $min_match_length -f $sparse_factor -B $transclose_batch \\"
+  echo "     -H $n_haps -j $max_path_jump -e $max_edge_jump -G $target_poa_length -P $poa_params -O $poa_padding -d $pad_max_depth -Q $consensus_prefix \\"
+  echo "    $params"
+done
+
+#todo manage compression
+#todo manage temporary files cleaning
+#-------------------------------------------------------------------------------
+
+if [[ $keep_intermediate_files == true ]]; then
+  if [[ "$output_dir" != "$temp_dir" ]]; then
+    # `|| true` to avoid `mv` fail if there are missing files to move
+    mv -f "$prefix_mappings_paf".mappings.$mapper.paf "$output_dir" 2> /dev/null || true
+    mv -f "$prefix_seqwish".seqwish.{gfa,og} "$output_dir" 2> /dev/null || true
+    mv -f "$prefix_seqwish".*.prep.gfa "$output_dir" 2> /dev/null || true
+    mv -f "$prefix_smoothed".[0-9]*.{gfa,og} "$output_dir" 2> /dev/null || true
+    mv -f "$prefix_smoothed".fix.gfa "$output_dir" 2> /dev/null || true
+
+    if [[ $normalize == true ]]; then
+      mv -f "$prefix_smoothed".{gfa,og} "$output_dir" 2> /dev/null || true
+    fi
+
+    # Since these temporary files have just been moved to a different folder
+    prefix_seqwish="$output_dir"/$(basename "$prefix_seqwish")
+    prefix_smoothed="$output_dir"/$(basename "$prefix_smoothed")
+  fi
+else
+  rm -f "$prefix_seqwish".seqwish.{gfa,og}
+  rm -f "$prefix_smoothed".[0-9]*.{gfa,og}
+
+  if [[ $normalize == true ]]; then
+    rm -f "$prefix_smoothed".{gfa,og}
+    rm -f "$prefix_smoothed".fix.gfa
+  fi
+fi
+
+if [[ $temp_dir_was_created == true ]]; then
+  rm -r "$temp_dir"
+fi
+
+if [[ $compress == true ]]; then
+    if [[ $input_paf == false ]]; then
+        pigz -f -q -p $threads "$prefix_paf"*.paf -v
+    fi
+    pigz -f -q -p $threads "$prefix_seqwish"*.{gfa,og} -v
+    if [[ $write_maf != false ]]; then
+      pigz -f -q -p $threads "$prefix_seqwish"*.maf -v
+    fi
+    if [[ $vcf_spec != false ]]; then
+      ls "$prefix_seqwish"*.vcf | while read f; do bgzip "$f" -f -@ $threads; done
+    fi
+    if [[ $do_layout == true ]]; then
+        pigz -f -q -p $threads "$prefix_smoothed_output".final.og.lay.tsv -v
+    fi
+fi
