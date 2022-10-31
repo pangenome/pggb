@@ -258,6 +258,11 @@ if [[ $no_splits == true ]]; then
     paf_spec="$paf_spec"-N
 fi
 
+# Normalization (in this part of the code because $n_haps is used for the 'auto' mapping sparsification)
+if [[ $n_haps == false ]]; then
+    n_haps=$n_mappings
+fi
+
 sparse_map_cmd=""
 if [[ $sparse_map == "auto" ]]; then
     # set sparse mapping using giant component heuristic
@@ -293,11 +298,6 @@ fi
 
 # Graph induction
 prefix_seqwish="$prefix_paf".$(echo k$min_match_length-f$sparse_factor-B$transclose_batch | sha256sum | head -c 7)
-
-# Normalization
-if [[ $n_haps == false ]]; then
-    n_haps=$n_mappings
-fi
 
 # poa param suggestions from minimap2
 # - asm5, --poa-params 1,19,39,3,81,1, ~0.1 divergence
