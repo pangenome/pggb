@@ -72,7 +72,7 @@ THREADS=$(getconf _NPROCESSORS_ONLN 2>/dev/null || getconf NPROCESSORS_ONLN 2>/d
 
 # general parameters
 output_dir=$OUTPUT_DIR
-temp_dir=false
+input_temp_dir=false
 input_paf=false
 resume=false
 threads=$THREADS
@@ -130,7 +130,7 @@ while true ; do
         -V|--vcf-spec) vcf_spec=$2 ; shift 2 ;;
         -m|--multiqc) multiqc=true ; shift ;;
         -o|--output-dir) output_dir=$2 ; shift 2 ;;
-        -D|--temp-dir) temp_dir=$2 ; shift 2 ;;
+        -D|--temp-dir) input_temp_dir=$2 ; shift 2 ;;
         -a|--input-paf) input_paf=$2 ; shift 2 ;;
         -r|--resume) resume=true ; shift ;;
         -t|--threads) threads=$2 ; shift 2 ;;
@@ -338,8 +338,10 @@ prefix_paf="$output_dir"/$(basename "$prefix_paf")
 prefix_smoothed_output="$output_dir"/$(basename "$prefix_smoothed")
 
 # If the temporary directory is not explicitly set, set it equal to the output directory
-if [[ "$temp_dir" == false ]]; then
+if [[ "$input_temp_dir" == false ]]; then
   temp_dir="$output_dir" # NOTE: the output directory always exists before this statement
+else
+  temp_dir="$input_temp_dir"
 fi
 temp_dir_was_created=false
 if [ ! -e "$temp_dir" ]; then
