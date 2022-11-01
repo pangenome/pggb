@@ -44,7 +44,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout e7ab130028ddafb587c29c302ec62cfb63a8569e \
+    && git checkout cf9bfb0ef9fe5b973b91ee3aa649533df7521557 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native//g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
@@ -65,7 +65,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 1c0b6395743c2aac398919490f86e0c87ccc375e \
+    && git checkout 478941826b0ef6a2570acc308312f6b209c16c97 \
     && git submodule update --init --recursive \
     && sed -i 's/-msse4.1/-march=haswell/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=haswell/g' deps/spoa/CMakeLists.txt \
@@ -105,7 +105,7 @@ RUN git clone https://github.com/pangenome/vcfbub \
 
 RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && cd vcflib \
-    && git checkout 6dbe2f656730fc6240f0c2866446ed8a1c344efd \
+    && git checkout d6e2400923402d2f41db6040a9c91bff6930c4e3 \
     && mkdir -p build \
     && cd build \
     && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . -- -j $(nproc) \
@@ -114,8 +114,8 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && rm -rf vcflib
 
 # Community detection dependencies
-RUN pip install igraph==0.9.10
-RUN pip install pycairo==1.16.2
+RUN pip install igraph==0.10.2
+RUN pip install pycairo==1.20.1
 
 # Additional tools
 RUN git clone https://github.com/ekg/fastix.git \
