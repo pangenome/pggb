@@ -55,9 +55,9 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout f3af892fefe83c04389253a99a41b267decdc1c6 \
+    && git checkout 3dc2a43ae32cd823875dc583e0e064ba1179f725 \
     && git submodule update --init --recursive \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=haswell' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
     && cd ../ \
     && rm -rf seqwish
