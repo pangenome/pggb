@@ -42,6 +42,7 @@ PAD_MAX_DEPTH=100
 CONSENSUS_PREFIX=Consensus_
 
 # smoothxg's parameters
+skip_normalization=false
 n_haps=false
 max_path_jump=$MAX_PATH_JUMP
 max_edge_jump=$MAX_EDGE_JUMP
@@ -85,7 +86,7 @@ show_help=false
 # not exposed parameters
 no_merge_segments=false
 block_ratio_min=0
-normalize=true
+reduce_redundancy=true
 
 
 if [ $# -eq 0 ]; then
@@ -94,7 +95,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:XH:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,skip-normalization,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -113,6 +114,7 @@ while true ; do
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -f|--sparse-factor) sparse_factor=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
+        -X|--skip-normalization) skip_normalization=true ; shift ;;
         -H|--n-haplotypes-smooth) n_haps=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
@@ -174,6 +176,7 @@ if [ $show_help == true ]; then
     echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
+    echo "    -X, --skip-normalization    do not normalize the final graph [default: normalize the graph]"
     echo "    -H, --n-haplotypes-smooth N number of haplotypes, if different than that set with -n [default: -n]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
@@ -391,6 +394,7 @@ seqwish:
   sparse-factor:      $sparse_factor
   transclose-batch:   $transclose_batch
 smoothxg:
+  skip-normalization: $skip_normalization
   n-haps:             $n_haps
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
@@ -410,7 +414,7 @@ odgi:
   layout:             $do_layout
   stats:              $do_stats
 gfaffix:
-  normalize:          $normalize
+  reduce-redundancy:  $reduce_redundancy
 vg:
   deconstruct:        $vcf_spec
 reporting:
@@ -486,6 +490,9 @@ if [[ $sparse_map != false ]]; then
 fi
 if [[ $exclude_delim != false ]]; then
   params="$params -Y $exclude_delim"
+fi
+if [[ $skip_normalization != false ]]; then
+  params="$params --skip-normalization"
 fi
 if [[ $run_abpoa != false ]]; then
   params="$params --run-abpoa"

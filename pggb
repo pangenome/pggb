@@ -42,6 +42,7 @@ PAD_MAX_DEPTH=100
 CONSENSUS_PREFIX=Consensus_
 
 # smoothxg's parameters
+skip_normalization=false
 n_haps=false
 max_path_jump=$MAX_PATH_JUMP
 max_edge_jump=$MAX_EDGE_JUMP
@@ -85,7 +86,7 @@ show_help=false
 # not exposed parameters
 no_merge_segments=false
 block_ratio_min=0
-normalize=true
+reduce_redundancy=true
 
 
 if [ $# -eq 0 ]; then
@@ -94,7 +95,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:H:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:XH:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,skip-normalization,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,do-stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -113,6 +114,7 @@ while true ; do
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -f|--sparse-factor) sparse_factor=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
+        -X|--skip-normalization) skip_normalization=true ; shift ;;
         -H|--n-haplotypes-smooth) n_haps=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
@@ -174,6 +176,7 @@ if [ $show_help == true ]; then
     echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: 10000000]"
     echo "   [smoothxg]"
+    echo "    -X, --skip-normalization    do not normalize the final graph [default: normalize the graph]"
     echo "    -H, --n-haplotypes-smooth N number of haplotypes, if different than that set with -n [default: -n]"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: 0]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: 0 / off]"
@@ -390,6 +393,7 @@ seqwish:
   sparse-factor:      $sparse_factor
   transclose-batch:   $transclose_batch
 smoothxg:
+  skip-normalization: $skip_normalization
   n-haps:             $n_haps
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
@@ -409,7 +413,7 @@ odgi:
   layout:             $do_layout
   stats:              $do_stats
 gfaffix:
-  normalize:          $normalize
+  reduce-redundancy:  $reduce_redundancy
 vg:
   deconstruct:        $vcf_spec
 reporting:
@@ -480,102 +484,106 @@ if [[ ! -s $prefix_seqwish.seqwish.gfa || $resume == false ]]; then
         2> >(tee -a "$log_file")
 fi
 
-if [[ $consensus_spec != false ]]; then
-    # for merging consensus (currently problematic) we should add "-M -J 1 -G 150" here
-    consensus_params="-C ${prefix_smoothed_output}.cons,$consensus_spec"
+if [[ $skip_normalization == false ]]; then
+  if [[ $consensus_spec != false ]]; then
+      # for merging consensus (currently problematic) we should add "-M -J 1 -G 150" here
+      consensus_params="-C ${prefix_smoothed_output}.cons,$consensus_spec"
+  else
+      consensus_params="-V"
+  fi
+
+  if [[ $write_maf != false ]]; then
+      maf_params="-m ${prefix_smoothed_output}.maf"
+  fi
+
+  keep_temp_cmd=""
+  if [[ $keep_intermediate_files == true ]]; then
+      keep_temp_cmd="-K"
+  fi
+
+  smoothxg_xpoa_cmd="-S"
+  if [[ "$run_abpoa" == true ]]; then
+    smoothxg_xpoa_cmd=""
+  fi
+
+  smoothxg_poa_mode_cmd=""
+  if [[ "$run_global_poa" == true ]]; then
+    smoothxg_poa_mode_cmd="-Z"
+  fi
+
+  # how many times will we smooth?
+  smooth_iterations=$(echo "$target_poa_length" | tr ',' '\n' | wc -l)
+
+  for i in $(seq 1 $smooth_iterations);
+  do
+      input_gfa="$prefix_seqwish".seqwish.gfa
+      if [[ $i != 1 ]]; then
+          input_gfa="$prefix_smoothed".$(echo $i - 1 | bc).gfa
+      fi
+      if [[ $i != "$smooth_iterations" ]]; then
+          if [[ ! -s $prefix_smoothed.$i.gfa || $resume == false ]]; then
+              resume=false # smoothxg is not deterministic, then all subsequent steps need to be rerun for consistency
+
+              poa_length=$(echo $target_poa_length | cut -f $i -d, )
+              $timer -f "$fmt" smoothxg \
+                     -t $threads \
+                     -T $poa_threads \
+                     -g "$input_gfa" \
+                     -w $(echo "$poa_length * $n_haps" | bc) \
+                     --base "$temp_dir" \
+                     $keep_temp_cmd \
+                     --chop-to 100 \
+                     -I $block_id_min \
+                     -R $block_ratio_min \
+                     -j $max_path_jump \
+                     -e $max_edge_jump \
+                     -l $poa_length \
+                     $poa_params_cmd \
+                     -O $poa_padding \
+                     -Y $(echo "$pad_max_depth * $n_haps" | bc) \
+                     -d 0 -D 0 \
+                     $smoothxg_xpoa_cmd $smoothxg_poa_mode_cmd \
+                     -V \
+                     -o "$prefix_smoothed".$i.gfa \
+                     2> >(tee -a "$log_file")
+          fi
+      else
+          if [[ ! -s $prefix_smoothed.gfa || ($write_maf != false && ! -s ${prefix_smoothed_output}.maf) || $resume == false ]]; then
+              resume=false # smoothxg is not deterministic, then all subsequent steps need to be rerun for consistency
+
+              poa_length=$(echo $target_poa_length | cut -f $i -d, )
+              $timer -f "$fmt" smoothxg \
+                     -t $threads \
+                     -T $poa_threads \
+                     -g "$input_gfa" \
+                     -w $(echo "$poa_length * $n_haps" | bc) \
+                     --base "$temp_dir" \
+                     $keep_temp_cmd \
+                     --chop-to 100 \
+                     -I $block_id_min \
+                     -R $block_ratio_min \
+                     -j $max_path_jump \
+                     -e $max_edge_jump \
+                     -l $poa_length \
+                     $poa_params_cmd \
+                     -O $poa_padding \
+                     -Y $(echo "$pad_max_depth * $n_haps" | bc) \
+                     -d 0 -D 0 \
+                     $smoothxg_xpoa_cmd $smoothxg_poa_mode_cmd \
+                     $maf_params \
+                     -Q "$consensus_prefix" \
+                     $consensus_params \
+                     -o "$prefix_smoothed".gfa \
+                     2> >(tee -a "$log_file")
+          fi
+      fi
+  done
 else
-    consensus_params="-V"
+  mv "$prefix_seqwish".seqwish.gfa "$prefix_smoothed".gfa
 fi
 
-if [[ $write_maf != false ]]; then
-    maf_params="-m ${prefix_smoothed_output}.maf"
-fi
-
-keep_temp_cmd=""
-if [[ $keep_intermediate_files == true ]]; then
-    keep_temp_cmd="-K"
-fi
-
-smoothxg_xpoa_cmd="-S"
-if [[ "$run_abpoa" == true ]]; then
-  smoothxg_xpoa_cmd=""
-fi
-
-smoothxg_poa_mode_cmd=""
-if [[ "$run_global_poa" == true ]]; then
-  smoothxg_poa_mode_cmd="-Z"
-fi
-
-# how many times will we smooth?
-smooth_iterations=$(echo "$target_poa_length" | tr ',' '\n' | wc -l)
-
-for i in $(seq 1 $smooth_iterations);
-do
-    input_gfa="$prefix_seqwish".seqwish.gfa
-    if [[ $i != 1 ]]; then
-        input_gfa="$prefix_smoothed".$(echo $i - 1 | bc).gfa
-    fi
-    if [[ $i != "$smooth_iterations" ]]; then
-        if [[ ! -s $prefix_smoothed.$i.gfa || $resume == false ]]; then
-            resume=false # smoothxg is not deterministic, then all subsequent steps need to be rerun for consistency
-
-            poa_length=$(echo $target_poa_length | cut -f $i -d, )
-            $timer -f "$fmt" smoothxg \
-                   -t $threads \
-                   -T $poa_threads \
-                   -g "$input_gfa" \
-                   -w $(echo "$poa_length * $n_haps" | bc) \
-                   --base "$temp_dir" \
-                   $keep_temp_cmd \
-                   --chop-to 100 \
-                   -I $block_id_min \
-                   -R $block_ratio_min \
-                   -j $max_path_jump \
-                   -e $max_edge_jump \
-                   -l $poa_length \
-                   $poa_params_cmd \
-                   -O $poa_padding \
-                   -Y $(echo "$pad_max_depth * $n_haps" | bc) \
-                   -d 0 -D 0 \
-                   $smoothxg_xpoa_cmd $smoothxg_poa_mode_cmd \
-                   -V \
-                   -o "$prefix_smoothed".$i.gfa \
-                   2> >(tee -a "$log_file")
-        fi
-    else
-        if [[ ! -s $prefix_smoothed.gfa || ($write_maf != false && ! -s ${prefix_smoothed_output}.maf) || $resume == false ]]; then
-            resume=false # smoothxg is not deterministic, then all subsequent steps need to be rerun for consistency
-
-            poa_length=$(echo $target_poa_length | cut -f $i -d, )
-            $timer -f "$fmt" smoothxg \
-                   -t $threads \
-                   -T $poa_threads \
-                   -g "$input_gfa" \
-                   -w $(echo "$poa_length * $n_haps" | bc) \
-                   --base "$temp_dir" \
-                   $keep_temp_cmd \
-                   --chop-to 100 \
-                   -I $block_id_min \
-                   -R $block_ratio_min \
-                   -j $max_path_jump \
-                   -e $max_edge_jump \
-                   -l $poa_length \
-                   $poa_params_cmd \
-                   -O $poa_padding \
-                   -Y $(echo "$pad_max_depth * $n_haps" | bc) \
-                   -d 0 -D 0 \
-                   $smoothxg_xpoa_cmd $smoothxg_poa_mode_cmd \
-                   $maf_params \
-                   -Q "$consensus_prefix" \
-                   $consensus_params \
-                   -o "$prefix_smoothed".gfa \
-                   2> >(tee -a "$log_file")
-        fi
-    fi
-done
-
-if [[ $normalize == true ]]; then
-    # Remove redundancy
+if [[ $reduce_redundancy == true ]]; then
+    # Collapse redundant nodes where possible
     if [[ ! -s "$prefix_smoothed_output".fix.gfa || ! -s "$prefix_smoothed_output".fix.affixes.tsv.gz || $resume == false ]]; then
       ( $timer -f "$fmt" gfaffix "$prefix_smoothed".gfa -o "$prefix_smoothed".fix.gfa | $timer -f "$fmt" pigz > "$prefix_smoothed_output".fix.affixes.tsv.gz ) 2> >(tee -a "$log_file")
     fi
