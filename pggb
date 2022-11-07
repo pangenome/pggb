@@ -86,7 +86,7 @@ show_help=false
 # not exposed parameters
 no_merge_segments=false
 block_ratio_min=0
-normalize=true
+reduce_redundancy=true
 
 
 if [ $# -eq 0 ]; then
@@ -413,7 +413,7 @@ odgi:
   layout:             $do_layout
   stats:              $do_stats
 gfaffix:
-  normalize:          $normalize
+  reduce-redundancy:  $reduce_redundancy
 vg:
   deconstruct:        $vcf_spec
 reporting:
@@ -582,8 +582,8 @@ else
   mv "$prefix_seqwish".seqwish.gfa "$prefix_smoothed".gfa
 fi
 
-if [[ $normalize == true ]]; then
-    # Remove redundancy
+if [[ $reduce_redundancy == true ]]; then
+    # Collapse redundant nodes where possible
     if [[ ! -s "$prefix_smoothed_output".fix.gfa || ! -s "$prefix_smoothed_output".fix.affixes.tsv.gz || $resume == false ]]; then
       ( $timer -f "$fmt" gfaffix "$prefix_smoothed".gfa -o "$prefix_smoothed".fix.gfa | $timer -f "$fmt" pigz > "$prefix_smoothed_output".fix.affixes.tsv.gz ) 2> >(tee -a "$log_file")
     fi

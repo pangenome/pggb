@@ -86,7 +86,7 @@ show_help=false
 # not exposed parameters
 no_merge_segments=false
 block_ratio_min=0
-normalize=true
+reduce_redundancy=true
 
 
 if [ $# -eq 0 ]; then
@@ -414,7 +414,7 @@ odgi:
   layout:             $do_layout
   stats:              $do_stats
 gfaffix:
-  normalize:          $normalize
+  reduce-redundancy:  $reduce_redundancy
 vg:
   deconstruct:        $vcf_spec
 reporting:
