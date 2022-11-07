@@ -393,7 +393,7 @@ seqwish:
   sparse-factor:      $sparse_factor
   transclose-batch:   $transclose_batch
 smoothxg:
-  skip-smoothxg:      $skip_normalization
+  skip-normalization: $skip_normalization
   n-haps:             $n_haps
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
