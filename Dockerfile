@@ -46,7 +46,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
     && git pull \
     && git checkout cf9bfb0ef9fe5b973b91ee3aa649533df7521557 \
     && git submodule update --init --recursive \
-    && sed -i 's/-march=native//g' src/common/wflign/deps/WFA2-lib/Makefile \
+    && sed -i 's/-march=native/-march=haswell/g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     && cd ../ \
