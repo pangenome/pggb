@@ -787,10 +787,11 @@ if [[ $keep_intermediate_files == true ]]; then
     mv -f "$prefix_mappings_paf".mappings.$mapper.paf "$output_dir" 2> /dev/null || true
     mv -f "$prefix_seqwish".seqwish.{gfa,og} "$output_dir" 2> /dev/null || true
     mv -f "$prefix_seqwish".*.prep.gfa "$output_dir" 2> /dev/null || true
-    mv -f "$prefix_smoothed".[0-9]*.{gfa,og} "$output_dir" 2> /dev/null || true
+
+    mv -f "$prefix_seqwish".seqwish.gfa.smooth.[0-9].{gfa,og} "$output_dir" 2> /dev/null || true
     mv -f "$prefix_smoothed".fix.gfa "$output_dir" 2> /dev/null || true
 
-    if [[ $normalize == true ]]; then
+    if [[ $reduce_redundancy == true ]]; then
       mv -f "$prefix_smoothed".{gfa,og} "$output_dir" 2> /dev/null || true
     fi
 
@@ -801,9 +802,9 @@ if [[ $keep_intermediate_files == true ]]; then
 else
   rm -f "$prefix_mappings_paf".mappings.$mapper.paf
   rm -f "$prefix_seqwish".seqwish.{gfa,og}
-  rm -f "$prefix_smoothed".[0-9]*.{gfa,og}
+  rm -f "$prefix_seqwish".seqwish.gfa.smooth.[0-9].{gfa,og}
 
-  if [[ $normalize == true ]]; then
+  if [[ $reduce_redundancy == true ]]; then
     rm -f "$prefix_smoothed".{gfa,og}
     rm -f "$prefix_smoothed".fix.gfa
   fi
