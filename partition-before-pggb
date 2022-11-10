@@ -425,6 +425,7 @@ vg:
   version:            $(vg version | head -n 1 | cut -f 3 -d ' ')
   deconstruct:        $vcf_spec
 reporting:
+  version:            v$(multiqc --version | cut -f 3 -d ' ')
   multiqc:            $multiqc
 EOT
 
