@@ -44,7 +44,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout cf9bfb0ef9fe5b973b91ee3aa649533df7521557 \
+    && git checkout 5791c12591bb0445c28e39c8bf19ac23aa366a06 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
@@ -55,7 +55,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout 3dc2a43ae32cd823875dc583e0e064ba1179f725 \
+    && git checkout f362f6f5ea89dbb6a0072a8b8ba215e663301d33 \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=haswell' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
@@ -65,7 +65,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 478941826b0ef6a2570acc308312f6b209c16c97 \
+    && git checkout 0c04e302d2c2c0c6a01dbd1519870d2bf986733f \
     && git submodule update --init --recursive \
     && sed -i 's/-msse4.1/-march=haswell/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=haswell/g' deps/spoa/CMakeLists.txt \
@@ -84,7 +84,7 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout 5412bb1571ad22a72c374a628a097322d8303758 \
+    && git checkout ff282ca53ed53337e22eabc3b41e86df6ca0dc66 \
     && cargo install --force --path . \
     && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix \
     && cd ../ \
@@ -105,7 +105,7 @@ RUN git clone https://github.com/pangenome/vcfbub \
 
 RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && cd vcflib \
-    && git checkout d6e2400923402d2f41db6040a9c91bff6930c4e3 \
+    && git checkout 8ec06d899492738e7db21bfb1168273afdaaf1fb \
     && mkdir -p build \
     && cd build \
     && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . -- -j $(nproc) \

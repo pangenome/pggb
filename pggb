@@ -149,7 +149,7 @@ done
 if [ $show_version == true ]; then
     SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
     cd "$SCRIPT_DIR"
-    GIT_VERSION=$(git describe --always --tags)
+    GIT_VERSION=$(git describe --always --tags --long)
     echo "pggb $GIT_VERSION"
     cd - &> /dev/null
     exit
@@ -245,9 +245,11 @@ fi
 # Alignment
 if [[ $input_paf == false ]]; then
   mapper=wfmash
+  mapper_version=$(wfmash --version 2>&1)
   mapper_letter='W'
 else
   mapper=external
+  mapper_version=unknown
   mapper_letter='E'
 fi
 
@@ -376,8 +378,8 @@ general:
   compress:           $compress
   threads:            $threads
   poa_threads:        $poa_threads
-wfmash:
-  mapping-tool:       $mapper
+$mapper:
+  version:            $mapper_version
   segment-length:     $segment_length
   block-length:       $block_length
   map-pct-id:         $map_pct_id
@@ -389,10 +391,12 @@ wfmash:
   exclude-delim:      $exclude_delim
   no-merge-segments:  $no_merge_segments
 seqwish:
+  version:            $(seqwish --version 2>&1)
   min-match-len:      $min_match_length
   sparse-factor:      $sparse_factor
   transclose-batch:   $transclose_batch
 smoothxg:
+  version:            $(smoothxg --version 2>&1)
   skip-normalization: $skip_normalization
   n-haps:             $n_haps
   path-jump-max:      $max_path_jump
@@ -409,14 +413,18 @@ smoothxg:
   block-id-min:       $block_id_min
   block-ratio-min:    $block_ratio_min
 odgi:
+  version:            $(odgi version -v 2>&1)
   viz:                $do_viz
   layout:             $do_layout
   stats:              $do_stats
 gfaffix:
+  version:            v$(gfaffix --version | cut -f 2 -d ' ')
   reduce-redundancy:  $reduce_redundancy
 vg:
+  version:            $(vg version | head -n 1 | cut -f 3 -d ' ')
   deconstruct:        $vcf_spec
 reporting:
+  version:            v$(multiqc --version | cut -f 3 -d ' ')
   multiqc:            $multiqc
 EOT
 
