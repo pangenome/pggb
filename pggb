@@ -149,7 +149,7 @@ done
 if [ $show_version == true ]; then
     SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
     cd "$SCRIPT_DIR"
-    GIT_VERSION=$(git describe --always --tags)
+    GIT_VERSION=$(git describe --always --tags --long)
     echo "pggb $GIT_VERSION"
     cd - &> /dev/null
     exit
