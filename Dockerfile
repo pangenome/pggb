@@ -44,7 +44,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 5791c12591bb0445c28e39c8bf19ac23aa366a06 \
+    && git checkout cb0ce952a9bec3f2c8c78b98679375e5275e05db \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=haswell/g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
@@ -90,7 +90,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd ../ \
     && rm -rf GFAffix
 
-RUN pip install multiqc==1.11
+RUN pip install multiqc==1.13
 
 RUN wget https://github.com/vgteam/vg/releases/download/v1.40.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
