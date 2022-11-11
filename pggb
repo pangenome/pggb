@@ -467,7 +467,7 @@ if [[ "$input_paf" == false ]]; then
         --tmp-base $temp_dir \
         $merge_cmd \
         "$input_fasta" \
-        -i "$prefix_mappings_paf".mappings.$mapper.paf \
+        -i "$prefix_mappings_paf".mappings.$mapper.paf --invert-filtering \
         > "$prefix_paf".alignments.$mapper.paf) 2> >(tee -a "$log_file")
   fi
 fi
