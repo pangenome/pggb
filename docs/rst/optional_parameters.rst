@@ -38,10 +38,9 @@ This depends on a sorting pipeline implemented in ` odgi <https://github.com/pan
     - ``-O[N], --poa-padding=[N]`` padding length of each sequence in POA
 
 The length of these sub-problems greatly affects the total time and memory requirements of ``pggb``, and is defined by ``-G, --poa-length-target N,M``.
-Two passes of refinement are defined by lengths ``N`` and ``M``.
+Several passes of refinement can be defined by lengths ``N``, ``M``, and so on.
 Ideally, this target can be set above the length of transposon repeats in the pangenome, and base-level graph quality tends to improve as it is set higher.
-The default setting of ``-G 13117,13219`` makes sense for lower-diversity pangenomes, but can require several GB of RAM per thread.
-A setting like ``-G 3079,3559`` will be significantly faster and memory friendlier.
+Higher ``-G`` values makes sense for lower-diversity pangenomes, but can require several GB of RAM per thread.
 
 Other parameters to `smoothxg` help to shape the scope and boundaries of the blocks.
 `smoothxg` greedily extends candidate blocks until they contain `-w[N], --max-block-weight=[N]` bp of sequence in the embedded paths.
