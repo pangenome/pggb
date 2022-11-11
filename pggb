@@ -519,73 +519,33 @@ if [[ $skip_normalization == false ]]; then
     smoothxg_poa_mode_cmd="-Z"
   fi
 
-  # how many times will we smooth?
-  smooth_iterations=$(echo "$target_poa_length" | tr ',' '\n' | wc -l)
+  if [[ ! -s $prefix_smoothed.gfa || ($write_maf != false && ! -s ${prefix_smoothed_output}.maf) || $resume == false ]]; then
+      resume=false # smoothxg is not deterministic, then all subsequent steps need to be rerun for consistency
 
-  for i in $(seq 1 $smooth_iterations);
-  do
-      input_gfa="$prefix_seqwish".seqwish.gfa
-      if [[ $i != 1 ]]; then
-          input_gfa="$prefix_smoothed".$(echo $i - 1 | bc).gfa
-      fi
-      if [[ $i != "$smooth_iterations" ]]; then
-          if [[ ! -s $prefix_smoothed.$i.gfa || $resume == false ]]; then
-              resume=false # smoothxg is not deterministic, then all subsequent steps need to be rerun for consistency
-
-              poa_length=$(echo $target_poa_length | cut -f $i -d, )
-              $timer -f "$fmt" smoothxg \
-                     -t $threads \
-                     -T $poa_threads \
-                     -g "$input_gfa" \
-                     -w $(echo "$poa_length * $n_haps" | bc) \
-                     --base "$temp_dir" \
-                     $keep_temp_cmd \
-                     --chop-to 100 \
-                     -I $block_id_min \
-                     -R $block_ratio_min \
-                     -j $max_path_jump \
-                     -e $max_edge_jump \
-                     -l $poa_length \
-                     $poa_params_cmd \
-                     -O $poa_padding \
-                     -Y $(echo "$pad_max_depth * $n_haps" | bc) \
-                     -d 0 -D 0 \
-                     $smoothxg_xpoa_cmd $smoothxg_poa_mode_cmd \
-                     -V \
-                     -o "$prefix_smoothed".$i.gfa \
-                     2> >(tee -a "$log_file")
-          fi
-      else
-          if [[ ! -s $prefix_smoothed.gfa || ($write_maf != false && ! -s ${prefix_smoothed_output}.maf) || $resume == false ]]; then
-              resume=false # smoothxg is not deterministic, then all subsequent steps need to be rerun for consistency
-
-              poa_length=$(echo $target_poa_length | cut -f $i -d, )
-              $timer -f "$fmt" smoothxg \
-                     -t $threads \
-                     -T $poa_threads \
-                     -g "$input_gfa" \
-                     -w $(echo "$poa_length * $n_haps" | bc) \
-                     --base "$temp_dir" \
-                     $keep_temp_cmd \
-                     --chop-to 100 \
-                     -I $block_id_min \
-                     -R $block_ratio_min \
-                     -j $max_path_jump \
-                     -e $max_edge_jump \
-                     -l $poa_length \
-                     $poa_params_cmd \
-                     -O $poa_padding \
-                     -Y $(echo "$pad_max_depth * $n_haps" | bc) \
-                     -d 0 -D 0 \
-                     $smoothxg_xpoa_cmd $smoothxg_poa_mode_cmd \
-                     $maf_params \
-                     -Q "$consensus_prefix" \
-                     $consensus_params \
-                     -o "$prefix_smoothed".gfa \
-                     2> >(tee -a "$log_file")
-          fi
-      fi
-  done
+      $timer -f "$fmt" smoothxg \
+             -t $threads \
+             -T $poa_threads \
+             -g "$prefix_seqwish".seqwish.gfa \
+             -r "$n_haps" \
+             --base "$temp_dir" \
+             $keep_temp_cmd \
+             --chop-to 100 \
+             -I "$block_id_min" \
+             -R "$block_ratio_min" \
+             -j $max_path_jump \
+             -e $max_edge_jump \
+             -l $target_poa_length \
+             $poa_params_cmd \
+             -O "$poa_padding" \
+             -Y $(echo "$pad_max_depth * $n_haps" | bc) \
+             -d 0 -D 0 \
+             $smoothxg_xpoa_cmd $smoothxg_poa_mode_cmd \
+             $maf_params \
+             -Q "$consensus_prefix" \
+             $consensus_params \
+             -o "$prefix_smoothed".gfa \
+             2> >(tee -a "$log_file")
+  fi
 else
   mv "$prefix_seqwish".seqwish.gfa "$prefix_smoothed".gfa
 fi
@@ -827,10 +787,11 @@ if [[ $keep_intermediate_files == true ]]; then
     mv -f "$prefix_mappings_paf".mappings.$mapper.paf "$output_dir" 2> /dev/null || true
     mv -f "$prefix_seqwish".seqwish.{gfa,og} "$output_dir" 2> /dev/null || true
     mv -f "$prefix_seqwish".*.prep.gfa "$output_dir" 2> /dev/null || true
-    mv -f "$prefix_smoothed".[0-9]*.{gfa,og} "$output_dir" 2> /dev/null || true
+
+    mv -f "$prefix_seqwish".seqwish.gfa.smooth.[0-9].{gfa,og} "$output_dir" 2> /dev/null || true
     mv -f "$prefix_smoothed".fix.gfa "$output_dir" 2> /dev/null || true
 
-    if [[ $normalize == true ]]; then
+    if [[ $reduce_redundancy == true ]]; then
       mv -f "$prefix_smoothed".{gfa,og} "$output_dir" 2> /dev/null || true
     fi
 
@@ -841,9 +802,9 @@ if [[ $keep_intermediate_files == true ]]; then
 else
   rm -f "$prefix_mappings_paf".mappings.$mapper.paf
   rm -f "$prefix_seqwish".seqwish.{gfa,og}
-  rm -f "$prefix_smoothed".[0-9]*.{gfa,og}
+  rm -f "$prefix_seqwish".seqwish.gfa.smooth.[0-9].{gfa,og}
 
-  if [[ $normalize == true ]]; then
+  if [[ $reduce_redundancy == true ]]; then
     rm -f "$prefix_smoothed".{gfa,og}
     rm -f "$prefix_smoothed".fix.gfa
   fi

@@ -10,10 +10,10 @@ jobs:
       - name: Build the Docker image
         run: docker build . --file Dockerfile --target binary --tag pggb
       - name: Run a test on the DRB1-3123 dataset (SPOA)
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#:10000' -M -m -o drib1 && ls drib1/*"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 800,900,1100 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#:10000' -M -m -o drib1_spoa && ls drib1_spoa/*"
       - name: Run a test on the DRB1-3123 dataset (abPOA)
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#:10000' -M -m -b -o drib1_abpoa && ls drib1_abpoa/*"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 800,900,1100 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#:10000' -M -m -b -o drib1_abpoa && ls drib1_abpoa/*"
       - name: Run a test on the DRB1-3123 dataset (paf)
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -a data/paf/DRB1-3123.fa.15a1009.wfmash.paf -p 70 -s 3000 -G 2000 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#' -M -m -o drib2 && ls drib2/*"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/HLA/DRB1-3123.fa.gz -a data/paf/DRB1-3123.fa.15a1009.wfmash.paf -p 70 -s 3000 -G 2000 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#' -M -m -o drib1_paf && ls drib1_paf/*"
       - name: Run a test on the LPA dataset (SPOA global)
-        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/LPA/LPA.fa.gz -p 95 -s 50000 -l 10000 -G 900,1100 -n 90 -k 79 -t 2 -Z -O 0.001 -m -z -o lpa && ls lpa/*"
+        run: docker run -v ${PWD}/data/:/data pggb "pggb -i data/LPA/LPA.fa.gz -p 95 -s 20000 -G 800,900 -n 90 -k 79 -t 2 -Z -O 0.001 -m -z -o lpa && ls lpa/*"
