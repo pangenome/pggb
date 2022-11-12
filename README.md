@@ -192,6 +192,12 @@ To install the latest version using `Conda` execute:
 conda install -c bioconda pggb
 ```
 
+If you get dependencies problems, try:
+
+```bash
+conda install -c bioconda -c conda-forge pggb
+```
+
 ### guix
 
 ```bash
