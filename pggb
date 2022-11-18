@@ -579,6 +579,43 @@ else
 fi
 
 
+if [[ $vcf_spec != false ]]; then
+    for s in $( echo "$vcf_spec" | tr ',' ' ' );
+    do
+        ref=$(echo "$s" | cut -f 1 -d: )
+        delim=$(echo "$s" | cut -f 2 -d: )
+        pop_length=$(echo "$s" | cut -f 3 -d: )
+        if [[ -z $pop_length ]]; then
+          pop_length=0
+        fi
+        vcf="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').vcf
+        if [[ ! -s $vcf || $resume == false ]]; then
+          echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
+          ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P "$ref" \
+                   -H "$delim" -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
+          bcftools stats "$vcf" > "$vcf".stats
+        fi
+
+        if [[ $pop_length -gt 0 ]]; then
+          vcf_decomposed="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').decomposed.vcf
+          if [[ ! -s $vcf_decomposed || $resume == false ]]; then
+            echo "[vg::deconstruct] decompose VCF"
+            vcf_decomposed_tmp=$vcf_decomposed.tmp.vcf
+            bgzip -c -@ 48 "$vcf" > "$vcf".gz
+            TEMPDIR=$(pwd) $timer -f "$fmt" vcfbub -l 0 -a $pop_length --input "$vcf".gz | TEMPDIR=$(pwd) $timer -f "$fmt" vcfwave -I 1000 -t $threads > "$vcf_decomposed_tmp"
+
+            #TODO: to remove when vcfwave will be bug-free
+            # The TYPE info sometimes is wrong/missing
+            # There are variants without the ALT allele
+            bcftools annotate -x INFO/TYPE "$vcf_decomposed_tmp"  | awk '$5 != "."' > "$vcf_decomposed"
+            rm "$vcf_decomposed_tmp" "$vcf".gz
+
+            bcftools stats "$vcf_decomposed" > "$vcf_decomposed".stats
+          fi
+        fi
+    done
+fi
+
 if [[ $multiqc == true ]]; then
     do_stats=true
 fi
@@ -667,43 +704,6 @@ if [[ $do_layout == true ]]; then
                        -H 1000 \
                        2> >(tee -a "$log_file")
     fi
-fi
-
-if [[ $vcf_spec != false ]]; then
-    for s in $( echo "$vcf_spec" | tr ',' ' ' );
-    do
-        ref=$(echo "$s" | cut -f 1 -d: )
-        delim=$(echo "$s" | cut -f 2 -d: )
-        pop_length=$(echo "$s" | cut -f 3 -d: )
-        if [[ -z $pop_length ]]; then
-          pop_length=0
-        fi
-        vcf="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').vcf
-        if [[ ! -s $vcf || $resume == false ]]; then
-          echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
-          ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P "$ref" \
-                   -H "$delim" -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
-          bcftools stats "$vcf" > "$vcf".stats
-        fi
-
-        if [[ $pop_length -gt 0 ]]; then
-          vcf_decomposed="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').decomposed.vcf
-          if [[ ! -s $vcf_decomposed || $resume == false ]]; then
-            echo "[vg::deconstruct] decompose VCF"
-            vcf_decomposed_tmp=$vcf_decomposed.tmp.vcf
-            bgzip -c -@ 48 "$vcf" > "$vcf".gz
-            TEMPDIR=$(pwd) $timer -f "$fmt" vcfbub -l 0 -a $pop_length --input "$vcf".gz | TEMPDIR=$(pwd) $timer -f "$fmt" vcfwave -I 1000 -t $threads > "$vcf_decomposed_tmp"
-
-            #TODO: to remove when vcfwave will be bug-free
-            # The TYPE info sometimes is wrong/missing
-            # There are variants without the ALT allele
-            bcftools annotate -x INFO/TYPE "$vcf_decomposed_tmp"  | awk '$5 != "."' > "$vcf_decomposed"
-            rm "$vcf_decomposed_tmp" "$vcf".gz
-
-            bcftools stats "$vcf_decomposed" > "$vcf_decomposed".stats
-          fi
-        fi
-    done
 fi
 
 multiqc_out_dir=$(dirname "$input_fasta")
