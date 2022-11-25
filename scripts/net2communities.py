@@ -3,7 +3,7 @@ import argparse
 # Create the parser and add arguments
 parser = argparse.ArgumentParser(
     description="It detects communities by applying the Leiden algorithm (Trag et al., 2018).",
-    epilog='Author: Andrea Guarracino'
+    epilog='Author: Andrea Guarracino (https://github.com/AndreaGuarracino)'
 )
 parser.add_argument('-e', '--edge-list', dest='edge_list', help="edge list representing the pairs of sequences mapped in the network", required=True)
 parser.add_argument('-w', '--edge-weights', dest='edge_weights', help="list of edge weights", required=True)

@@ -3,7 +3,7 @@ import argparse
 # Create the parser and add arguments
 parser = argparse.ArgumentParser(
     description="It projects wfmash's PAF mappings (the implied overlap and containment graph) into an edge list, a list of edge weights, and an 'id to sequence name' map.",
-    epilog='Author: Andrea Guarracino'
+    epilog='Author: Andrea Guarracino (https://github.com/AndreaGuarracino)'
 )
 parser.add_argument('-p', '--paf', dest='paf', help="wfmash's PAF file with the mappings (generated with wfmash -m)", required=True)
 
@@ -15,7 +15,7 @@ id = 0
 name_2_id_dict = {}
 with open(args.paf) as f:
     for line in f:
-        name1, _, _, _, _, name2, _, _, _, _, align_len, _, est_identity = line.strip().split('\t')
+        name1, _, _, _, _, name2, _, _, _, _, align_len, _, est_identity = line.strip().split('\t')[:13]
 
         for nameX in [name1, name2]:
             if nameX not in name_2_id_dict:
@@ -28,9 +28,11 @@ fw_weights = open(args.paf + '.edges.weights.txt', 'w')
 
 with open(args.paf) as f:
     for line in f:
-        name1, _, _, _, _, name2, _, _, _, _, align_len, _, est_identity = line.strip().split('\t')
+        name1, _, _, _, _, name2, _, _, _, _, align_len, _, est_identity = line.strip().split('\t')[:13]
         align_len = int(align_len)
-        est_identity = float(est_identity.split('id:f:')[-1])
+        # wfmash -m --> est_identity contains 'id:f:xx.xxxx', that is the estimated identity
+        # wfmash    --> est_identity contains 'id:f:xx.xxxx', that is the gap-compressed identity
+        est_identity = float(est_identity.split(':')[-1])
 
         # Write edges in the form of 'id1 id2'
         fw_edges.write(' '.join([name_2_id_dict[name1], name_2_id_dict[name2]]) + '\n')

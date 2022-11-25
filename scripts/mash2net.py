@@ -3,7 +3,7 @@ import argparse
 # Create the parser and add arguments
 parser = argparse.ArgumentParser(
     description="It projects mash's distances into an edge list, a list of edge weights, and an 'id to sequence name' map.",
-    epilog='Author: Andrea Guarracino'
+    epilog='Author: Andrea Guarracino (https://github.com/AndreaGuarracino)'
 )
 parser.add_argument('-m', '--mash', dest='mash', help="mash's distances file", required=True)
 parser.add_argument('-d', '--max-distance', dest='dist', help="ignores sequence pairs with estimated distance greater than DIST", required=False, type=float, default=0.4)
