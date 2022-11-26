@@ -21,14 +21,14 @@ Step 1 - Sequence Preparation
 -----------------------------
 
 Put your sequences in one FASTA file ``in.fa``, optioanlli compress it with ``bgzip``, and index it with ``samtools faidx in.fa`` (or ``samtools faidx in.fa.gz`` for compressed input).
-If you have many genomes, we suggest using the `PanSN-spec <https://github.com/pangenome/PanSN-spec>`_ naming pattern.
+If you have many samples and/or haplotypes, we suggest using the `PanSN-spec <https://github.com/pangenome/PanSN-spec>`_ naming pattern.
 
 -----------------------
 Step 2 - Sequence partitioning (OPTIONAL)
 -----------------------
 
-If you have whole-genome assemblies, you might consider `partitioning your sequences into communities <https://pggb.readthedocs.io/en/latest/rst/tutorials/sequence_partitioning.html>`_, which usually correspond to the different chromosomes of the genomes.
-Then, you can run ``pggb`` on each community (set of sequences) independently.
+If you have whole-genome assemblies, you might consider partitioning your sequences into communities, which usually correspond to the different chromosomes of the genomes.
+Then, you can run ``pggb`` on each community (set of sequences) independently (see :ref:`partition_before_pggb`).
 
 -----------------------
 Step 3 - Graph Building
@@ -50,6 +50,45 @@ To build a graph from a 9-haplotype ``in.fa``, in the directory ``output``, scaf
 
 The final process output will be called ``outdir/input.fa*smooth.fix.gfa``.
 By default, we render 1D and 2D visualizations of the graph with `odgi <https://doi.org/10.1093/bioinformatics/btac308>`_, which are very useful to understand the result of the build.
+
+
+.. _partition_before_pggb:
+
+partition before pggb
+-----------------------------------------
+
+In the above example, to partition your sequences into communities, execute:
+
+.. code-block:: bash
+
+    partition-before-pggb -i in.fa \       # input file in FASTA format
+                          -o output \      # output directory
+                          -n 9 \           # number of haplotypes
+                          -t 16 \          # number of threads
+                          -p 90 \          # minimum average nucleotide identity for segments
+                          -s 5k \          # segment length for scaffolding the graph
+                          -V 'ref:#:1000'  # make a VCF against "ref" decomposing variants >1000bp
+
+
+This generates the command lines to run ``pggb`` on each community (2 in this example) independently:
+
+.. code-block:: bash
+
+    pggb -i output/in.fa.dd9e519.community.0.fa \
+         -o output/in.fa.dd9e519.community.0.fa.out \
+         -p 5k -l 25000 -p 90 -n 9 -K 19 -F 0.001 \
+         -k 19 -f 0 -B 10000000 \
+         -H 9 -j 0 -e 0 -G 700,900,1100 -P 1,19,39,3,81,1 -O 0.001 -d 100 -Q Consensus_ \
+         -V ref:#:1000 --threads 16 --poa-threads 16
+    pggb -i output/in.fa.dd9e519.community.1.fa \
+         -o output/in.fa.dd9e519.community.1.fa.out \
+         -p 5k -l 25000 -p 90 -n 9 -K 19 -F 0.001 \
+         -k 19 -f 0 -B 10000000 \
+         -H 9 -j 0 -e 0 -G 700,900,1100 -P 1,19,39,3,81,1 -O 0.001 -d 100 -Q Consensus_ \
+         -V ref:#:1000 --threads 16 --poa-threads 16
+
+
+See also the :ref:`sequence_partitioning` tutorial for more information.
 
 
 .. _quick_start_example:

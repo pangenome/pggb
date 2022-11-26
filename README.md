@@ -18,17 +18,17 @@ A variant call report (in VCF) representing both small and large variants can be
 
 `pggb` has been tested at scale in the Human Pangenome Reference Consortium (HPRC) as a method to build a graph from the [draft human pangenome](https://doi.org/10.1101/2022.07.09.499321).
 
-Documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/) and [pggb paper manuscript](https://github.com/pangenome/pggb-paper) (WIP).
+Documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/) and [pggb manuscript](https://github.com/pangenome/pggb-paper) (WIP).
 
 ## quick start
 
 1) Install `pggb` with [Docker](https://github.com/pangenome/pggb#docker), [Singularity](https://github.com/pangenome/pggb#singularity), [bioconda](https://github.com/pangenome/pggb#bioconda), [guix](https://github.com/pangenome/pggb#guix), or by [manually building its dependencies](https://github.com/pangenome/pggb#manual-mode).
 
 2) Put your sequences in one FASTA file (`in.fa`), optionally compress it with `bgzip`, and index it with `samtools faidx`.
-If you have many genomes, we recommend using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
+If you have many samples and/or haplotypes, we recommend using the [PanSN prefix naming pattern](https://github.com/pangenome/PanSN-spec).
 
-3) [*OPTIONAL*] If you have whole-genome assemblies, you might consider [partitioning your sequences into communities](https://pggb.readthedocs.io/en/latest/rst/tutorials/sequence_partitioning.html), which usually correspond to the different chromosomes of the genomes.
-Then, you can run `pggb` on each community (set of sequences) independently.
+3) [*OPTIONAL*] If you have whole-genome assemblies, you might consider partitioning your sequences into communities, which usually correspond to the different chromosomes of the genomes.
+Then, you can run `pggb` on each community (set of sequences) independently (see [partition before pggb](#partition-before-pggb)).
 
 4) To build a graph from `in.fa`, which contains, for example, 9 haplotypes, in the directory `output`, scaffolding the graph using 5kb matches at >= 90% identity, and using 16 parallel threads for processing, execute:
 
@@ -36,9 +36,9 @@ Then, you can run `pggb` on each community (set of sequences) independently.
 pggb -i in.fa \       # input file in FASTA format
      -o output \      # output directory
      -n 9 \           # number of haplotypes
-     -t 16 \          # number of threads (defaults to `getconf _NPROCESSORS_ONLN`)
-     -p 90 \          # (default) minimum average nucleotide identity for a seed mapping
-     -s 5k \          # (default) segment length
+     -t 16 \          # number of threads
+     -p 90 \          # minimum average nucleotide identity for segments
+     -s 5k \          # segment length for scaffolding the graph
      -V 'ref:#:1000'  # make a VCF against "ref" decomposing variants >1000bp
 ```
 
@@ -46,6 +46,40 @@ The final output will match `outdir/in.fa.*final.gfa`.
 By default, we render 1D and 2D visualizations of the graph with [odgi](https://doi.org/10.1093/bioinformatics/btac308), which are very useful to understand the result of the build.
 
 See also [this step-by-step example](https://pggb.readthedocs.io/en/latest/rst/quick_start.html) for more information.
+
+### partition before pggb
+
+In the above example, to partition your sequences into communities, execute:
+
+```bash
+partition-before-pggb -i in.fa \       # input file in FASTA format
+                      -o output \      # output directory
+                      -n 9 \           # number of haplotypes
+                      -t 16 \          # number of threads
+                      -p 90 \          # minimum average nucleotide identity for segments
+                      -s 5k \          # segment length for scaffolding the graph
+                      -V 'ref:#:1000'  # make a VCF against "ref" decomposing variants >1000bp
+```
+
+This generates the command lines to run `pggb` on each community (2 in this example) independently:
+
+```shell
+pggb -i output/in.fa.dd9e519.community.0.fa \
+     -o output/in.fa.dd9e519.community.0.fa.out \
+     -p 5k -l 25000 -p 90 -n 9 -K 19 -F 0.001 \
+     -k 19 -f 0 -B 10000000 \
+     -H 9 -j 0 -e 0 -G 700,900,1100 -P 1,19,39,3,81,1 -O 0.001 -d 100 -Q Consensus_ \
+     -V ref:#:1000 --threads 16 --poa-threads 16
+pggb -i output/in.fa.dd9e519.community.1.fa \
+     -o output/in.fa.dd9e519.community.1.fa.out \
+     -p 5k -l 25000 -p 90 -n 9 -K 19 -F 0.001 \
+     -k 19 -f 0 -B 10000000 \
+     -H 9 -j 0 -e 0 -G 700,900,1100 -P 1,19,39,3,81,1 -O 0.001 -d 100 -Q Consensus_ \
+     -V ref:#:1000 --threads 16 --poa-threads 16
+```
+
+Se also the [sequence partitioning](https://pggb.readthedocs.io/en/latest/rst/tutorials/sequence_partitioning.html) tutorial for more information
+
 
 ## usage
 
