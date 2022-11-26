@@ -350,10 +350,7 @@ The docker image already contains v1.11 of `MultiQC`.
 
 ## authors
 
-Erik Garrison,
-Simon Heumos,
-Andrea Guarracino,
-Yan Gao
+*Garrison E., *Guarracino A., Heumos S., Villani F., Bao Z., Tattini L., Hagmann J., Vorbrugg S., Ashbrook D. G., Thorell K., Chen H., Sudmant P. H., Liti G., Colonna V., Prins P.
 
 ## license
 
