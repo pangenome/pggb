@@ -217,33 +217,10 @@ You'll need `wfmash`, `seqwish`, `smoothxg`, `odgi`, `gfaffix`, and `vg` in your
 These can be individually built and installed.
 Then, put the `pggb` bash script in your path to complete installation.
 
-### Bioconda
-
-`pggb` recipes for Bioconda are available at https://anaconda.org/bioconda/pggb.
-To install the latest version using `Conda` execute:
-
-```bash
-conda install -c bioconda pggb
-```
-
-If you get dependencies problems, try:
-
-```bash
-conda install -c bioconda -c conda-forge pggb
-```
-
-### guix
-
-```bash
-git clone https://github.com/ekg/guix-genomics
-cd guix-genomics
-GUIX_PACKAGE_PATH=. guix package -i pggb
-```
-
 ### Docker
 
 To simplify installation and versioning, we have an automated GitHub action that pushes the current docker build to the GitHub registry.
-To use it, first pull the actual image:
+To use it, first pull the actual image (**IMPORTANT**: see also how to [build docker locally](#build-docker-locally)):
 
 ```bash
 docker pull ghcr.io/pangenome/pggb:latest
@@ -274,31 +251,33 @@ you can run the container using the [human leukocyte antigen (HLA) data](data/HL
 docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
 
-The `-v` argument of `docker run` always expects a full path. `If you intended to pass a host directory, use absolute path.`
+The `-v` argument of `docker run` always expects a full path.
+**If you intended to pass a host directory, use absolute path.**
 This is taken care of by using `${PWD}`.
 
-If you want to experiment around, you can build a docker image locally using the `Dockerfile`:
+#### build docker locally
+
+Multiple `pggb`'s tools use SIMD instructions that require AVX (like `abPOA`) or need it to improve performance.
+The currently built docker image has `-march=haswell` set.
+This means that the docker image can run on processors that support AVX256 or later, improving portability, but preventing your system hardware from being fully exploited.
+
+To achieve better performance, it is **STRONGLY RECOMMENDED** to build the docker image locally after replacing `-march=haswell` with `-march=native` in the `Dockerfile`:
+
+```bash
+sed -i 's/-march=haswell/-march=native/g' Dockerfile 
+```
+
+To build a docker image locally using the `Dockerfile`, execute:
 
 ```bash
 docker build --target binary -t ${USER}/pggb:latest .
 ```
 
-Staying in the `pggb` directory, we can run `pggb` with the locally build image:
+Staying in the `pggb` directory, we can run `pggb` with the locally built image:
 
 ```bash
 docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
-
-#### Docker and AVX
-
-`abPOA` of `pggb` uses SIMD instructions which require AVX. The currently built docker image has `-march=haswell` set. This means the docker image can be run by processors that support AVX256 or later. If you have a processor that supports AVX512, it is recommended to rebuild the docker image locally, removing the line
-
-```bash
-&& sed -i 's/-march=native/-march=haswell/g' deps/abPOA/CMakeLists.txt \
-```
-
-from the `Dockerfile`. This can lead to better performance in the `abPOA` step on machines which have AVX512 support.
-
 
 ### Singularity
 
@@ -326,6 +305,28 @@ For Singularity to be able to read and write files to a directory on the host op
 singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
 
+### Bioconda
+
+`pggb` recipes for Bioconda are available at https://anaconda.org/bioconda/pggb.
+To install the latest version using `Conda` execute:
+
+```bash
+conda install -c bioconda pggb
+```
+
+If you get dependencies problems, try:
+
+```bash
+conda install -c bioconda -c conda-forge pggb
+```
+
+### guix
+
+```bash
+git clone https://github.com/ekg/guix-genomics
+cd guix-genomics
+GUIX_PACKAGE_PATH=. guix package -i pggb
+```
 
 ### nextflow
 
