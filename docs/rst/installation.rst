@@ -73,12 +73,12 @@ Multiple ``pggb``'s tools use SIMD instructions that require AVX (like ``abPOA``
 The currently built docker image has ``-march=haswell`` set.
 This means that the docker image can run on processors that support AVX256 or later, improving portability, but preventing your system hardware from being fully exploited.
 
-To achieve better performance, it is **STRONGLY RECOMMENDED** to build the docker image locally after replacing ``-march=haswell`` with ``-march=native`` in the ``Dockerfile``:
+To achieve better performance, it is **STRONGLY RECOMMENDED** to build the docker image locally after replacing ``-march=haswell`` with ``-march=native`` and the ``Generic` build type with `Release`` in the ``Dockerfile``:
 
 .. code-block:: bash
 
     sed -i 's/-march=haswell/-march=native/g' Dockerfile
-
+    sed -i 's/Generic/Release/g' Dockerfile
 
 To build a docker image locally using the ``Dockerfile``, execute:
 
