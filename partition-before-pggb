@@ -155,6 +155,17 @@ if [ $show_version == true ]; then
     exit
 fi
 
+# Mandatory parameters
+if [[ "$input_fasta" == false || $n_mappings == false ]]; then
+    show_help=true
+    >&2 echo "ERROR: mandatory arguments -i and -n"
+fi
+
+if (( "$n_mappings" < 2 )); then
+    show_help=true
+    >&2 echo "ERROR: -n must be greater than or equal to 2"
+fi
+
 if [ $show_help == true ]; then
     padding=`printf %${#0}s` # prints as many spaces as the length of $0
     echo "usage: $0 -i <input-fasta> -n <n-haplotypes> [options]"
@@ -228,17 +239,6 @@ if [ $show_help == true ]; then
     echo
     echo "Use wfmash, seqwish, smoothxg, odgi, gfaffix, and vg to build, project and display a pangenome graph."
     exit
-fi
-
-# Mandatory parameters
-if [[ "$input_fasta" == false || $n_mappings == false ]]; then
-    show_help=true
-    >&2 echo "ERROR: mandatory arguments -i and -n"
-fi
-
-if (( "$n_mappings" < 2 )); then
-    show_help=true
-    >&2 echo "ERROR: -n must be greater than or equal to 2"
 fi
 
 
