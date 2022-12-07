@@ -47,7 +47,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
     && git checkout cb0ce952a9bec3f2c8c78b98679375e5275e05db \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=sandybridge/g' src/common/wflign/deps/WFA2-lib/Makefile \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -O2' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     && cd ../ \
     && rm -rf wfmash
@@ -70,7 +70,7 @@ RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && sed -i 's/-msse4.1/-march=sandybridge -O2/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=sandybridge -O2/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=sandybridge -O2/g' deps/abPOA/CMakeLists.txt \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -Bbuild && cmake --build build -- -j $(nproc) \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -O2' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi \
     && cd ../ \
