@@ -47,7 +47,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
     && git checkout cb0ce952a9bec3f2c8c78b98679375e5275e05db \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=sandybridge/g' src/common/wflign/deps/WFA2-lib/Makefile \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -O2' -Bbuild && cmake --build build -- -j $(nproc) \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     && cd ../ \
     && rm -rf wfmash
@@ -57,7 +57,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
     && git pull \
     && git checkout f362f6f5ea89dbb6a0072a8b8ba215e663301d33 \
     && git submodule update --init --recursive \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -O2' -Bbuild && cmake --build build -- -j $(nproc) \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
     && cd ../ \
     && rm -rf seqwish
@@ -67,10 +67,10 @@ RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && git pull \
     && git checkout 3b3c2c3bd1cf2ec79cac506d0e352b478031c007 \
     && git submodule update --init --recursive \
-    && sed -i 's/-msse4.1/-march=sandybridge -O2/g' deps/spoa/CMakeLists.txt \
-    && sed -i 's/-march=native/-march=sandybridge -O2/g' deps/spoa/CMakeLists.txt \
-    && sed -i 's/-march=native/-march=sandybridge -O2/g' deps/abPOA/CMakeLists.txt \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -O2' -Bbuild && cmake --build build -- -j $(nproc) \
+    && sed -i 's/-msse4.1/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
+    && sed -i 's/-march=native/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
+    && sed -i 's/-march=native/-march=sandybridge -Ofast/g' deps/abPOA/CMakeLists.txt \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi \
     && cd ../ \
