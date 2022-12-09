@@ -258,10 +258,10 @@ This is taken care of by using `${PWD}`.
 #### build docker locally
 
 Multiple `pggb`'s tools use SIMD instructions that require AVX (like `abPOA`) or need it to improve performance.
-The currently built docker image has `-march=haswell` set.
-This means that the docker image can run on processors that support AVX256 or later, improving portability, but preventing your system hardware from being fully exploited.
+The currently built docker image has `-Ofast -march=sandybridge` set.
+This means that the docker image can run on processors that support AVX or later, improving portability, but preventing your system hardware from being fully exploited. In practice, this could mean that specific tools are up to 9 times slower. And that a pipeline runs ~30% slower compared to when using a native build docker image.
 
-To achieve better performance, it is **STRONGLY RECOMMENDED** to build the docker image locally after replacing `-march=haswell` with `-march=native` and the `Generic` build type with `Release` in the `Dockerfile`:
+To achieve better performance, it is **STRONGLY RECOMMENDED** to build the docker image locally after replacing `-march=sandybridge` with `-march=native` and the `Generic` build type with `Release` in the `Dockerfile`:
 
 ```bash
 sed -i 's/-march=haswell/-march=native/g' Dockerfile 
@@ -279,6 +279,7 @@ Staying in the `pggb` directory, we can run `pggb` with the locally built image:
 ```bash
 docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
+A script that handles the whole building process automatically can be found at https://github.com/nf-core/pangenome#building-a-native-container.
 
 ### Singularity
 
@@ -305,6 +306,8 @@ For Singularity to be able to read and write files to a directory on the host op
 ```bash
 singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
 ```
+
+A script that handles the whole building process automatically can be found at https://github.com/nf-core/pangenome#building-a-native-container.
 
 ### Bioconda
 
