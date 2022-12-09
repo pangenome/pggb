@@ -264,7 +264,7 @@ This means that the docker image can run on processors that support AVX or later
 To achieve better performance, it is **STRONGLY RECOMMENDED** to build the docker image locally after replacing `-march=sandybridge` with `-march=native` and the `Generic` build type with `Release` in the `Dockerfile`:
 
 ```bash
-sed -i 's/-march=haswell/-march=native/g' Dockerfile 
+sed -i 's/-march=sandybridge/-march=native/g' Dockerfile 
 sed -i 's/Generic/Release/g' Dockerfile 
 ```
 
