@@ -6,7 +6,6 @@ set -eo pipefail
 
 # wfmash's default values
 SEGMENT_LENGTH=5000
-BLOCK_LENGTH=$(echo "$SEGMENT_LENGTH * 5" | bc)
 MAP_PCT_ID=90
 MASH_KMER=19
 MASH_KMER_THRES=0.001
@@ -14,7 +13,7 @@ MASH_KMER_THRES=0.001
 # wfmash's parameters
 input_fasta=false
 segment_length=$SEGMENT_LENGTH
-block_length=$BLOCK_LENGTH
+block_length=false
 map_pct_id=$MAP_PCT_ID
 n_mappings=false
 no_splits=false
@@ -253,6 +252,10 @@ else
   mapper_letter='E'
 fi
 
+if [[ $block_length == false ]]; then
+    block_length=$(echo "$segment_length * 5" | bc)
+fi
+
 n_mappings_minus_1=$( echo "$n_mappings - 1" | bc )
 
 paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings_minus_1-K$mash_kmer-F$mash_kmer_thres-x$sparse_map
@@ -263,7 +266,7 @@ if [[ $no_splits == true ]]; then
     paf_spec="$paf_spec"-N
 fi
 
-# Normalization (in this part of the code because $n_haps is used for the 'auto' mapping sparsification)
+# Normalization ($n_haps is checked in this part of the script because it is also used for the 'auto' mapping sparsification)
 if [[ $n_haps == false ]]; then
     n_haps=$n_mappings
 fi
