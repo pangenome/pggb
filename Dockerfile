@@ -139,6 +139,9 @@ RUN git clone https://github.com/ekg/pafplot.git \
 COPY pggb /usr/local/bin/pggb
 RUN chmod 777 /usr/local/bin/pggb
 
+COPY partition-before-pggb /usr/local/bin/partition-before-pggb
+RUN chmod a+rx /usr/local/bin/partition-before-pggb
+
 # Hacky-way to easily get versioning info
 COPY .git /usr/local/bin/
 
