@@ -145,4 +145,4 @@ RUN chmod a+rx /usr/local/bin/partition-before-pggb
 # Hacky-way to easily get versioning info
 COPY .git /usr/local/bin/
 
-ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
+SHELL ["/bin/bash", "-c"]

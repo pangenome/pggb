@@ -56,7 +56,7 @@ you can run the container using the human leukocyte antigen (HLA) data provided 
 
 .. code-block:: bash
 
-    docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -C cons,100,1000,10000 -m"
+    docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -C cons,100,1000,10000 -m"
 
 
 The ``-v`` argument of ``docker run`` always expects a full path.
@@ -93,7 +93,7 @@ Staying in the ``pggb`` directory, we can run ``pggb`` with the locally build im
 
 .. code-block:: bash
 
-    docker run -it -v ${PWD}/data/:/data ${USER}/pggb "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -C cons,100,1000,10000 -m"
+    docker run -it -v ${PWD}/data/:/data ${USER}/pggb /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -C cons,100,1000,10000 -m"
 
 A script that handles the whole building process automatically can be found at `https://github.com/nf-core/pangenome#building-a-native-container <https://github.com/nf-core/pangenome#building-a-native-container>`_`.
 
