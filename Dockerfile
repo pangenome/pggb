@@ -142,6 +142,8 @@ RUN chmod 777 /usr/local/bin/pggb
 COPY partition-before-pggb /usr/local/bin/partition-before-pggb
 RUN chmod a+rx /usr/local/bin/partition-before-pggb
 
+COPY scripts /usr/local/bin/scripts
+
 # Hacky-way to easily get versioning info
 COPY .git /usr/local/bin/
 
