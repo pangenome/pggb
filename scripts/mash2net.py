@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import argparse
 
 # Create the parser and add arguments
