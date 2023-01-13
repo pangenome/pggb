@@ -741,6 +741,9 @@ custom_data:
   odgi_viz_depth:
     section_name: ODGI 1D visualization by node depth
     description: This shows a 1D rendering of the built pangenome graph where the paths are colored according to path depth. Using the Spectra color palette with 4 levels of path depths, white indicates no depth, while grey, red, and yellow indicate depth 1, 2, and greater than or equal to 3, respectively.
+  odgi_viz_uncalled:
+    section_name: ODGI 1D visualization by uncalled bases
+    description: This shows a 1D rendering of the built pangenome graph where the paths are colored according to the coverage of uncalled bases. The lighter the green, the higher the 'N' content of a node is.
   odgi_draw:
     section_name: ODGI 2D drawing
     description: This image shows a 2D rendering of the built pangenome graph.
@@ -759,6 +762,8 @@ sp:
     fn: \"*viz_inv_multiqc.png\"
   odgi_viz_depth:
     fn: \"*viz_depth_multiqc.png\"
+  odgi_viz_uncalled:
+    fn: \"*viz_uncalled_multiqc.png\"    
   testing_name:
     fn: \"*draw.png\"
 ignore_images: false
@@ -776,6 +781,7 @@ custom_content:
     - odgi_viz_pos
     - odgi_viz_inv
     - odgi_viz_depth
+    - odgi_viz_uncalled
     - odgi_draw
 fn_clean_exts:
   - \".gfa\""
