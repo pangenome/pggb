@@ -114,7 +114,7 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && rm -rf vcflib
 
 # Community detection dependencies
-RUN pip install igraph==0.10.2
+RUN pip install igraph==0.10.3
 RUN pip install pycairo==1.20.1
 
 # Additional tools
