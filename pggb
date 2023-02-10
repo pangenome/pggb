@@ -512,9 +512,9 @@ if [[ $skip_normalization == false ]]; then
       keep_temp_cmd="-K"
   fi
 
-  smoothxg_xpoa_cmd="-S"
+  smoothxg_xpoa_cmd=""
   if [[ "$run_abpoa" == true ]]; then
-    smoothxg_xpoa_cmd=""
+    smoothxg_xpoa_cmd="-A"
   fi
 
   smoothxg_poa_mode_cmd=""
