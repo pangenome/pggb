@@ -604,7 +604,7 @@ if [[ $vcf_spec != false ]]; then
           if [[ ! -s $vcf_decomposed || $resume == false ]]; then
             echo "[vg::deconstruct] decompose VCF"
             vcf_decomposed_tmp=$vcf_decomposed.tmp.vcf
-            bgzip -c -@ 48 "$vcf" > "$vcf".gz
+            bgzip -c -@ $threads "$vcf" > "$vcf".gz
             TEMPDIR=$(pwd) $timer -f "$fmt" vcfbub -l 0 -a $pop_length --input "$vcf".gz | TEMPDIR=$(pwd) $timer -f "$fmt" vcfwave -I 1000 -t $threads > "$vcf_decomposed_tmp"
 
             #TODO: to remove when vcfwave will be bug-free
