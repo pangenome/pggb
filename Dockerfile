@@ -44,7 +44,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 2aaba270406b3088bca2a5ed61f2c8105db25c72 \
+    && git checkout b310bd1c3b26da0c63dfeba77bf68a0835a2ff9b \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=sandybridge/g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
@@ -55,7 +55,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout f362f6f5ea89dbb6a0072a8b8ba215e663301d33 \
+    && git checkout a9c39bbdaf657822213bb76fb279182b24a38f00 \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
@@ -65,7 +65,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout e4c1149141ceb896740a8831a5e35fa65b7ba238 \
+    && git checkout 6e2f8c0d7eeccb2814f43cb19b27c33665739042 \
     && git submodule update --init --recursive \
     && sed -i 's/-msse4.1/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
