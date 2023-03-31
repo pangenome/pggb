@@ -87,6 +87,71 @@ no_merge_segments=false
 block_ratio_min=0
 reduce_redundancy=true
 
+# function that parses metric suffix numerical arguments
+parse_numeric() {
+  local input=$1
+  local value=${input%[KkMmGgTt]*}
+  local suffix=${input#$value}
+  if [[ -z $suffix ]]; then
+    if [[ $value =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+      echo $value
+      return 0
+    else
+      echo "ERROR: Invalid input" >&2
+      return 1
+    fi
+  fi
+  case $suffix in
+    K|k) value=$(echo "$value * 1000" | bc) ;;
+    M|m) value=$(echo "$value * 1000000" | bc) ;;
+    G|g) value=$(echo "$value * 1000000000" | bc) ;;
+    T|t) value=$(echo "$value * 1000000000000" | bc) ;;
+    *) echo "ERROR: Invalid suffix or unsupported suffix. Supported metric suffixes are k, K, m, M, g, G, t, T." >&2; return 1 ;;
+  esac
+  printf "%.0f" $value
+}
+
+# Test case 1: Positive integer input without a suffix
+input1="42"
+expected_output1="42"
+
+# Test case 2: Positive decimal input without a suffix
+input2="42.5"
+expected_output2="42.5"
+
+# Test case 3: Positive integer input with a metric suffix (uppercase)
+input3="5M"
+expected_output3="5000000"
+
+# Test case 4: Positive integer input with a metric suffix (lowercase)
+input4="2t"
+expected_output4="2000000000000"
+
+# Test case 5: Positive decimal input with a metric suffix (mixed case)
+input5="7.5k"
+expected_output5="7500"
+
+# Test function
+run_test() {
+  local input=$1
+  local expected_output=$2
+  local output=$(parse_numeric "$input")
+
+  if [ $? -eq 0 ] && [ "$output" == "$expected_output" ]; then
+    echo "Test passed: $input -> $output"
+  else
+    echo "Test failed: $input -> Expected: $expected_output, Actual: $output" >&2
+  fi
+}
+
+# Run tests
+run_test "$input1" "$expected_output1"
+run_test "$input2" "$expected_output2"
+run_test "$input3" "$expected_output3"
+run_test "$input4" "$expected_output4"
+run_test "$input5" "$expected_output5"
+
+exit
 
 if [ $# -eq 0 ]; then
     show_help=true
@@ -101,8 +166,8 @@ eval set -- "$TEMP"
 while true ; do
     case "$1" in
         -i|--input-fasta) input_fasta=$2 ; shift 2 ;;
-        -s|--segment-length) segment_length=$2 ; shift 2 ;;
-        -l|--block-length) block_length=$2 ; shift 2 ;;
+        -s|--segment-length) segment_length=$(parse_numeric $2) ; shift 2 ;;
+        -l|--block-length) block_length=$(parse_numeric $2) ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
         -n|--n-haplotypes) n_mappings=$2 ; shift 2 ;;
         -N|--no-splits) no_splits=true ; shift ;;
@@ -112,7 +177,7 @@ while true ; do
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -f|--sparse-factor) sparse_factor=$2 ; shift 2 ;;
-        -B|--transclose-batch) transclose_batch=$2 ; shift 2 ;;
+        -B|--transclose-batch) transclose_batch=$(parse_numeric $2) ; shift 2 ;;
         -X|--skip-normalization) skip_normalization=true ; shift ;;
         -H|--n-haplotypes-smooth) n_haps=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
