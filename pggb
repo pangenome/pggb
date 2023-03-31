@@ -111,48 +111,6 @@ parse_numeric() {
   printf "%.0f" $value
 }
 
-# Test case 1: Positive integer input without a suffix
-input1="42"
-expected_output1="42"
-
-# Test case 2: Positive decimal input without a suffix
-input2="42.5"
-expected_output2="42.5"
-
-# Test case 3: Positive integer input with a metric suffix (uppercase)
-input3="5M"
-expected_output3="5000000"
-
-# Test case 4: Positive integer input with a metric suffix (lowercase)
-input4="2t"
-expected_output4="2000000000000"
-
-# Test case 5: Positive decimal input with a metric suffix (mixed case)
-input5="7.5k"
-expected_output5="7500"
-
-# Test function
-run_test() {
-  local input=$1
-  local expected_output=$2
-  local output=$(parse_numeric "$input")
-
-  if [ $? -eq 0 ] && [ "$output" == "$expected_output" ]; then
-    echo "Test passed: $input -> $output"
-  else
-    echo "Test failed: $input -> Expected: $expected_output, Actual: $output" >&2
-  fi
-}
-
-# Run tests
-run_test "$input1" "$expected_output1"
-run_test "$input2" "$expected_output2"
-run_test "$input3" "$expected_output3"
-run_test "$input4" "$expected_output4"
-run_test "$input5" "$expected_output5"
-
-exit
-
 if [ $# -eq 0 ]; then
     show_help=true
 fi
