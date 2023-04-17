@@ -304,7 +304,7 @@ Finally, run `pggb` from the Singularity image.
 For Singularity to be able to read and write files to a directory on the host operating system, we need to 'bind' that directory using the `-B` option and pass the `pggb` command as an argument.
 
 ```bash
-singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
+singularity run -B ${PWD}/data:/data ../pggb_latest.sif pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m
 ```
 
 A script that handles the whole building process automatically can be found at https://github.com/nf-core/pangenome#building-a-native-container.
