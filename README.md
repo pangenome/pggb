@@ -80,6 +80,9 @@ pggb -i output/in.fa.dd9e519.community.1.fa \
 
 Se also the [sequence partitioning](https://pggb.readthedocs.io/en/latest/rst/tutorials/sequence_partitioning.html) tutorial for more information
 
+## citation
+
+Erik Garrison*, Andrea Guarracino*, Simon Heumos, Flavia Villani, Zhigui Bao, Lorenzo Tattini, Jörg Hagmann, Sebastian Vorbrugg, Santiago Marco-Sola, Christian Kubica, David G. Ashbrook, Kaisa Thorell, Rachel L. Rusholme-Pilcher, Gianni Liti, Emilio Rudbeck, Sven Nahnsen, Zuyu Yang, Mwaniki N. Moses, Franklin L. Nobrega, Yi Wu, Hao Chen, Joep de Ligt, Peter H. Sudmant, Nicole Soranzo, Vincenza Colonna, Robert W. Williams, Pjotr Prins, [Building pangenome graphs](https://doi.org/10.1101/2023.04.05.535718), bioRxiv 2023.04.05.535718; doi: https://doi.org/10.1101/2023.04.05.535718
 
 ## usage
 
