@@ -37,6 +37,7 @@ RUN apt-get update \
                        wget \
                        pip \
                        libcairo2-dev \
+                       unzip \
     && apt-get clean \
     && apt-get purge  \
     && rm -rf /var/lib/apt/lists/*
@@ -110,6 +111,7 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && cd build \
     && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . -- -j $(nproc) \
     && mv vcfwave /usr/local/bin/vcfwave \
+    && mv vcfuniq /usr/local/bin/vcfuniq \
     && cd ../ \
     && rm -rf vcflib
 
@@ -142,7 +144,28 @@ RUN chmod 777 /usr/local/bin/pggb
 COPY partition-before-pggb /usr/local/bin/partition-before-pggb
 RUN chmod a+rx /usr/local/bin/partition-before-pggb
 
+
+# MUMMER adjustments
 COPY scripts /usr/local/bin/scripts
+
+RUN wget https://github.com/mummer4/mummer/releases/download/v4.0.0rc1/mummer-4.0.0rc1.tar.gz \
+    && tar -xf mummer-4.0.0rc1.tar.gz && cd mummer-4.0.0rc1 && ./configure && make && make install && cd ../
+RUN ldconfig
+
+RUN wget https://github.com/RealTimeGenomics/rtg-tools/releases/download/3.12.1/rtg-tools-3.12.1-linux-x64.zip \
+    && unzip rtg-tools-3.12.1-linux-x64.zip && ln -s /rtg-tools-3.12.1/rtg /usr/local/bin/
+
+RUN cat /etc/apt/sources.list
+
+# Install base R
+# https://www.reddit.com/r/Rlanguage/comments/oi31xn/installing_r41_on_debian_bullseye_testing/
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key B8F25A8A73EACF41 \
+    && echo "deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
+    && apt update \
+    && apt install -y r-base \
+    && apt-get clean \
+    && apt-get purge  \
+    && rm -rf /var/lib/apt/lists/*
 
 # Hacky-way to easily get versioning info
 COPY .git /usr/local/bin/
