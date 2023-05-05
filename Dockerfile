@@ -37,7 +37,8 @@ RUN apt-get update \
                        wget \
                        pip \
                        libcairo2-dev \
-                       unzip \
+                       unzip \pca3d
+                       parallel \
     && apt-get clean \
     && apt-get purge  \
     && rm -rf /var/lib/apt/lists/*
@@ -146,7 +147,6 @@ RUN chmod a+rx /usr/local/bin/partition-before-pggb
 
 
 # MUMMER adjustments
-COPY scripts/* /usr/local/bin/
 
 RUN wget https://github.com/mummer4/mummer/releases/download/v4.0.0rc1/mummer-4.0.0rc1.tar.gz \
     && tar -xf mummer-4.0.0rc1.tar.gz && cd mummer-4.0.0rc1 && ./configure && make && make install && cd ../
@@ -155,9 +155,8 @@ RUN ldconfig
 RUN wget https://github.com/RealTimeGenomics/rtg-tools/releases/download/3.12.1/rtg-tools-3.12.1-linux-x64.zip \
     && unzip rtg-tools-3.12.1-linux-x64.zip && ln -s /rtg-tools-3.12.1/rtg /usr/local/bin/
 
-RUN cat /etc/apt/sources.list
-
 # Install base R
+# NOTE: we might have to go the conda way on the long run
 # https://www.reddit.com/r/Rlanguage/comments/oi31xn/installing_r41_on_debian_bullseye_testing/
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key B8F25A8A73EACF41 \
     && echo "deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
@@ -166,6 +165,9 @@ RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-key B8F25A8A73EACF41 \
     && apt-get clean \
     && apt-get purge  \
     && rm -rf /var/lib/apt/lists/*
+
+# copy required scripts
+COPY scripts/* /usr/local/bin/
 
 # Hacky-way to easily get versioning info
 COPY .git /usr/local/bin/

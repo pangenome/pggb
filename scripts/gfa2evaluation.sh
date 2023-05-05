@@ -76,8 +76,6 @@ zgrep '#CHROM' "$PATH_VCF".gz -m 1 | cut -f 10- | tr '\t' '\n' | while read HAPL
       "$PATH_REF_FA"
 done
 
-exit 0
-
 echo "Identify variants with nucmer"
 NUCMER_VERSION="xxx"
 mkdir -p nucmer
@@ -88,11 +86,11 @@ cut -f 1 "$PATH_SEQUENCES_FA_GZ".fai | grep "^${PREFIX_REFERENCE}#" -v | while r
 
   PREFIX=nucmer/"$CONTIG"
   samtools faidx "$PATH_SEQUENCES_FA_GZ" "$CONTIG" > "$PREFIX".fa
-  echo "$PREFIX" >> tmp
+  echo "$PREFIX" >> "$DIR_OUTPUT"/tmp
 done
 
-cat tmp | parallel -j "$THREADS" "nucmer $PATH_REF_FA {}.fa --prefix {}"
-rm tmp
+cat "$DIR_OUTPUT"/tmp | parallel -j "$THREADS" "nucmer $PATH_REF_FA {}.fa --prefix {}"
+rm "$DIR_OUTPUT"/tmp
 
 echo "--- Generate VCF files"
 cut -f 1 "$PATH_SEQUENCES_FA_GZ".fai | grep "^${PREFIX_REFERENCE}#" -v | while read CONTIG; do

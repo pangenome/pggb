@@ -6,7 +6,10 @@ pathRef <- args[8]
 nucmer_version <- args[9]
 pathOut <- args[10]
 
-library(data.table)
+if (!require("data.table")){
+  install.packages("data.table")
+  library("data.table")
+}
 
 ### Buff_noaln is [BUFF]: the distance from this SNP to the nearest mismatch 
 ### (end of alignment, indel, SNP, etc) in the same alignment.
