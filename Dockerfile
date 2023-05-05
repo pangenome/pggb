@@ -146,7 +146,7 @@ RUN chmod a+rx /usr/local/bin/partition-before-pggb
 
 
 # MUMMER adjustments
-COPY scripts /usr/local/bin/scripts
+COPY scripts/* /usr/local/bin/
 
 RUN wget https://github.com/mummer4/mummer/releases/download/v4.0.0rc1/mummer-4.0.0rc1.tar.gz \
     && tar -xf mummer-4.0.0rc1.tar.gz && cd mummer-4.0.0rc1 && ./configure && make && make install && cd ../
