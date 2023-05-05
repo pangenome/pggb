@@ -37,7 +37,7 @@ RUN apt-get update \
                        wget \
                        pip \
                        libcairo2-dev \
-                       unzip \pca3d
+                       unzip \
                        parallel \
     && apt-get clean \
     && apt-get purge  \
