@@ -17,3 +17,5 @@ jobs:
         run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/HLA/DRB1-3123.fa.gz -a data/paf/DRB1-3123.fa.15a1009.wfmash.paf -p 70 -s 3000 -G 2000 -n 10 -t 2 -Z -V 'gi|568815561:#,gi|29124352:#' -M -m -o drib1_paf && ls drib1_paf/* && head drib1_paf/*.log -n 63"
       - name: Run a test on the LPA dataset (SPOA global)
         run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/LPA/LPA.fa.gz -p 95 -s 20000 -G 800,900 -n 90 -k 79 -t 2 -Z -O 0.001 -m -z -o lpa && ls lpa/* && head lpa/*.log -n 63"
+      - name: Run a test for the gfa2evaluation script on a mini HPRC chrMT dataset
+        run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "gfa2evaluation.sh data/chrM.pan.4.gfa chm13 data/test_eval 2"
