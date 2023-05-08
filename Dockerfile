@@ -46,7 +46,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 191afe12042962d3c0d5c62936528561753b3da0 \
+    && git checkout 8ba3c53f327731ca515abd1ef32179f15acb9732 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=sandybridge/g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
@@ -67,7 +67,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 06bbf3510b095f1f2cb94f580845bfd5097f3047 \
+    && git checkout 956eb75644522bb2b96b4cca44b7bafa9cf02f4a \
     && git submodule update --init --recursive \
     && sed -i 's/-msse4.1/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
@@ -92,7 +92,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd ../ \
     && rm -rf GFAffix
 
-RUN pip install multiqc==1.13
+RUN pip install multiqc==1.14
 
 RUN wget https://github.com/vgteam/vg/releases/download/v1.40.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
@@ -117,8 +117,8 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && rm -rf vcflib
 
 # Community detection dependencies
-RUN pip install igraph==0.10.3
-RUN pip install pycairo==1.20.1
+RUN pip install igraph==0.10.4
+RUN pip install pycairo==1.23.0
 
 # Additional tools
 RUN git clone https://github.com/ekg/fastix.git \
