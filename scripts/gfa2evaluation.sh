@@ -212,5 +212,12 @@ zgrep '#CHROM' "$PATH_VCF".gz -m 1 | cut -f 10- | tr '\t' '\n' | while read HAPL
 done
 
 mkdir -p "$DIR_OUTPUT"
+# we want to prevent:
+# mv: inter-device move failed: 'chrM.pan.4.chm13.sdf' to 'data/test_eval/chrM.pan.4.chm13.sdf'; unable to remove target: Directory not empty
+# mv: inter-device move failed: 'nucmer' to 'data/test_eval/nucmer'; unable to remove target: Directory not empty
+# mv: inter-device move failed: 'vcfeval' to 'data/test_eval/vcfeval'; unable to remove target: Directory not empty
+rm -rf "$DIR_OUTPUT"/*.sdf
+rm -rf "$DIR_OUTPUT"/nucmer
+rm -rf "$DIR_OUTPUT"/vcfeval
 mv "$PREFIX"* statistics.haplo*.tsv nucmer vcfeval "$DIR_OUTPUT"
 

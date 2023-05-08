@@ -153,7 +153,8 @@ RUN wget https://github.com/mummer4/mummer/releases/download/v4.0.0rc1/mummer-4.
 RUN ldconfig
 
 RUN wget https://github.com/RealTimeGenomics/rtg-tools/releases/download/3.12.1/rtg-tools-3.12.1-linux-x64.zip \
-    && unzip rtg-tools-3.12.1-linux-x64.zip && ln -s /rtg-tools-3.12.1/rtg /usr/local/bin/
+    && unzip rtg-tools-3.12.1-linux-x64.zip && sed -i 's/read -r -p "Would you like to enable automatic usage logging (y\/n)? " REPLY/REPLY="n"/g' /rtg-tools-3.12.1/rtg \
+    && ln -s /rtg-tools-3.12.1/rtg /usr/local/bin/ && rtg help
 
 # Install base R
 # NOTE: we might have to go the conda way on the long run
@@ -164,7 +165,9 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key B8F25A8A73E
     && apt install -y r-base \
     && apt-get clean \
     && apt-get purge  \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && wget https://cran.r-project.org/src/contrib/data.table_1.14.8.tar.gz \
+    && R CMD INSTALL data.table_1.14.8.tar.gz
 
 RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.static \
     && mv bedtools.static /usr/local/bin/bedtools \
