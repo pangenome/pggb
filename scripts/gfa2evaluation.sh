@@ -79,6 +79,7 @@ done
 echo "Identify variants with nucmer"
 NUCMER_VERSION="xxx"
 mkdir -p nucmer
+mkdir -p "$DIR_OUTPUT"
 
 echo "--- Align each contig against the reference"
 cut -f 1 "$PATH_SEQUENCES_FA_GZ".fai | grep "^${PREFIX_REFERENCE}#" -v | while read CONTIG; do
