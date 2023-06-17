@@ -3,7 +3,8 @@
 # pggb: the PanGenome Graph Builder
 
 ![Publish container to github container registry](https://github.com/pangenome/pggb/workflows/Publish%20container%20to%20github%20container%20registry/badge.svg)
-[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](https://anaconda.org/bioconda/pggb)
+
+[//]: # ([![install with bioconda]&#40;https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat&#41;]&#40;https://anaconda.org/bioconda/pggb&#41;)
 
 `pggb` builds [pangenome](https://doi.org/10.1146%2Fannurev-genom-120219-080406) [variation graphs](https://doi.org/10.1038/nbt.4227) from a set of input sequences.
 
@@ -312,7 +313,7 @@ singularity run -B ${PWD}/data:/data ../pggb_latest.sif pggb -i /data/HLA/DRB1-3
 
 A script that handles the whole building process automatically can be found at https://github.com/nf-core/pangenome#building-a-native-container.
 
-### Bioconda
+### Bioconda (NO, IT IS CURRENTLY BROKEN, SEE [THIS ISSUE](https://github.com/pangenome/pggb/issues/294))
 
 `pggb` recipes for Bioconda are available at https://anaconda.org/bioconda/pggb.
 To install the latest version using `Conda` execute:
