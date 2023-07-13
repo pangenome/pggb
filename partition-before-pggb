@@ -146,7 +146,7 @@ while true ; do
 done
 
 if [ $show_version == true ]; then
-    SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+    SCRIPT_DIR=$( cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}" )" )" &> /dev/null && pwd )
     cd "$SCRIPT_DIR"
     GIT_VERSION=$(git describe --always --tags)
     echo "pggb $GIT_VERSION"
