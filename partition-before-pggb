@@ -157,12 +157,12 @@ fi
 # Mandatory parameters
 if [[ "$input_fasta" == false || $n_mappings == false ]]; then
     show_help=true
-    >&2 echo "ERROR: mandatory arguments -i and -n"
+    >&2 echo "[pggb] ERROR: mandatory arguments -i and -n"
 fi
 
 if (( "$n_mappings" < 2 )); then
     show_help=true
-    >&2 echo "ERROR: -n must be greater than or equal to 2"
+    >&2 echo "[pggb] ERROR: -n must be greater than or equal to 2"
 fi
 
 if [ $show_help == true ]; then
@@ -432,6 +432,18 @@ reporting:
   multiqc:            $multiqc
 EOT
 
+# Check Pangenome Sequence Naming (PanSN)
+if [ ! -f "${input_fasta}.fai" ]; then
+    echo "[pggb] ERROR: Index for $input_fasta does not exist. Please create it using 'samtools faidx $input_fasta'."
+    exit 1
+fi
+warning_emitted=0
+cut -f 1 "${input_fasta}.fai" | while read -r line; do
+  if [[ ! $line =~ ^([^#]+#)+[^#]+$ ]] && [[ $warning_emitted -eq 0 ]]; then
+      echo "[pggb] Warning: there are sequence names (like '$line') that do not match the Pangenome Sequence Naming (PanSN)."
+      warning_emitted=1
+  fi
+done
 
 #-------------------------------------------------------------------------------
 echo -e "\nRunning partitioning\n" >> "$log_file"
