@@ -175,6 +175,7 @@ RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.s
 
 # copy required scripts
 COPY scripts/* /usr/local/bin/
+COPY scripts /usr/local/bin/scripts/
 
 # Hacky-way to easily get versioning info
 COPY .git /usr/local/bin/
