@@ -236,9 +236,9 @@ if [ $show_help == true ]; then
     echo "    -v, --skip-viz              don't render visualizations of the graph in 1D and 2D [default: make them]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
     echo "   [vg]"
-    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:DELIM[:LEN][,REF:DELIM:[LEN]]*"
+    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF::LEN][,REF:[LEN]]*"
     echo "                                the paths matching ^REF are used as a reference, while the sample haplotypes"
-    echo "                                are derived from path names, e.g. when DELIM=# and with '-V chm13:#',"
+    echo "                                are derived from path names, assuming they match the PanSN; e.g. '-V chm13',"
     echo "                                a path named HG002#1#ctg would be assigned to sample HG002 phase 1."
     echo "                                If LEN is specified and greater than 0, the VCFs are decomposed, filtering "
     echo "                                sites whose max allele length is greater than LEN. [default: off]"
@@ -620,19 +620,19 @@ fi
 
 
 if [[ $vcf_spec != false ]]; then
+    # Newer versions of vg deconstruct assume PanSN with '#' as separator, so no need to specify -H "$delim" 
     for s in $( echo "$vcf_spec" | tr ',' ' ' );
     do
         ref=$(echo "$s" | cut -f 1 -d: )
-        delim=$(echo "$s" | cut -f 2 -d: )
-        pop_length=$(echo "$s" | cut -f 3 -d: )
+        pop_length=$(echo "$s" | cut -f 2 -d: )
         if [[ -z $pop_length ]]; then
           pop_length=0
         fi
         vcf="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').vcf
         if [[ ! -s $vcf || $resume == false ]]; then
-          echo "[vg::deconstruct] making VCF with reference=$ref and delim=$delim"
+          echo "[vg::deconstruct] making VCF with reference=$ref and delim=#"
           ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P "$ref" \
-                   -H "$delim" -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
+                   -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
           bcftools stats "$vcf" > "$vcf".stats
         fi
 
