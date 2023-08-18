@@ -92,7 +92,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd ../ \
     && rm -rf GFAffix
 
-RUN pip install multiqc==1.14
+RUN pip install multiqc==1.15
 
 RUN wget https://github.com/vgteam/vg/releases/download/v1.50.1/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
