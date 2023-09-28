@@ -454,9 +454,6 @@ reporting:
   multiqc:            $multiqc
 EOT
 
-
-echo -e "\nRunning pggb\n" >> "$log_file"
-
 # Check Pangenome Sequence Naming (PanSN)
 if [ ! -f "${input_fasta}.fai" ]; then
     echo "[pggb] ERROR: Index for $input_fasta does not exist. Please create it using 'samtools faidx $input_fasta'."
@@ -469,6 +466,8 @@ cut -f 1 "${input_fasta}.fai" | while read -r line; do
       warning_emitted=1
   fi
 done
+
+echo -e "\nRunning pggb\n" >> "$log_file"
 
 if [[ "$input_paf" == false ]]; then
   if [[ ! -s "$prefix_paf".alignments.$mapper.paf || $resume == false ]]; then
