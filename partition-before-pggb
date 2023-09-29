@@ -203,7 +203,7 @@ if [ $show_help == true ]; then
     echo "    -K, --mash-kmer N           kmer size for mapping [default: "$MASH_KMER"]"
     echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: "$MASH_KMER_THRES"]"
     echo "    -Y, --exclude-delim C       skip mappings when the query and target have the same"
-    echo "                                prefix before the last occurrence of the given character C [default: #]"
+    echo "                                prefix before the last occurrence of the given character C [default: #, assuming PanSN-spec]"
     echo "   [seqwish]"
     echo "    -k, --min-match-len N       filter exact matches below this length [default: "$MIN_MATCH_LENGTH"]"
     echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
