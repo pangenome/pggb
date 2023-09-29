@@ -20,7 +20,7 @@ no_splits=false
 sparse_map=false
 mash_kmer=$MASH_KMER
 mash_kmer_thres=$MASH_KMER_THRES
-exclude_delim=false
+exclude_delim="#"
 
 # seqwish's default values
 MIN_MATCH_LENGTH=19
@@ -202,8 +202,8 @@ if [ $show_help == true ]; then
     echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: "$MASH_KMER"]"
     echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: "$MASH_KMER_THRES"]"
-    echo "    -Y, --exclude-delim C       skip mappings between sequences with the same name prefix before"
-    echo "                                the given delimiter character [default: all-vs-all and !self]"
+    echo "    -Y, --exclude-delim C       skip mappings when the query and target have the same"
+    echo "                                prefix before the last occurrence of the given character C [default: #]"
     echo "   [seqwish]"
     echo "    -k, --min-match-len N       filter exact matches below this length [default: "$MIN_MATCH_LENGTH"]"
     echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
@@ -485,6 +485,7 @@ if [[ "$input_paf" == false ]]; then
         --tmp-base $temp_dir \
         $merge_cmd \
         "$input_fasta" \
+        --lower-triangular \
         --approx-map \
         > "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
     fi
