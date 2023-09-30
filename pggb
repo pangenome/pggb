@@ -236,7 +236,7 @@ if [ $show_help == true ]; then
     echo "    -v, --skip-viz              don't render visualizations of the graph in 1D and 2D [default: make them]"
     echo "    -S, --stats                 generate statistics of the seqwish and smoothxg graph [default: off]"
     echo "   [vg]"
-    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF:[LEN][,REF:[LEN]]*"
+    echo "    -V, --vcf-spec SPEC         specify a set of VCFs to produce with SPEC = REF[:LEN][,REF[:LEN]]*"
     echo "                                the paths matching ^REF are used as a reference, while the sample haplotypes"
     echo "                                are derived from path names, assuming they match the PanSN; e.g. '-V chm13',"
     echo "                                a path named HG002#1#ctg would be assigned to sample HG002 phase 1."
