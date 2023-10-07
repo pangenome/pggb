@@ -15,7 +15,7 @@ input_fasta=false
 segment_length=$SEGMENT_LENGTH
 block_length=false
 map_pct_id=$MAP_PCT_ID
-n_mappings=false
+n_mappings=1
 no_splits=false
 sparse_map=false
 mash_kmer=$MASH_KMER
@@ -117,7 +117,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:D:a:p:n:s:l:K:F:k:x:f:B:XH:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,skip-normalization,n-haps:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:D:a:p:c:s:l:K:F:k:x:f:B:Xn:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,skip-normalization,n-haplotypes:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -127,7 +127,7 @@ while true ; do
         -s|--segment-length) segment_length=$(parse_numeric $2) ; shift 2 ;;
         -l|--block-length) block_length=$(parse_numeric $2) ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
-        -n|--n-haplotypes) n_mappings=$2 ; shift 2 ;;
+        -c|--n-mappings) n_mappings=$2 ; shift 2 ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -x|--sparse-map) sparse_map=$2 ; shift 2 ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
@@ -137,7 +137,7 @@ while true ; do
         -f|--sparse-factor) sparse_factor=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$(parse_numeric $2) ; shift 2 ;;
         -X|--skip-normalization) skip_normalization=true ; shift ;;
-        -H|--n-haplotypes-smooth) n_haps=$2 ; shift 2 ;;
+        -n|--n-haplotypes) n_haps=$2 ; shift 2 ;;
         -j|--path-jump-max) max_path_jump=$2 ; shift 2 ;;
         -e|--edge-jump-max) max_edge_jump=$2 ; shift 2 ;;
         -G|--poa-length-target) target_poa_length=$2 ; shift 2 ;;
@@ -168,7 +168,7 @@ while true ; do
     esac
 done
 
-if [ $show_version == true ]; then
+if [ "$show_version" == true ]; then
     SCRIPT_DIR=$( cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}" )" )" &> /dev/null && pwd )
     cd "$SCRIPT_DIR"
     GIT_VERSION=$(git describe --always --tags --long)
@@ -178,14 +178,19 @@ if [ $show_version == true ]; then
 fi
 
 # Mandatory parameters
-if [[ "$input_fasta" == false || $n_mappings == false ]]; then
-    show_help=true
-    >&2 echo "[pggb] ERROR: mandatory arguments -i and -n"
+if [[ ("$input_fasta" == false || $n_haps == false) && "$show_help" == false ]]; then
+    >&2 echo "[pggb] ERROR: mandatory arguments -i/--input-fasta and -n/--n-haplotypes"
+    exit
 fi
 
-if (( "$n_mappings" < 2 )); then
-    show_help=true
-    >&2 echo "[pggb] ERROR: -n must be greater than or equal to 2"
+if [[ "$n_haps" < 1 && "$show_help" == false ]]; then
+    >&2 echo "[pggb] ERROR: -n/--n-haplotypes must be greater than or equal to 1"
+    exit
+fi
+
+if [[ "$n_mappings" < 1 && "$show_help" == false ]]; then
+    >&2 echo "[pggb] ERROR: -c/--n-mappings must be greater than or equal to 1"
+    exit
 fi
 
 if [ $show_help == true ]; then
@@ -197,7 +202,7 @@ if [ $show_help == true ]; then
     echo "    -s, --segment-length N      segment length for mapping [default: "$SEGMENT_LENGTH"]"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 5*segment-length]"
     echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: "$MAP_PCT_ID"]"
-    echo "    -n, --n-haplotypes N        number of haplotypes"
+    echo "    -c, --n-mappings N          number of mappings for each segment [default: 1]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [default: enabled]"
     echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: "$MASH_KMER"]"
@@ -210,7 +215,7 @@ if [ $show_help == true ]; then
     echo "    -B, --transclose-batch      number of bp to use for transitive closure batch [default: "$TRANSCLOSE_BATCH"]"
     echo "   [smoothxg]"
     echo "    -X, --skip-normalization    do not normalize the final graph [default: normalize the graph]"
-    echo "    -H, --n-haplotypes-smooth N number of haplotypes, if different than that set with -n [default: -n]"
+    echo "    -n, --n-haplotypes N        number of haplotypes"
     echo "    -j, --path-jump-max         maximum path jump to include in block [default: "$MAX_PATH_JUMP"]"
     echo "    -e, --edge-jump-max N       maximum edge jump before breaking [default: "$MAX_EDGE_JUMP"]"
     echo "    -G, --poa-length-target N,M target sequence length for POA, one per pass [default: "$TARGET_POA_LENGTH"]"
@@ -279,9 +284,8 @@ if [[ $block_length == false ]]; then
     block_length=$(echo "$segment_length * 5" | bc)
 fi
 
-n_mappings_minus_1=$( echo "$n_mappings - 1" | bc )
 
-paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings_minus_1-K$mash_kmer-F$mash_kmer_thres-x$sparse_map
+paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings-K$mash_kmer-F$mash_kmer_thres-x$sparse_map
 
 split_cmd=""
 if [[ $no_splits == true ]]; then
@@ -424,7 +428,7 @@ seqwish:
 smoothxg:
   version:            $(smoothxg --version 2>&1)
   skip-normalization: $skip_normalization
-  n-haps:             $n_haps
+  n-haplotypes:       $n_haps
   path-jump-max:      $max_path_jump
   edge-jump-max:      $max_edge_jump
   poa-length-target:  $target_poa_length
@@ -475,7 +479,7 @@ if [[ "$input_paf" == false ]]; then
         -s $segment_length \
         -l $block_length \
         -p $map_pct_id \
-        -n $n_mappings_minus_1 \
+        -n $n_mappings \
         $split_cmd \
         $sparse_map_cmd \
         -k $mash_kmer \
