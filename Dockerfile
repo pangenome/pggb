@@ -86,7 +86,7 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout ead179cfe1fb9ac4c50367ac07ae3b703caf10ef \
+    && git checkout d630eb7d9827340f5f292e57cb3cb5e31e6f86f0 \
     && cargo install --force --path . \
     && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix \
     && cd ../ \
