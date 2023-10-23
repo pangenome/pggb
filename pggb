@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # exit when any command fails
-set -eo pipefail
+#set -eo pipefail
 
 
 # wfmash's default values
