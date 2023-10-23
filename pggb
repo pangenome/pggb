@@ -629,7 +629,11 @@ if [[ $vcf_spec != false ]]; then
     for s in $( echo "$vcf_spec" | tr ',' ' ' );
     do
         ref=$(echo "$s" | cut -f 1 -d: )
-        pop_length=$(echo "$s" | cut -f 2 -d: )
+        if [[ "$s" == *":"* ]]; then
+            pop_length=$(echo "$s" | cut -f 2 -d: )
+        else
+            pop_length=""
+        fi
         if [[ -z $pop_length ]]; then
           pop_length=0
         fi
