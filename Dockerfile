@@ -97,9 +97,9 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd ../ \
     && rm -rf GFAffix
 
-RUN pip install multiqc==1.15
+RUN pip install multiqc==1.16
 
-RUN wget https://github.com/vgteam/vg/releases/download/v1.50.1/vg && chmod +x vg && mv vg /usr/local/bin/vg
+RUN wget https://github.com/vgteam/vg/releases/download/v1.52.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
 RUN git clone https://github.com/pangenome/vcfbub \
     && cd vcfbub \
