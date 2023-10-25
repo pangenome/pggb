@@ -79,6 +79,7 @@ threads=$THREADS
 poa_threads=0
 keep_intermediate_files=false
 compress=false
+respect_pansn=true
 show_version=false
 show_help=false
 
@@ -117,7 +118,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:D:a:p:c:s:l:K:F:k:x:f:B:Xn:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,skip-normalization,n-haplotypes:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:D:a:p:c:s:l:K:F:k:x:f:B:Xn:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,skip-normalization,n-haplotypes:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,no-pansn,version -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -161,6 +162,7 @@ while true ; do
         -T|--poa-threads) poa_threads=$2 ; shift 2 ;;
         -A|--keep-temp-files) keep_intermediate_files=true ; shift ;;
         -Z|--compress) compress=true ; shift ;;
+        --no-pansn) respect_pansn=false ; shift ;; 
         --version) show_version=true ; shift ;;
         -h|--help) show_help=true ; shift ;;
         --) shift ; break ;;
@@ -177,25 +179,10 @@ if [ "$show_version" == true ]; then
     exit
 fi
 
-# Mandatory parameters
-if [[ ("$input_fasta" == false || $n_haps == false) && "$show_help" == false ]]; then
-    >&2 echo "[pggb] ERROR: mandatory arguments -i/--input-fasta and -n/--n-haplotypes"
-    exit
-fi
-
-if [[ "$n_haps" < 1 && "$show_help" == false ]]; then
-    >&2 echo "[pggb] ERROR: -n/--n-haplotypes must be greater than or equal to 1"
-    exit
-fi
-
-if [[ "$n_mappings" < 1 && "$show_help" == false ]]; then
-    >&2 echo "[pggb] ERROR: -c/--n-mappings must be greater than or equal to 1"
-    exit
-fi
-
-if [ $show_help == true ]; then
-    padding=`printf %${#0}s` # prints as many spaces as the length of $0
-    echo "usage: $0 -i <input-fasta> -n <n-haplotypes> [options]"
+# Check input parameters
+if [ "$show_help" == true ]; then
+    padding=$(printf %${#0}s) # prints as many spaces as the length of $0
+    echo "usage: $0 -i <input-fasta> [options]"
     echo "options:"
     echo "   [wfmash]"
     echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
@@ -261,13 +248,45 @@ if [ $show_help == true ]; then
     echo "    -A, --keep-temp-files       keep intermediate graphs"
     echo "    -Z, --compress              compress alignment (.paf), graph (.gfa, .og), and MSA (.maf) outputs with pigz,"
     echo "                                and variant (.vcf) outputs with bgzip"
+    echo "    --no-pansn                  Pangenome Sequence Naming (PanSN) not required for sequence names"
     echo "    --version                   display the version of pggb"
     echo "    -h, --help                  this text"
     echo
     echo "Use wfmash, seqwish, smoothxg, odgi, gfaffix, and vg to build, project and display a pangenome graph."
     exit
+elif [ "$input_fasta" = "false" ]; then
+    >&2 echo "[pggb] ERROR: mandatory argument: -i/--input-fasta"
+    exit
+elif [ ! -f "${input_fasta}.fai" ]; then
+    echo "[pggb] ERROR: index for $input_fasta does not exist. Please create it using 'samtools faidx $input_fasta'."
+    exit 1
+elif [ "$respect_pansn" = "false" ] && { [ "$n_haps" = "false" ] || [ "$n_haps" -lt 1 ]; }; then
+    >&2 echo "[pggb] ERROR: when no-pansn is set, -n/--n-haplotypes must be greater than or equal to 1"
+    exit
+elif [ "$respect_pansn" = "false" -a "$vcf_spec" != "false" ]; then
+    >&2 echo "[pggb] ERROR: -V/--vcf-spec and --no-pansn are incompatible"
+    exit
+elif [ "$n_mappings" -lt 1 ]; then
+    >&2 echo "[pggb] ERROR: -c/--n-mappings must be greater than or equal to 1"
+    exit
 fi
 
+# Check Pangenome Sequence Naming (PanSN)
+pansn_not_respected=false
+while IFS= read -r line; do
+  if [[ ! $line =~ ^([^#]+#)+[^#]+$ ]] && [[ "$pansn_not_respected" == "false" ]]; then
+    pansn_not_respected=$line
+    break
+  fi
+done < <(cut -f 1 "${input_fasta}.fai")
+if [ "$pansn_not_respected" != "false" ]; then
+  if [ "$respect_pansn" = "false" ]; then
+    >&2 echo "[pggb] warning: there are sequence names (like '$pansn_not_respected') that do not match the Pangenome Sequence Naming (PanSN)."
+  else
+    >&2 echo "[pggb] ERROR: there are sequence names (like '$pansn_not_respected') that do not match the Pangenome Sequence Naming (PanSN). Set --pan-sn to disable this requirement."
+    exit
+  fi
+fi
 
 # Alignment
 if [[ $input_paf == false ]]; then
@@ -295,7 +314,7 @@ fi
 
 # Normalization ($n_haps is checked in this part of the script because it is also used for the 'auto' mapping sparsification)
 if [[ $n_haps == false ]]; then
-    n_haps=$n_mappings
+    n_haps=$(cut -f 1 "${input_fasta}.fai" | cut -f 1,2 -d '#' | sort | uniq | wc -l)
 fi
 
 sparse_map_cmd=""
@@ -408,6 +427,7 @@ general:
   compress:           $compress
   threads:            $threads
   poa_threads:        $poa_threads
+  respect_pansn:      $respect_pansn
 $mapper:
   version:            $mapper_version
   segment-length:     $segment_length
@@ -457,19 +477,6 @@ reporting:
   version:            v$(multiqc --version | cut -f 3 -d ' ')
   multiqc:            $multiqc
 EOT
-
-# Check Pangenome Sequence Naming (PanSN)
-if [ ! -f "${input_fasta}.fai" ]; then
-    echo "[pggb] ERROR: Index for $input_fasta does not exist. Please create it using 'samtools faidx $input_fasta'."
-    exit 1
-fi
-warning_emitted=0
-cut -f 1 "${input_fasta}.fai" | while read -r line; do
-  if [[ ! $line =~ ^([^#]+#)+[^#]+$ ]] && [[ $warning_emitted -eq 0 ]]; then
-      echo "[pggb] Warning: there are sequence names (like '$line') that do not match the Pangenome Sequence Naming (PanSN)."
-      warning_emitted=1
-  fi
-done
 
 #-------------------------------------------------------------------------------
 echo -e "\nRunning partitioning\n" >> "$log_file"
