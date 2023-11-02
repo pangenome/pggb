@@ -545,7 +545,7 @@ if [[ $sparse_map != false ]]; then
   params="$params -x $sparse_map"
 fi
 if [[ $exclude_delim != false ]]; then
-  params="$params -Y $exclude_delim"
+  params="$params -Y \"$exclude_delim\""
 fi
 if [[ $skip_normalization != false ]]; then
   params="$params --skip-normalization"
@@ -608,7 +608,7 @@ pggb -i $community \\
      -o $community.out \\
      -s $segment_length -l $block_length -p $map_pct_id -n $n_mappings -K $mash_kmer -F $mash_kmer_thres \\
      -k $min_match_length -f $sparse_factor -B $transclose_batch \\
-     -H $n_haps -j $max_path_jump -e $max_edge_jump -G $target_poa_length $poa_params_cmd -O $poa_padding -d $pad_max_depth -Q $consensus_prefix \\
+     -j $max_path_jump -e $max_edge_jump -G $target_poa_length $poa_params_cmd -O $poa_padding -d $pad_max_depth -Q $consensus_prefix \\
     $params
 EOT
 done
