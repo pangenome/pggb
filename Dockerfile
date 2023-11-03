@@ -46,7 +46,7 @@ RUN apt-get update \
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 67ab187ebb13d7054acd58d7753c243bd6845178 \
+    && git checkout bcfbc14eff4874cda59c66a678fb7d69a31671c5 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=sandybridge/g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
