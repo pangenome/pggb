@@ -9,6 +9,7 @@ SEGMENT_LENGTH=5000
 MAP_PCT_ID=90
 MASH_KMER=19
 MASH_KMER_THRES=0.001
+HG_FILTER_ANI_DIFF=30
 
 # wfmash's parameters
 input_fasta=false
@@ -20,10 +21,11 @@ no_splits=false
 sparse_map=false
 mash_kmer=$MASH_KMER
 mash_kmer_thres=$MASH_KMER_THRES
+hg_filter_ani_diff=$HG_FILTER_ANI_DIFF
 exclude_delim="#"
 
 # seqwish's default values
-MIN_MATCH_LENGTH=19
+MIN_MATCH_LENGTH=23
 SPARSE_FACTOR=0
 TRANSCLOSE_BATCH=10000000
 
@@ -116,7 +118,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:D:a:p:c:s:l:K:F:k:x:f:B:Xn:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,skip-normalization,n-haplotypes:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:D:a:p:c:g:s:l:K:F:k:x:f:B:Xn:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,hg-filter-ani-diff:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,skip-normalization,n-haplotypes:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,vcf-spec:,version -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -127,6 +129,7 @@ while true ; do
         -l|--block-length) block_length=$(parse_numeric $2) ; shift 2 ;;
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
         -c|--n-mappings) n_mappings=$2 ; shift 2 ;;
+        -g|--hg-filter-ani-diff) hg_filter_ani_diff=$2 ; shift 2 ;;
         -N|--no-splits) no_splits=true ; shift ;;
         -x|--sparse-map) sparse_map=$2 ; shift 2 ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
@@ -187,6 +190,7 @@ if [ "$show_help" == true ]; then
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 5*segment-length]"
     echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: "$MAP_PCT_ID"]"
     echo "    -c, --n-mappings N          number of mappings for each segment [default: 1]"
+    echo "    -g, --hg-filter-ani-diff N  filter out mappings unlikely to be N% less than the best mapping [default: "$HG_FILTER_ANI_DIFF"%]"
     echo "    -N, --no-split              disable splitting of input sequences during mapping [default: enabled]"
     echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: "$MASH_KMER"]"
@@ -303,7 +307,7 @@ if [[ $block_length == false ]]; then
 fi
 
 
-paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings-K$mash_kmer-F$mash_kmer_thres-x$sparse_map
+paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings-K$mash_kmer-F$mash_kmer_thres-x$sparse_map-g$hg_filter_ani_diff
 
 split_cmd=""
 if [[ $no_splits == true ]]; then
@@ -437,6 +441,7 @@ $mapper:
   sparse-map:         $sparse_map
   mash-kmer:          $mash_kmer
   mash-kmer-thres:    $mash_kmer_thres
+  hg-filter-ani-diff: $hg_filter_ani_diff
   exclude-delim:      $exclude_delim
   no-merge-segments:  $no_merge_segments
 seqwish:
@@ -496,6 +501,7 @@ if [[ "$input_paf" == false ]]; then
         $merge_cmd \
         "$input_fasta" \
         --lower-triangular \
+        --hg-filter-ani-diff $hg_filter_ani_diff \
         --approx-map \
         > "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
     fi
