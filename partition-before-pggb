@@ -501,7 +501,7 @@ if [[ "$input_paf" == false ]]; then
         $merge_cmd \
         "$input_fasta" \
         --lower-triangular \
-        --hg-filter-ani-diff $hg_filter_ani_diff
+        --hg-filter-ani-diff $hg_filter_ani_diff \
         --approx-map \
         > "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
     fi
