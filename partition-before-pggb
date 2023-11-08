@@ -612,9 +612,9 @@ ls "$prefix_paf".community.*.$fasta_ext | while read community; do
 cat <<EOT | tee -a "$log_file" "$param_file"
 pggb -i $community \\
      -o $community.out \\
-     -s $segment_length -l $block_length -p $map_pct_id -n $n_mappings -K $mash_kmer -F $mash_kmer_thres -g $hg_filter_ani_diff \\
+     -s $segment_length -l $block_length -p $map_pct_id -c $n_mappings -K $mash_kmer -F $mash_kmer_thres -g $hg_filter_ani_diff \\
      -k $min_match_length -f $sparse_factor -B $transclose_batch \\
-     -j $max_path_jump -e $max_edge_jump -G $target_poa_length $poa_params_cmd -O $poa_padding -d $pad_max_depth -Q $consensus_prefix \\
+     -n $n_haps -j $max_path_jump -e $max_edge_jump -G $target_poa_length $poa_params_cmd -O $poa_padding -d $pad_max_depth -Q $consensus_prefix \\
     $params
 EOT
 done
