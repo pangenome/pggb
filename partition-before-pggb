@@ -191,7 +191,7 @@ if [ "$show_help" == true ]; then
     echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: "$MAP_PCT_ID"]"
     echo "    -c, --n-mappings N          number of mappings for each segment [default: 1]"
     echo "    -g, --hg-filter-ani-diff N  filter out mappings unlikely to be N% less than the best mapping [default: "$HG_FILTER_ANI_DIFF"%]"
-    echo "    -N, --no-split              disable splitting of input sequences during mapping [default: enabled]"
+    echo "    -N, --no-splits             disable splitting of input sequences during mapping [default: enabled]"
     echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: "$MASH_KMER"]"
     echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: "$MASH_KMER_THRES"]"
