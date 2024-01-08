@@ -537,7 +537,7 @@ if [[ "$input_paf" == false ]]; then
 else
     seqwish_paf="$input_paf"
 fi
-if [[ ! -s $prefix_seqwish.seqwish.gfa || $resume == false ]]; then
+if [[ (! -s "$prefix_smoothed_output".final.gfa && ! -s $prefix_seqwish.seqwish.gfa ) || $resume == false ]]; then
     $timer -f "$fmt" seqwish \
         -s "$input_fasta" \
         -p "$seqwish_paf" \
@@ -578,7 +578,7 @@ if [[ $skip_normalization == false ]]; then
     smoothxg_poa_mode_cmd="-Z"
   fi
 
-  if [[ ! -s $prefix_smoothed.gfa || ($write_maf != false && ! -s ${prefix_smoothed_output}.maf) || $resume == false ]]; then
+  if [[ ! -s "$prefix_smoothed_output".final.gfa && (! -s $prefix_smoothed.gfa || ($write_maf != false && ! -s ${prefix_smoothed_output}.maf)) || $resume == false ]]; then
       resume=false # smoothxg is not deterministic, then all subsequent steps need to be rerun for consistency
 
       $timer -f "$fmt" smoothxg \
@@ -611,7 +611,7 @@ fi
 
 if [[ $reduce_redundancy == true ]]; then
     # Collapse redundant nodes where possible
-    if [[ ! -s "$prefix_smoothed_output".fix.gfa || ! -s "$prefix_smoothed_output".fix.affixes.tsv.gz || $resume == false ]]; then
+    if [[ ! -s "$prefix_smoothed_output".final.gfa && (! -s "$prefix_smoothed_output".fix.gfa || ! -s "$prefix_smoothed_output".fix.affixes.tsv.gz) || $resume == false ]]; then
       ( $timer -f "$fmt" gfaffix "$prefix_smoothed".gfa -o "$prefix_smoothed".fix.gfa | $timer -f "$fmt" pigz > "$prefix_smoothed_output".fix.affixes.tsv.gz ) 2> >(tee -a "$log_file")
     fi
 
