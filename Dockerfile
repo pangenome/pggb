@@ -99,7 +99,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
 
 RUN pip install multiqc==1.18
 
-RUN wget https://github.com/vgteam/vg/releases/download/v1.53.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
+RUN wget https://github.com/vgteam/vg/releases/download/v1.40.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
 RUN git clone https://github.com/pangenome/vcfbub \
     && cd vcfbub \
