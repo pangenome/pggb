@@ -669,7 +669,7 @@ if [[ $vcf_spec != false ]]; then
 
             #TODO: remove "bcftools annotate" when vcfwave will be bug-free.
             # The TYPE info sometimes is wrong/missing and there are variants without the ALT allele.
-            bcftools sort -T "$temp_dir" | bcftools annotate -x INFO/TYPE "$vcf_decomposed_tmp"  | awk '$5 != "."' > "$vcf_decomposed"
+            bcftools sort -T "$temp_dir" "$vcf_decomposed_tmp" | bcftools annotate -x INFO/TYPE | awk '$5 != "."' > "$vcf_decomposed"
             rm "$vcf_decomposed_tmp" "$vcf".gz
 
             bcftools stats "$vcf_decomposed" > "$vcf_decomposed".stats
