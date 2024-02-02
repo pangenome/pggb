@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('../lib/'))
 
 # -- Project information -----------------------------------------------------
 project = u'pggb'
-copyright = '2022, *Garrison E., *Guarracino A., Heumos S., Villani F., Bao Z., Tattini L., Hagmann J., Vorbrugg S., Ashbrook D. G., Thorell K., Chen H., Sudmant P. H., Liti G., Colonna V., Prins P. Revision v0.5.1-36e89b0'
+copyright = '2024, *Garrison E., *Guarracino A., Heumos S., Villani F., Bao Z., Tattini L., Hagmann J., Vorbrugg S., Ashbrook D. G., Thorell K., Chen H., Sudmant P. H., Liti G., Colonna V., Prins P. Revision v0.5.1-36e89b0'
 author = u'*Garrison E., *Guarracino A., Heumos S., Villani F., Bao Z., Tattini L., Hagmann, J., Vorbrugg S., Ashbrook D. G., Thorell K., Chen H., Sudmant P. H., Liti G., Colonna V., Prins P.'
 
 # The short X.Y version
