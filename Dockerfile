@@ -32,7 +32,6 @@ RUN apt-get update \
                        curl \
                        pigz \
                        tabix \
-                       bcftools \
                        samtools \
                        wget \
                        pip \
@@ -97,7 +96,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd ../ \
     && rm -rf GFAffix
 
-RUN pip install multiqc==1.18
+RUN pip install multiqc==1.21
 
 RUN wget https://github.com/vgteam/vg/releases/download/v1.40.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
@@ -177,6 +176,11 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key B8F25A8A73E
 RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.static \
     && mv bedtools.static /usr/local/bin/bedtools \
     && chmod +x /usr/local/bin/bedtools
+
+# current bcftools
+RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.19.tar.bz2 \
+    && tar xjf bcftools-1.19.tar.bz2 \
+    && bcftools-1.19/ && ./configure --prefix=/usr/local/bin/ && make && make install && export PATH=/usr/local/bin/bin:$PATH
 
 # copy required scripts
 COPY scripts/* /usr/local/bin/
