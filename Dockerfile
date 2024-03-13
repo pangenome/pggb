@@ -182,6 +182,8 @@ RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.
     && tar xjf bcftools-1.19.tar.bz2 \
     && bcftools-1.19/ && ./configure --prefix=/usr/local/bin/ && make && make install && export PATH=/usr/local/bin/bin:$PATH
 
+RUN bcftools
+
 # copy required scripts
 COPY scripts/* /usr/local/bin/
 COPY scripts /usr/local/bin/scripts/
