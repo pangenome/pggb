@@ -42,6 +42,13 @@ RUN apt-get update \
     && apt-get purge  \
     && rm -rf /var/lib/apt/lists/*
 
+# current bcftools
+RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.19.tar.bz2 \
+    && tar xjf bcftools-1.19.tar.bz2 \
+    && cd bcftools-1.19/ && ./configure --prefix=/usr/local/bin/ && make && make install && export PATH=/usr/local/bin/bin:$PATH && cd .. && cp /usr/local/bin/bin/* /usr/local/bin/
+
+RUN bcftools
+
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
@@ -176,13 +183,6 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key B8F25A8A73E
 RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.static \
     && mv bedtools.static /usr/local/bin/bedtools \
     && chmod +x /usr/local/bin/bedtools
-
-# current bcftools
-RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.19.tar.bz2 \
-    && tar xjf bcftools-1.19.tar.bz2 \
-    && cd bcftools-1.19/ && ./configure --prefix=/usr/local/bin/ && make && make install && export PATH=/usr/local/bin/bin:$PATH && cd .. && cp /usr/local/bin/bin/* /usr/local/bin/
-
-RUN bcftools
 
 # copy required scripts
 COPY scripts/* /usr/local/bin/
