@@ -32,7 +32,6 @@ RUN apt-get update \
                        curl \
                        pigz \
                        tabix \
-                       bcftools \
                        samtools \
                        wget \
                        pip \
@@ -42,6 +41,11 @@ RUN apt-get update \
     && apt-get clean \
     && apt-get purge  \
     && rm -rf /var/lib/apt/lists/*
+
+# current bcftools
+RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.19.tar.bz2 \
+    && tar xjf bcftools-1.19.tar.bz2 \
+    && cd bcftools-1.19/ && ./configure --prefix=/usr/local/bin/ && make && make install && export PATH=/usr/local/bin/bin:$PATH && cd .. && cp /usr/local/bin/bin/* /usr/local/bin/
 
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
@@ -97,7 +101,7 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd ../ \
     && rm -rf GFAffix
 
-RUN pip install multiqc==1.18
+RUN pip install multiqc==1.21
 
 RUN wget https://github.com/vgteam/vg/releases/download/v1.40.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
