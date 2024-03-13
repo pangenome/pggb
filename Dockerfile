@@ -180,7 +180,7 @@ RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.s
 # current bcftools
 RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.19.tar.bz2 \
     && tar xjf bcftools-1.19.tar.bz2 \
-    && bcftools-1.19/ && ./configure --prefix=/usr/local/bin/ && make && make install && export PATH=/usr/local/bin/bin:$PATH
+    && cd bcftools-1.19/ && ./configure --prefix=/usr/local/bin/ && make && make install && export PATH=/usr/local/bin/bin:$PATH && cd ..
 
 RUN bcftools
 
