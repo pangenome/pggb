@@ -670,7 +670,7 @@ if [[ $vcf_spec != false ]]; then
         if [[ ! -s $vcf || $resume == false ]]; then
           echo "[vg::deconstruct] making VCF with reference=$ref and delim=# xxxxxxxxxxxxx $s ------------ $pop_length"
           ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P "$ref" \
-                   -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
+                   -H "#" -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
           bcftools stats "$vcf" > "$vcf".stats
         fi
 
