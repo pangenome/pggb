@@ -257,7 +257,41 @@ if [ "$show_help" == true ]; then
     echo
     echo "Use wfmash, seqwish, smoothxg, odgi, gfaffix, and vg to build, project and display a pangenome graph."
     exit
-elif [ "$input_fasta" = "false" ] || [ "$output_dir" = "false" ]; then
+fi
+
+# Function to check if a tool is in PATH
+check_tool_availability() {
+  local tool_name=$1
+  local tool_command=$2
+
+  if ! command -v $tool_command &> /dev/null; then
+    # Instead of exiting immediately, add the tool name to the array of missing tools
+    missing_tools+=("$tool_name")
+  fi
+}
+
+# Check availability of each tool
+check_tool_availability "wfmash" "wfmash"
+check_tool_availability "seqwish" "seqwish"
+check_tool_availability "smoothxg" "smoothxg"
+check_tool_availability "odgi" "odgi"
+check_tool_availability "gfaffix" "gfaffix"
+check_tool_availability "vg" "vg"
+check_tool_availability "vcfbub" "vcfbub"
+check_tool_availability "vcfwave" "vcfwave"
+check_tool_availability "bcftools" "bcftools"
+check_tool_availability "MultiQC" "multiqc"
+
+# If there are missing tools, report them and exit
+if [ ${#missing_tools[@]} -ne 0 ]; then
+  echo "[pggb] ERROR: the following tools are not installed or not in the PATH:"
+  for tool in "${missing_tools[@]}"; do
+    echo "- $tool"
+  done
+  exit 1
+fi
+
+if [ "$input_fasta" = "false" ] || [ "$output_dir" = "false" ]; then
     >&2 echo "[pggb] ERROR: mandatory argument: -i/--input-fasta and -o/--output-dir"
     exit
 elif [ ! -f "${input_fasta}.fai" ]; then
