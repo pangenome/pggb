@@ -34,7 +34,7 @@ Core packages
 
         + `mashmap <https://github.com/marbl/MashMap>`_ variant for approximate mappings
         + `wavefront-guided <https://github.com/ekg/wflign>`_ global alignment for long secs
-        + `wavefront <https://github.com/smarco/WFA>`_ algorithm for base-level alignment
+        + `wavefront <https://github.com/smarco/WFA2-lib>`_ algorithm for base-level alignment
         + Pairwise alignments in `PAF <https://github.com/lh3/miniasm/blob/master/PAF.md>`_ format
 
     * - |seqwish|

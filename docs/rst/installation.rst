@@ -12,11 +12,9 @@ Manual-mode
    <br />
 
 You'll need `wfmash <https://github.com/waveygang/wfmash>`_, `seqwish <https://github.com/ekg/seqwish>`_, `smoothxg <https://github.com/pangenome/smoothxg>`_,
-`odgi <https://github.com/pangenome/odgi>`_, `gfaffix <https://github.com/marschall-lab/GFAffix>`_, `bcftools <https://github.com/samtools/bcftools>`_ and `vg <https://github.com/vgteam/vg>`_ 
-in your shell's ``PATH``. They can be build from source, or installed via Bioconda.
-Then, add the ``pggb`` bash script to your ``PATH`` to complete the installation. 
+`odgi <https://github.com/pangenome/odgi>`_, and `gfaffix <https://github.com/marschall-lab/GFAffix>`_ in your shell's ``PATH``. They can be build from source or installed via Bioconda. Then, add the ``pggb`` bash script to your ``PATH`` to complete the installation. 
 `How to add a binary to my path? <https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/>`_ |br|
-Optionally, install `MultiQC <https://multiqc.info/>`_ for reporting or `pigz <https://zlib.net/pigz/>`_ to compress the output files of the pipeline.
+Optionally, install `bcftools <https://github.com/samtools/bcftools>`_, `vcfbub <https://github.com/pangenome/vcfbub>`_, `vcfwave <https://github.com/vcflib/vcflib>`, and `vg <https://github.com/vgteam/vg>`_ for calling and normalizing variants, `MultiQC <https://multiqc.info/>`_ for generating summarized statistics in a MultiQC report, or `pigz <https://zlib.net/pigz/>`_ to compress the output files of the pipeline.
 
 
 Docker
@@ -56,7 +54,7 @@ you can run the container using the human leukocyte antigen (HLA) data provided 
 
 .. code-block:: bash
 
-    docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -C cons,100,1000,10000 -m"
+    docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -n 10 -t 16 -V 'gi|568815561' -o /data/out"
 
 
 The ``-v`` argument of ``docker run`` always expects a full path.
@@ -93,7 +91,7 @@ Staying in the ``pggb`` directory, we can run ``pggb`` with the locally build im
 
 .. code-block:: bash
 
-    docker run -it -v ${PWD}/data/:/data ${USER}/pggb /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -C cons,100,1000,10000 -m"
+    docker run -it -v ${PWD}/data/:/data ${USER}/pggb /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -n 10 -t 16 -V 'gi|568815561' -o /data/out"
 
 A script that handles the whole building process automatically can be found at `https://github.com/nf-core/pangenome#building-a-native-container <https://github.com/nf-core/pangenome#building-a-native-container>`_`.
 
@@ -124,7 +122,7 @@ Finally, run `pggb` from the Singularity image.
 For Singularity to be able to read and write files to a directory on the host operating system, we need to 'bind' that directory using the `-B` option and pass the `pggb` command as an argument.
 
 .. code-block:: bash
-    singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -v -V 'gi|568815561:#' -o /data/out -M -m"
+    singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -n 10 -t 16 -V 'gi|568815561' -o /data/out"
 
 A script that handles the whole building process automatically can be found at `https://github.com/nf-core/pangenome#building-a-native-container <https://github.com/nf-core/pangenome#building-a-native-container>`_`.
 

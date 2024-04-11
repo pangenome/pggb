@@ -36,7 +36,7 @@ Then, you can run `pggb` on each community (set of sequences) independently (see
 ```bash
 pggb -i in.fa \       # input file in FASTA format
      -o output \      # output directory
-     -n 9 \           # number of haplotypes
+     -n 9 \           # number of haplotypes (optional with PanSN-spec)
      -t 16 \          # number of threads
      -p 90 \          # minimum average nucleotide identity for segments
      -s 5k \          # segment length for scaffolding the graph
@@ -55,7 +55,7 @@ In the above example, to partition your sequences into communities, execute:
 ```bash
 partition-before-pggb -i in.fa \       # input file in FASTA format
                       -o output \      # output directory
-                      -n 9 \           # number of haplotypes
+                      -n 9 \           # number of haplotypes (optional with PanSN-spec)
                       -t 16 \          # number of threads
                       -p 90 \          # minimum average nucleotide identity for segments
                       -s 5k \          # segment length for scaffolding the graph
@@ -93,11 +93,10 @@ A goal of `pggb` is to reduce the complexity of making these alignments, which a
 
 ### key parameters
 
-The overall structure of `pggb`'s output graph is defined by three parameters: genome number (`-n`), segment length (`-s`), and pairwise identity (`-p`).
-Genome number is a given, but varies in ways that are difficult to infer and is thus left up to the user.
+The overall structure of `pggb`'s output graph is defined by two parameters: segment length (`-s`) and pairwise identity (`-p`).
 Segment length defines the seed length used by the "MashMap3" homology mapper in `wfmash`.
 The pairwise identity is the minimum allowed pairwise identity between seeds, which is estimated using a mash-type approximation based on k-mer Jaccard.
-Mappings are initiated from collinear chains of around 5 seeds (`-l, --block-length`), and extended greedily as far as possible, allowing up to `-n` minus 1 mappings at each query position.
+Mappings are initiated from collinear chains of around 5 seeds (`-l, --block-length`), and extended greedily as far as possible, allowing up to `-n` minus 1 mappings at each query position. Genome number (`-n`) is automatically computed if sequence names follow [PanSN-spec](https://github.com/pangenome/PanSN-spec).
 
 An additional parameter, `-k`, can also greatly affect graph structure by pruning matches shorter than a given threshold from the initial graph model.
 In effect, `-k N` removes any match shorter than `N`bp from the initial alignment.
@@ -113,7 +112,7 @@ Finally, we apply `gfaffix` to remove forks where both alternatives have the sam
 ### bringing your pangenome into focus
 
 We suggest using default parameters for initial tests.
-For instance `pggb -i in.fa.gz -o out1 -t 16 -n 100` would be a minimal build command for a 100-genome pangenome from `in.fa.gz`.
+For instance `pggb -i in.fa.gz -o out ` would be a minimal build command for a pangenome from `in.fa.gz`.
 The default parameters provide a good balance between runtime and graph quality for small-to-medium (1kbp-100Mbp) problems.
 
 However, we find that parameters may still need to be adjusted to fine-tune `pggb` to a given problem.
@@ -125,13 +124,13 @@ These parameters must be tuned so that the graph resolves structures of interest
 In preparation of a manuscript on `pggb`, we have developed a [set of example pangenome builds for a collection of diverse species](https://github.com/pangenome/pggb-paper/blob/main/workflows/AllSpecies.md#all-species).
 (These also use cross-validation against [`nucmer`](https://mummer4.github.io/) to evaluate graph quality.)
 
-Examples:
+Examples (`-n` is optional if sequence names follow [PanSN-spec](https://github.com/pangenome/PanSN-spec)):
 
-- Human, whole genome, 90 haplotypes: `pggb -p 98 -s 50k -n 90 -k 79 ...`
-- 15 helicobacter genomes, 5% divergence: `pggb -n 15 -k 79`, and 15 at higher (10%) divergence `pggb -n 15 -k 19 -P asm20 ...`
-- Yeast genomes, 5% divergence: `pggb`'s defaults should work well, just set `-n`.
-- Aligning 9 MHC class II assemblies from vertebrate genomes (5-10% divergence): `pggb -n 9 -k 29 ...`
-- A few thousand bacterial genomes `pggb -x auto -n 2146 ...`. In general mapping sparsification (`-x auto`) is a good idea when you have many hundreds to thousands of genomes.
+- Human, whole genome, 90 haplotypes: `pggb -p 98 -s 10k -k 47 [-n 90]...`
+- 15 helicobacter genomes, 5% divergence: `pggb -k 47 [-n 15]`, and 15 at higher (10%) divergence `pggb -k 23 [-n 15] ...`
+- Yeast genomes, 5% divergence: `pggb`'s defaults should work well.
+- Aligning 9 MHC class II assemblies from vertebrate genomes (5-10% divergence): `pggb -k 29 [-n 9] ...`
+- A few thousand bacterial genomes `pggb -x auto [-n 2000] ...`. In general mapping sparsification (`-x auto`) is a good idea when you have many hundreds to thousands of genomes.
 
 `pggb` defaults to using the number of threads as logical processors on the system (the thread count given by `getconf _NPROCESSORS_ONLN`).
 Use `-t` to set an appropriate level of parallelism if you can't use all the processors on your system.
@@ -147,7 +146,7 @@ cd pggb
 ./pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 500 -n 10 -t 16 -V 'gi|568815561' -o out -M
 ```
 
-This yields a variation graph in GFA format, a multiple sequence alignment in MAF format (`-M`), and several diagnostic images (all in the directory `out/`).
+This yields a variation graph in GFA format, a multiple sequence alignment in MAF format (`-M`), and several diagnostic images (all in the directory `out/`). We specify `-n` because the sequences do not follow [PanSN-spec](https://github.com/pangenome/PanSN-spec), so the number of haplotypes can not be automatically computed.
 We also call variants with `-V` with respect to the reference `gi|568815561`.
 
 ### 1D graph visualization
@@ -217,9 +216,10 @@ also rectifies issues with the initial wfa-based alignment.
 
 ### manual-mode
 
-You'll need `wfmash`, `seqwish`, `smoothxg`, `odgi`, `gfaffix`, and `vg` in your shell's `PATH`.
+You'll need `wfmash`, `seqwish`, `smoothxg`, `odgi`, and `gfaffix` in your shell's `PATH`.
 These can be individually built and installed.
 Then, put the `pggb` bash script in your path to complete installation.
+Optionally, install `bcftools`, `vcfbub`, `vcfwave`, and `vg` for calling and normalizing variants, `MultiQC` for generating summarized statistics in a MultiQC report, or `pigz` to compress the output files of the pipeline.
 
 ### Docker
 
@@ -252,7 +252,7 @@ cd pggb
 you can run the container using the [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```bash
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -V 'gi|568815561' -o /data/out"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -n 10 -t 16 -V 'gi|568815561' -o /data/out"
 ```
 
 The `-v` argument of `docker run` always expects a full path.
@@ -281,7 +281,7 @@ docker build --target binary -t ${USER}/pggb:latest .
 Staying in the `pggb` directory, we can run `pggb` with the locally built image:
 
 ```bash
-docker run -it -v ${PWD}/data/:/data ${USER}/pggb /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -V 'gi|568815561' -o /data/out"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -n 10 -t 16 -V 'gi|568815561' -o /data/out"
 ```
 A script that handles the whole building process automatically can be found at https://github.com/nf-core/pangenome#building-a-native-container.
 
@@ -308,7 +308,7 @@ Finally, run `pggb` from the Singularity image.
 For Singularity, to be able to read and write files to a directory on the host operating system, we need to 'bind' that directory using the `-B` option and pass the `pggb` command as an argument.
 
 ```bash
-singularity run -B ${PWD}/data:/data ../pggb_latest.sif pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 2000 -n 10 -t 16 -V 'gi|568815561' -o /data/out
+singularity run -B ${PWD}/data:/data ../pggb_latest.sif pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -n 10 -t 16 -V 'gi|568815561' -o /data/out
 ```
 
 A script that handles the whole building process automatically can be found at https://github.com/nf-core/pangenome#building-a-native-container.
@@ -359,7 +359,7 @@ The docker image already contains v1.11 of `MultiQC`.
 
 ## authors
 
-*Garrison E., *Guarracino A., Heumos S., Villani F., Bao Z., Tattini L., Hagmann J., Vorbrugg S., Ashbrook D. G., Thorell K., Chen H., Sudmant P. H., Liti G., Colonna V., Prins P.
+Erik Garrison*, Andrea Guarracino*, Simon Heumos, Flavia Villani, Zhigui Bao, Lorenzo Tattini, Jörg Hagmann, Sebastian Vorbrugg, Santiago Marco-Sola, Christian Kubica, David G. Ashbrook, Kaisa Thorell, Rachel L. Rusholme-Pilcher, Gianni Liti, Emilio Rudbeck, Sven Nahnsen, Zuyu Yang, Mwaniki N. Moses, Franklin L. Nobrega, Yi Wu, Hao Chen, Joep de Ligt, Peter H. Sudmant, Nicole Soranzo, Vincenza Colonna, Robert W. Williams, Pjotr Prins, Building pangenome graphs, bioRxiv 2023.04.05.535718; doi: https://doi.org/10.1101/2023.04.05.535718
 
 ## license
 
