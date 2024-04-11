@@ -18,8 +18,8 @@ Removing short matches can simplify the graph and remove spurious relationships 
 
     - ``-k[N], --min-match-len=[N]`` filter exact matches below this length during graph induction
 
-The default setting of ``-k 47`` is optimal for around 5% divergence, and we suggest lowering it for higher divergence and increasing it for lower divergence.
-Values up to ``-k 311`` work well for human haplotypes.
+The default setting of ``-k 23`` is optimal up to around 5% divergence, and we suggest lowering it for higher divergence and increasing it for lower divergence.
+Values up to ``-k 79`` work well for human haplotypes.
 In effect, setting ``-k`` to ``N`` means that we can tolerate a local pairwise difference rate of no more than ``1/N``.
 Thus, indels which may be represented by complex series of edit operations will be opened into `bubbles <https://www.liebertpub.com/doi/10.1089/cmb.2017.0251>`_ in the induced graph, and alignment regions with very low identity will be ignored.
 Using affine-gapped alignment (such as with `minimap2 <https://github.com/lh3/minimap2>`_) may reduce the impact of this step by representing large indels more precisely in the input alignments.
@@ -83,11 +83,11 @@ During our trials with the HPRC data, a default of ``0.03`` crystallized. But th
 Variant Calling
 ---------------
 
-    - ``-V[SPEC], --vcf-spec[SPEC]`` specify a set of references for variant calling with ``REF:DELIM[,REF:DELIM]*``
+    - ``-V[SPEC], --vcf-spec[SPEC]`` specify a set of references for variant calling with ``REF[:LEN][,REF[:LEN]]*``
 
-The paths matching ``^REF`` are used as a reference, while the sample haplotypes are derived from path names, e.g. when ``DELIM=#`` and with ``'-V chm13:#'``, 
+The paths matching ``^REF`` are used as a reference, while the sample haplotypes are derived from path names, e.g. when ``DELIM=#`` and with ``'-V chm13'``, 
 a path named ``HG002#1#ctg`` would be assigned to sample HG002 phase 1. Another example can be found at :ref:`quick_start_example`.
-
+If ``LEN`` is specified and greater than 0, the VCFs are decomposed, filtering sites whose max allele length is greater than ``LEN``.
 
 
 Reporting

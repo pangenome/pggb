@@ -16,7 +16,7 @@ that encode all possible variations including those in telomeres and centromeres
 
 .. code-block:: bash
 
-    pggb -p 98 -s 50000 -n 90 -k 79 ...
+    pggb -p 98 -s 10k -k 47 [-n 90]...
 
 Major Histocompatibility Complex
 ================================
@@ -25,7 +25,7 @@ We built a pangenome graph from 9 MHC class II assemblies from vertebrate genome
 
 .. code-block:: bash
 
-    pggb -n 9 -k 29 ...
+    pggb -k 29 [-n 9] ...
 
 Helicobacter
 ============
@@ -34,13 +34,13 @@ Building a pangenome graph from 15 `helicobacter` genomes with 5% divergence.
 
 .. code-block:: bash
 
-    pggb -n 15 -k 79 ...
+    pggb -k 47 [-n 15]...
     
 Building a pangenome graph from 15 `helicobacter` genomes with 10% divergence.
 
 .. code-block:: bash
     
-    pggb -n 15 -k 19 -P asm20 ...
+    pggb -k 23 [-n 15] ...
 
 Yeast
 =====
@@ -49,7 +49,7 @@ Building a pangenome graph from 7 yeast genomes with 5% divergence.
 
 .. code-block:: bash
 
-    pggb -n 7 -k 29 ...
+    pggb -k 23 [-n 7]...
 
 Bacterial genomes
 =====
@@ -58,6 +58,6 @@ Building a pangenome graph from A few thousand bacterial genomes.
 
 .. code-block:: bash
 
-    pggb -x auto -n 2146 ...
+    pggb -x auto [-n 2000] ...
 
 In general mapping sparsification (``-x auto``) is a good idea when you have many hundreds to thousands of genomes.
