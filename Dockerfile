@@ -50,7 +50,7 @@ RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout d7b696087f634f25e4b3de7dd521e1c4bfa3cf0e \
+    && git checkout 042386f01e6a5fdee5bb7d325529f035fbad0a29 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=sandybridge/g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
@@ -76,7 +76,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout e91d6b358caa8c5adff9cd5e9b97c458f35d7600 \
+    && git checkout 986b11fd33b95200f476769df50d2e1cd4c070d8 \
     && git submodule update --init --recursive \
     && sed -i 's/-msse4.1/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
