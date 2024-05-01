@@ -341,6 +341,36 @@ GUIX_PACKAGE_PATH=. guix package -i pggb
 A nextflow DSL2 port of `pggb` is developed by the [nf-core](https://nf-co.re/) community. See [nf-core/pangenome](https://github.com/nf-core/pangenome) for more details.
 
 
+## issues
+
+### Resolving the `'Illegal option --'` error with Singularity on HPC (thanks to Rachel Rusholme Pilcher)
+
+When running a Singularity container on an Alma Linux node in HPC, you may encounter an `'Illegal option --'` error. This issue arises due to an incompatibility between the Singularity container and the Alma Linux environment.
+
+The `which` function from the Alma Linux 9 host machine is inherited by the Singularity container during execution. However, the container's Debian operating system may not be compatible with this function, leading to the error. Modifying the container's definition file (`.def`) alone is insufficient to resolve this issue persistently.
+
+To address this problem, you have two options:
+
+1. **Unset the `which` function before running the container:**
+   
+   Before executing your Singularity container, run the following command on the host machine:
+   
+   ```
+   unset -f which
+   ```
+   
+   This command unsets the `which` function, preventing it from being inherited by the container.
+
+2. **Use the `-e` flag when running the container:**
+   
+   Execute your Singularity container using the `-e` flag:
+   
+   ```
+   singularity exec -e ...
+   ```
+   
+   The `-e` flag prevents any host environment variables and functions from being inherited by the container.
+
 ## reporting
 
 ### MultiQC
