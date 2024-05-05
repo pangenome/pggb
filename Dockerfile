@@ -175,8 +175,8 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key B8F25A8A73E
     && apt-get clean \
     && apt-get purge  \
     && rm -rf /var/lib/apt/lists/* \
-    && wget https://cran.r-project.org/src/contrib/Archive/data.table/data.table_1.14.8.tar.gz \
-    && R CMD INSTALL data.table_1.14.8.tar.gz
+    && wget https://cran.r-project.org/src/contrib/Archive/data.table/data.table_1.15.2.tar.gz \
+    && R CMD INSTALL data.table_1.15.2.tar.gz
 
 RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.static \
     && mv bedtools.static /usr/local/bin/bedtools \
