@@ -9,7 +9,6 @@ SEGMENT_LENGTH=5000
 MAP_PCT_ID=90
 MASH_KMER=19
 MASH_KMER_THRES=0.001
-HG_FILTER_ANI_DIFF=30
 
 # wfmash's parameters
 input_fasta=false
@@ -21,7 +20,7 @@ no_splits=false
 sparse_map=false
 mash_kmer=$MASH_KMER
 mash_kmer_thres=$MASH_KMER_THRES
-hg_filter_ani_diff=$HG_FILTER_ANI_DIFF
+hg_filter_ani_diff=false
 exclude_delim="#"
 
 # seqwish's default values
@@ -347,6 +346,15 @@ if [[ $block_length == false ]]; then
     block_length=$(echo "$segment_length * 5" | bc)
 fi
 
+if [[ $hg_filter_ani_diff == false ]]; then
+    if [[ $map_pct_id -ge 90 ]]; then
+        hg_filter_ani_diff=30
+    elif [[ $map_pct_id -lt 90 && $map_pct_id -ge 80 ]]; then
+        hg_filter_ani_diff=10
+    else
+        hg_filter_ani_diff=0
+    fi
+fi
 
 paf_spec=$mapper_letter-s$segment_length-l$block_length-p$map_pct_id-n$n_mappings-K$mash_kmer-F$mash_kmer_thres-x$sparse_map-g$hg_filter_ani_diff
 
@@ -483,7 +491,6 @@ general:
   compress:           $compress
   threads:            $threads
   poa_threads:        $poa_threads
-  respect_pansn:      $respect_pansn
 $mapper:
   version:            $mapper_version
   segment-length:     $segment_length
