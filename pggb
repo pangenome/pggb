@@ -347,9 +347,13 @@ if [[ $block_length == false ]]; then
 fi
 
 if [[ $hg_filter_ani_diff == false ]]; then
-    if [[ $map_pct_id -ge 90 ]]; then
+    # Convert map_pct_id to a format that bc can handle if it's not already a decimal
+    map_pct_id_decimal=$(printf "%.2f" "$map_pct_id")
+
+    # Using bc for floating-point comparison
+    if [[ $(echo "$map_pct_id_decimal >= 90" | bc) -eq 1 ]]; then
         hg_filter_ani_diff=30
-    elif [[ $map_pct_id -lt 90 && $map_pct_id -ge 80 ]]; then
+    elif [[ $(echo "$map_pct_id_decimal >= 80 && $map_pct_id_decimal < 90" | bc) -eq 1 ]]; then
         hg_filter_ani_diff=10
     else
         hg_filter_ani_diff=0
