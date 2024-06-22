@@ -95,20 +95,20 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout d630eb7d9827340f5f292e57cb3cb5e31e6f86f0 \
+    && git checkout a366a94a8d7a2ffbba8978cdbcd071a9b8a03bec \
     && cargo install --force --path . \
     && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix \
     && cd ../ \
     && rm -rf GFAffix
 
-RUN pip install multiqc==1.21
+RUN pip install multiqc==1.22.2
 
-RUN wget https://github.com/vgteam/vg/releases/download/v1.40.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
+RUN wget https://github.com/vgteam/vg/releases/download/v1.57.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
 RUN git clone https://github.com/pangenome/vcfbub \
     && cd vcfbub \
     && git pull \
-    && git checkout 26a1f0cb216a423f8547c4ad0e0ce38cb9d324b9 \
+    && git checkout db7775f63eab6891acb6000dddfa320146cd7c56 \
     && cargo install --force --path . \
     && mv /root/.cargo/bin/vcfbub /usr/local/bin/vcfbub \
     && cd ../ \
@@ -126,8 +126,8 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && rm -rf vcflib
 
 # Community detection dependencies
-RUN pip install igraph==0.10.4
-RUN pip install pycairo==1.23.0
+RUN pip install igraph==0.11.5
+RUN pip install pycairo==1.26.1
 
 # Additional tools
 RUN git clone https://github.com/ekg/fastix.git \
