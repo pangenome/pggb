@@ -590,7 +590,7 @@ if [[ "$input_paf" == false ]]; then
         "$input_fasta" \
         --lower-triangular \
         --hg-filter-ani-diff $hg_filter_ani_diff \
-        -i "$prefix_mappings_paf".mappings.$mapper.paf --invert-filtering \
+        -i "$prefix_mappings_paf".mappings.$mapper.paf \
         > "$prefix_paf".alignments.$mapper.paf) 2> >(tee -a "$log_file")
   fi
 fi
