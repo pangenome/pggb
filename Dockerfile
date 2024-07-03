@@ -52,7 +52,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
     && git pull \
     && git checkout 2243583d2f4272ce5254be9ffc508d492dd8b6f8 \
     && git submodule update --init --recursive \
-    && sed -i 's/  -flto//g' \
+    && sed -i 's/  -flto//g' CMakeLists.txt \
     && cmake -H. -Bbuild -DBUILD_STATIC=ON -DBUILD_RETARGETABLE=ON && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     # Libraries aren't getting installed
