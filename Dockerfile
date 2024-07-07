@@ -52,12 +52,11 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
     && git pull \
     && git checkout 2243583d2f4272ce5254be9ffc508d492dd8b6f8 \
     && git submodule update --init --recursive \
-    && sed -i 's/  -flto//g' CMakeLists.txt \
-    && cmake -H. -Bbuild -DBUILD_STATIC=ON -DBUILD_RETARGETABLE=ON && cmake --build build -- -j $(nproc) \
+    && sed -i 's/-march=native/-march=sandybridge/g' src/common/wflign/deps/WFA2-lib/Makefile \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     # Libraries aren't getting installed
-    && cp build/lib/libwfa2cpp.a /usr/local/lib/ \
-    && cp build/lib/libwfa2.a /usr/local/lib/ \
+    && cp build/lib/* /usr/local/lib/ \
     && cd ../ \
     && rm -rf wfmash
 
