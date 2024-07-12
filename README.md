@@ -12,7 +12,7 @@ A pangenome variation graph is a kind of generic multiple sequence alignment.
 It lets us understand any kind of sequence variation between a collection of genomes.
 It shows us similarity where genomes walk through the same parts of the graph, and differences where they do not.
 
-`pggb` generates this kind of graph using an all-to-all alignment of input sequences ([wfmash](https://github.com/waveygang/wfmash)), graph induction ([seqwish](https://doi.org/10.1101/2022.02.14.480413)), and progressive normalization ([smoothxg](https://github.com/pangenome/smoothxg), [gfaffix](https://github.com/marschall-lab/GFAffix)).
+`pggb` generates this kind of graph using an all-to-all alignment of input sequences ([wfmash](https://github.com/waveygang/wfmash)), graph induction ([seqwish]([https://doi.org/10.1101/2022.02.14.480413](https://doi.org/10.1093/bioinformatics/btac743))), and progressive normalization ([smoothxg](https://github.com/pangenome/smoothxg), [gfaffix](https://github.com/marschall-lab/GFAffix)).
 After construction, `pggb` generates diagnostic visualizations of the graph ([odgi](https://doi.org/10.1093/bioinformatics/btac308)).
 A variant call report (in VCF) representing both small and large variants can be generated based on any reference genome included in the graph ([vg](https://github.com/vgteam/vg)).
 `pggb` writes its output in [GFAv1](https://github.com/GFA-spec/GFA-spec/blob/master/GFA1.md) format, which can be used as input by numerous "genome graph" and pangenome tools, such as the [vg](https://github.com/vgteam/vg) and [odgi](https://doi.org/10.1093/bioinformatics/btac308) toolkits.
