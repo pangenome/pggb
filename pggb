@@ -278,7 +278,7 @@ check_tool_availability "gfaffix" "gfaffix"
 if [ "$vcf_spec" != "false" ]; then
 check_tool_availability "vg" "vg"
 check_tool_availability "vcfbub" "vcfbub"
-check_tool_availability "vcfwave" "vcfwave"
+#check_tool_availability "vcfwave" "vcfwave"
 check_tool_availability "bcftools" "bcftools"
 fi
 if [[ $multiqc == true ]]; then
@@ -308,7 +308,7 @@ fi
 # Check Pangenome Sequence Naming (PanSN)
 pansn_not_respected=false
 while IFS= read -r line; do
-  if [[ ! $line =~ ^([^#]+#)+[^#]+$ ]] && [[ "$pansn_not_respected" == "false" ]]; then
+  if [[ ! $line =~ ^([^#]+#)[0-9]+#[^#]+$ ]] && [[ "$pansn_not_respected" == "false" ]]; then
     pansn_not_respected=$line
     break
   fi
