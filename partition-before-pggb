@@ -308,7 +308,7 @@ fi
 # Check Pangenome Sequence Naming (PanSN)
 pansn_not_respected=false
 while IFS= read -r line; do
-    if [[ ! $line =~ ^([^#]+#)[0-9]+#[^#]+$ ]] && [[ "$pansn_not_respected" == "false" ]]; then
+  if [[ ! $line =~ ^([^#]+#)[0-9]+#[^#]+$ ]] && [[ "$pansn_not_respected" == "false" ]]; then
     pansn_not_respected=$line
     break
   fi
