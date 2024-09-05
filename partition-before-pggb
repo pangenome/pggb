@@ -171,10 +171,10 @@ while true ; do
     esac
 done
 
+SCRIPT_DIR=$( cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}" )" )" &> /dev/null && pwd )
+GIT_VERSION=$( cd "$SCRIPT_DIR"; git describe --always --tags --long )
+
 if [ "$show_version" == true ]; then
-    SCRIPT_DIR=$( cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}" )" )" &> /dev/null && pwd )
-    cd "$SCRIPT_DIR"
-    GIT_VERSION=$(git describe --always --tags --long)
     echo "pggb $GIT_VERSION"
     cd - &> /dev/null
     exit
@@ -495,6 +495,8 @@ general:
   compress:           $compress
   threads:            $threads
   poa_threads:        $poa_threads
+pggb:
+  version:            $GIT_VERSION
 $mapper:
   version:            $mapper_version
   segment-length:     $segment_length
