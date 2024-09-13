@@ -121,7 +121,7 @@ These parameters must be tuned so that the graph resolves structures of interest
 
 ### example builds for diverse species
 
-In preparation of a manuscript on `pggb`, we have developed a [set of example pangenome builds for a collection of diverse species](https://github.com/pangenome/pggb-paper/blob/main/workflows/AllSpecies.md#all-species).
+In preparation of a manuscript on `pggb`, we have developed a [set of example pangenome builds for a collection of diverse species](https://github.com/pangenome/pggb-paper/blob/main/workflows/0.Preparation.md#data).
 (These also use cross-validation against [`nucmer`](https://mummer4.github.io/) to evaluate graph quality.)
 
 Examples (`-n` is optional if sequence names follow [PanSN-spec](https://github.com/pangenome/PanSN-spec)):
