@@ -171,8 +171,9 @@ while true ; do
     esac
 done
 
+PGGB_RELEASE_VERSION="v0.6.0"
 SCRIPT_DIR=$( cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}" )" )" &> /dev/null && pwd )
-GIT_VERSION=$( cd "$SCRIPT_DIR"; git describe --always --tags --long )
+GIT_VERSION=$( cd "$SCRIPT_DIR"; git describe --always --tags --long 2> /dev/null || echo $PGGB_RELEASE_VERSION )
 
 if [ "$show_version" == true ]; then
     echo "pggb $GIT_VERSION"
