@@ -313,7 +313,7 @@ singularity run -B ${PWD}/data:/data ../pggb_latest.sif pggb -i /data/HLA/DRB1-3
 
 A script that handles the whole building process automatically can be found at https://github.com/nf-core/pangenome#building-a-native-container.
 
-### Bioconda (VCF NORMALIZATON IS CURRENTLY MISSING, SEE [THIS ISSUE](https://github.com/pangenome/pggb/issues/312))
+### Bioconda
 
 `pggb` recipes for Bioconda are available at https://anaconda.org/bioconda/pggb.
 To install the latest version using `Conda` execute:
