@@ -50,7 +50,7 @@ RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 73c1331bd2bf63c8c5fd3e89e69265e3060d754a \
+    && git checkout 517e1bc5c133ecac483a8479c5403f8a13d0fdd5 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=sandybridge/g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
@@ -63,7 +63,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout 75e807c7e3e92c84068cd3c2c7394eb313732a0a \
+    && git checkout 0eb6468be0814ab5a0cda10d12aa38cb87d086f1 \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
@@ -113,7 +113,7 @@ RUN git clone https://github.com/pangenome/vcfbub \
 
 RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && cd vcflib \
-    && git checkout 7c1a31a430d339adcb9a0c2fd3fd02d3b30e3549 \
+    && git checkout 2ad261860807e66dbd9bcb07fee1af47b9930d70 \
     && mkdir -p build \
     && cd build \
     && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . -- -j $(nproc) \
