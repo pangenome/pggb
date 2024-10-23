@@ -479,7 +479,7 @@ if [[ $poa_threads == 0 ]]; then
     poa_threads=$threads
 fi
 
-date=`date "+%m-%d-%Y_%H:%M:%S"`
+date=`date "+%m-%d-%Y_%H%M%S"`
 log_file="$prefix_smoothed_output".$date.log
 param_file="$prefix_smoothed_output".$date.params.yml
 
