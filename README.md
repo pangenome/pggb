@@ -19,7 +19,11 @@ A variant call report (in VCF) representing both small and large variants can be
 
 `pggb` has been tested at scale in the Human Pangenome Reference Consortium (HPRC) as a method to build a graph from the [draft human pangenome](https://doi.org/10.1101/2022.07.09.499321).
 
-Documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/) and [pggb manuscript](https://github.com/pangenome/pggb-paper) (WIP).
+Documentation at [https://pggb.readthedocs.io/](https://pggb.readthedocs.io/).
+
+## citation
+
+**Erik Garrison***, **Andrea Guarracino***, Simon Heumos, Flavia Villani, Zhigui Bao, Lorenzo Tattini, Jörg Hagmann, Sebastian Vorbrugg, Santiago Marco-Sola, Christian Kubica, David G. Ashbrook, Kaisa Thorell, Rachel L. Rusholme-Pilcher, Gianni Liti, Emilio Rudbeck, Sven Nahnsen, Zuyu Yang, Mwaniki N. Moses, Franklin L. Nobrega, Yi Wu, Hao Chen, Joep de Ligt, Peter H. Sudmant, Nicole Soranzo, Vincenza Colonna, Robert W. Williams, Pjotr Prins. Building pangenome graphs. **Nature Methods** (2024). https://doi.org/10.1038/s41592-024-02430-3
 
 ## quick start
 
@@ -386,10 +390,6 @@ pip install multiqc --user
 ```
 
 The docker image already contains v1.11 of `MultiQC`.
-
-## authors
-
-Erik Garrison*, Andrea Guarracino*, Simon Heumos, Flavia Villani, Zhigui Bao, Lorenzo Tattini, Jörg Hagmann, Sebastian Vorbrugg, Santiago Marco-Sola, Christian Kubica, David G. Ashbrook, Kaisa Thorell, Rachel L. Rusholme-Pilcher, Gianni Liti, Emilio Rudbeck, Sven Nahnsen, Zuyu Yang, Mwaniki N. Moses, Franklin L. Nobrega, Yi Wu, Hao Chen, Joep de Ligt, Peter H. Sudmant, Nicole Soranzo, Vincenza Colonna, Robert W. Williams, Pjotr Prins, Building pangenome graphs, bioRxiv 2023.04.05.535718; doi: https://doi.org/10.1101/2023.04.05.535718
 
 ## license
 
