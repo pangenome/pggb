@@ -116,7 +116,7 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && git checkout 404b98a6a0601a8668fb039eae5196fa1ae12525 \
     && mkdir -p build \
     && cd build \
-    && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug .. && cmake --build . -- -j $(nproc) \
+    && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug -DWFA_GITMODULE=ON .. && cmake --build . -- -j $(nproc) \
     && mv vcfwave /usr/local/bin/vcfwave \
     && mv vcfuniq /usr/local/bin/vcfuniq \
     && cd ../ \
