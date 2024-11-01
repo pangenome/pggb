@@ -1,8 +1,8 @@
-FROM debian:bullseye-slim AS binary
+FROM debian:bookworm-slim AS binary
 
 LABEL authors="Erik Garrison, Simon Heumos, Andrea Guarracino"
 LABEL description="Preliminary docker image containing all requirements for pggb pipeline"
-LABEL base_image="debian:bullseye-slim"
+LABEL base_image="debian:bookworm-slim"
 LABEL software="pggb"
 LABEL about.home="https://github.com/pangenome/pggb"
 LABEL about.license="SPDX:MIT"
@@ -164,16 +164,6 @@ RUN wget https://github.com/RealTimeGenomics/rtg-tools/releases/download/3.12.1/
 
 # Install R and required packages
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        software-properties-common \
-        dirmngr \
-        wget \
-        gpg-agent \
-        gnupg \
-    && gpg --keyserver keyserver.ubuntu.com --recv-key '95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7' \
-    && gpg --armor --export '95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7' | tee /etc/apt/trusted.gpg.d/cran_debian_key.asc \
-    && echo "deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
-    && apt-get update \
     && apt-get install -y --no-install-recommends \
         r-base \
     && apt-get clean \
