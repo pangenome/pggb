@@ -165,10 +165,10 @@ RUN wget https://github.com/RealTimeGenomics/rtg-tools/releases/download/3.12.1/
 # Install base R
 # NOTE: we might have to go the conda way on the long run
 # https://www.reddit.com/r/Rlanguage/comments/oi31xn/installing_r41_on_debian_bullseye_testing/
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key B8F25A8A73EACF41 \
-    && echo "deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
-    && apt update \
-    && apt install -y r-base \
+#RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key B8F25A8A73EACF41 \
+#    && echo "deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
+#    && apt update \
+RUN apt install -y r-base \
     && apt-get clean \
     && apt-get purge  \
     && rm -rf /var/lib/apt/lists/* \
