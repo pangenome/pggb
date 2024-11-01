@@ -113,7 +113,7 @@ RUN git clone https://github.com/pangenome/vcfbub \
 
 RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && cd vcflib \
-    && git checkout 404b98a6a0601a8668fb039eae5196fa1ae12525 \
+    && git checkout 0272f2d8ebcb70ca9b7f23a0aed3991e0a63ae6b \
     && mkdir -p build \
     && cd build \
     && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug -DWFA_GITMODULE=ON .. && cmake --build . -- -j $(nproc) \
