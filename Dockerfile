@@ -170,8 +170,9 @@ RUN apt-get update \
         wget \
         gpg-agent \
         gnupg \
-    && wget -qO- https://cloud.r-project.org/bin/linux/debian/marutter_pubkey.asc | gpg --dearmor -o /etc/apt/trusted.gpg.d/cran.gpg \
-    && echo "deb [signed-by=/etc/apt/trusted.gpg.d/cran.gpg] https://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
+    && wget -O- https://cloud.r-project.org/bin/linux/debian/marutter_pubkey.asc > /etc/apt/trusted.gpg.d/marutter.asc \
+    && apt-key add /etc/apt/trusted.gpg.d/marutter.asc \
+    && echo "deb https://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
         r-base \
