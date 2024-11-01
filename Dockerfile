@@ -170,9 +170,9 @@ RUN apt-get update \
         wget \
         gpg-agent \
         gnupg \
-    && wget -O- https://cloud.r-project.org/bin/linux/debian/marutter_pubkey.asc > /etc/apt/trusted.gpg.d/marutter.asc \
-    && apt-key add /etc/apt/trusted.gpg.d/marutter.asc \
-    && echo "deb https://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
+    && gpg --keyserver keyserver.ubuntu.com --recv-key '95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7' \
+    && gpg --armor --export '95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7' | tee /etc/apt/trusted.gpg.d/cran_debian_key.asc \
+    && echo "deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
         r-base \
