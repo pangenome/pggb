@@ -16,6 +16,8 @@ RUN apt-get update \
                        make \
                        g++-11 \
                        python3-dev \
+                       python3-pip \
+                       python3-venv \
                        pybind11-dev \
                        libbz2-dev \
                        bc \
@@ -38,6 +40,7 @@ RUN apt-get update \
                        libcairo2-dev \
                        unzip \
                        parallel \
+                       r-base \
     && apt-get clean \
     && apt-get purge  \
     && rm -rf /var/lib/apt/lists/*
@@ -98,8 +101,6 @@ RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd ../ \
     && rm -rf GFAffix
 
-RUN pip install multiqc==1.22.2
-
 RUN wget https://github.com/vgteam/vg/releases/download/v1.59.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
 RUN git clone https://github.com/pangenome/vcfbub \
@@ -121,10 +122,6 @@ RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && mv vcfuniq /usr/local/bin/vcfuniq \
     && cd ../ \
     && rm -rf vcflib
-
-# Community detection dependencies
-RUN pip install igraph==0.11.5
-RUN pip install pycairo==1.26.1
 
 # Additional tools
 RUN git clone https://github.com/ekg/fastix.git \
@@ -162,19 +159,23 @@ RUN wget https://github.com/RealTimeGenomics/rtg-tools/releases/download/3.12.1/
     && unzip rtg-tools-3.12.1-linux-x64.zip && sed -i 's/read -r -p "Would you like to enable automatic usage logging (y\/n)? " REPLY/REPLY="n"/g' /rtg-tools-3.12.1/rtg \
     && ln -s /rtg-tools-3.12.1/rtg /usr/local/bin/ && rtg help
 
-# Install R and required packages
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        r-base \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && wget https://cran.r-project.org/src/contrib/Archive/data.table/data.table_1.15.2.tar.gz \
+# Install R package
+RUN wget https://cran.r-project.org/src/contrib/Archive/data.table/data.table_1.15.2.tar.gz \
     && R CMD INSTALL data.table_1.15.2.tar.gz \
     && rm data.table_1.15.2.tar.gz
 
 RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.static \
     && mv bedtools.static /usr/local/bin/bedtools \
     && chmod +x /usr/local/bin/bedtools
+
+# Set up Python virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Install Python packages in virtual environment
+RUN pip install multiqc==1.22.2 \
+    && pip install igraph==0.11.5 \
+    && pip install pycairo==1.26.1
 
 # copy required scripts
 COPY scripts/* /usr/local/bin/
