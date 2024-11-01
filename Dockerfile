@@ -9,7 +9,7 @@ LABEL about.license="SPDX:MIT"
 
 # dependencies
 RUN apt-get update \
-    && apt-get install -y \
+    && apt-get install -y --no-install-recommends \
                        git \
                        bash \
                        cmake \
@@ -162,18 +162,22 @@ RUN wget https://github.com/RealTimeGenomics/rtg-tools/releases/download/3.12.1/
     && unzip rtg-tools-3.12.1-linux-x64.zip && sed -i 's/read -r -p "Would you like to enable automatic usage logging (y\/n)? " REPLY/REPLY="n"/g' /rtg-tools-3.12.1/rtg \
     && ln -s /rtg-tools-3.12.1/rtg /usr/local/bin/ && rtg help
 
-# Install base R
-# NOTE: we might have to go the conda way on the long run
-# https://www.reddit.com/r/Rlanguage/comments/oi31xn/installing_r41_on_debian_bullseye_testing/
-#RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-key B8F25A8A73EACF41 \
-#    && echo "deb http://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
-#    && apt update \
-RUN apt install -y r-base \
+# Install R and required packages
+RUN apt-get install -y --no-install-recommends \
+    software-properties-common \
+    dirmngr \
+    wget \
+    gpg-agent \
+    && wget -qO- https://cloud.r-project.org/bin/linux/debian/marutter_pubkey.asc | tee -a /etc/apt/trusted.gpg.d/cran_debian_key.asc \
+    && echo "deb https://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        r-base \
     && apt-get clean \
-    && apt-get purge  \
     && rm -rf /var/lib/apt/lists/* \
     && wget https://cran.r-project.org/src/contrib/Archive/data.table/data.table_1.15.2.tar.gz \
-    && R CMD INSTALL data.table_1.15.2.tar.gz
+    && R CMD INSTALL data.table_1.15.2.tar.gz \
+    && rm data.table_1.15.2.tar.gz
 
 RUN wget https://github.com/arq5x/bedtools2/releases/download/v2.31.0/bedtools.static \
     && mv bedtools.static /usr/local/bin/bedtools \
