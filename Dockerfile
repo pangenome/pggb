@@ -163,11 +163,12 @@ RUN wget https://github.com/RealTimeGenomics/rtg-tools/releases/download/3.12.1/
     && ln -s /rtg-tools-3.12.1/rtg /usr/local/bin/ && rtg help
 
 # Install R and required packages
-RUN apt-get install -y --no-install-recommends \
-    software-properties-common \
-    dirmngr \
-    wget \
-    gpg-agent \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        software-properties-common \
+        dirmngr \
+        wget \
+        gpg-agent \
     && wget -qO- https://cloud.r-project.org/bin/linux/debian/marutter_pubkey.asc | tee -a /etc/apt/trusted.gpg.d/cran_debian_key.asc \
     && echo "deb https://cloud.r-project.org/bin/linux/debian bullseye-cran40/" > /etc/apt/sources.list.d/r-packages.list \
     && apt-get update \
