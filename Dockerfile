@@ -41,6 +41,7 @@ RUN apt-get update \
                        unzip \
                        parallel \
                        r-base \
+                       libclang-dev \
     && apt-get clean \
     && apt-get purge  \
     && rm -rf /var/lib/apt/lists/*
