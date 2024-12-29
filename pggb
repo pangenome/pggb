@@ -425,18 +425,18 @@ fi
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params_cmd=""
 if [[ $poa_params == false ]]; then
-    poa_params_cmd="-P 1,19,39,3,81,1"
+    poa_params_cmd="-p 1,19,39,3,81,1"
 else
     if [[ $poa_params == "asm5" ]]; then
-        poa_params_cmd="-P 1,19,39,3,81,1"
+        poa_params_cmd="-p 1,19,39,3,81,1"
     elif [[ $poa_params == "asm10" ]]; then
-        poa_params_cmd="-P 1,9,16,2,41,1"
+        poa_params_cmd="-p 1,9,16,2,41,1"
     elif [[ $poa_params == "asm15" ]]; then
-        poa_params_cmd="-P 1,7,11,2,33,1"
+        poa_params_cmd="-p 1,7,11,2,33,1"
     elif [[ $poa_params == "asm20" ]]; then
-        poa_params_cmd="-P 1,4,6,2,26,1"
+        poa_params_cmd="-p 1,4,6,2,26,1"
     else
-        poa_params_cmd="-P $poa_params"
+        poa_params_cmd="-p $poa_params"
     fi
 fi
 
