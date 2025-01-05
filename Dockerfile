@@ -96,13 +96,13 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout a366a94a8d7a2ffbba8978cdbcd071a9b8a03bec \
+    && git checkout 7d5fe205a9c46fc4f916174cf8b1ee179e8cdb1f \
     && cargo install --force --path . \
     && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix \
     && cd ../ \
     && rm -rf GFAffix
 
-RUN wget https://github.com/vgteam/vg/releases/download/v1.59.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
+RUN wget https://github.com/vgteam/vg/releases/download/v1.62.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
 RUN git clone https://github.com/pangenome/vcfbub \
     && cd vcfbub \
