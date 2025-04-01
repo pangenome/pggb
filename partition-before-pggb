@@ -211,7 +211,7 @@ if [ "$show_help" == true ]; then
     echo "    -G, --poa-length-target N,M target sequence length for POA, one per pass [default: "$TARGET_POA_LENGTH"]"
     echo "    -P, --poa-params PARAMS     score parameters for POA in the form of match,mismatch,gap1,ext1,gap2,ext2"
     echo "                                may also be given as presets: asm5, asm10, asm15, asm20"
-    echo "                                [default: 1,19,39,3,81,1 = asm5]"
+    echo "                                [default: 1,4,6,2,26,1 = asm20]"
     echo "    -O, --poa-padding N         pad each end of each sequence in POA with N*(mean_seq_len) bp [default: "$POA_PADDING"]"
     echo "    -d, --pad-max-depth N       depth/haplotype at which we don't pad the POA problem [default: "$PAD_MAX_DEPTH"]"
     echo "    -b, --run-abpoa             run abPOA [default: SPOA]"
@@ -425,7 +425,7 @@ fi
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params_cmd=""
 if [[ $poa_params == false ]]; then
-    poa_params_cmd="-p 1,19,39,3,81,1"
+    poa_params_cmd="-p 1,4,6,2,26,1" # asm20 by default
 else
     if [[ $poa_params == "asm5" ]]; then
         poa_params_cmd="-p 1,19,39,3,81,1"

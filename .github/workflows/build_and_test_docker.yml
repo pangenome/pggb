@@ -10,11 +10,11 @@ jobs:
       - name: Build the Docker image
         run: docker build . --file Dockerfile --target binary --tag pggb
       - name: Run a test on the DRB1-3123 dataset (SPOA)
-        run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 800,900,1100 -n 10 -t 2 -Z -M -m -o drib1_spoa && ls drib1_spoa/* && head drib1_spoa/*.log -n 63"
+        run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/HLA/DRB1-3123.fa.gz -n 12 -t 2 -Z -M -m -o drib1_spoa && ls drib1_spoa/* && head drib1_spoa/*.log -n 63"
       - name: Run a test on the DRB1-3123 dataset (abPOA global)
-        run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -G 800,900,1100 -n 10 -t 2 -Z -M -m  --global-poa -b -o drib1_abpoa && ls drib1_abpoa/* && head drib1_abpoa/*.log -n 63"
+        run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/HLA/DRB1-3123.fa.gz -n 12 -t 2 -Z -M -m  --global-poa -b -o drib1_abpoa && ls drib1_abpoa/* && head drib1_abpoa/*.log -n 63"
       - name: Run a test on the DRB1-3123 dataset (paf)
-        run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/HLA/DRB1-3123.fa.gz -a data/paf/DRB1-3123.fa.15a1009.wfmash.paf -p 70 -s 3000 -G 2000 -n 10 -t 2 -Z -M -m -o drib1_paf && ls drib1_paf/* && head drib1_paf/*.log -n 63"
+        run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/HLA/DRB1-3123.fa.gz -a data/paf/DRB1-3123.fa.15a1009.wfmash.paf -G 2000 -n 10 -t 2 -Z -M -m -o drib1_paf && ls drib1_paf/* && head drib1_paf/*.log -n 63"
       - name: Run a test on the LPA dataset (SPOA global)
         run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/LPA/LPA.fa.gz -p 95 -s 20000 -G 800,900 -k 79 -t 2 -Z -O 0.001 -m --global-poa -o lpa -V 'chm13,chm1:1000' && ls lpa/* && head lpa/*.log -n 63"
       - name: Run a test for the gfa2evaluation script on a mini HPRC chrMT dataset
