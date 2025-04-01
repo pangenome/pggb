@@ -54,7 +54,7 @@ RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout 517e1bc5c133ecac483a8479c5403f8a13d0fdd5 \
+    && git checkout v0.13.1 \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=sandybridge/g' src/common/wflign/deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
@@ -96,7 +96,7 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout 7d5fe205a9c46fc4f916174cf8b1ee179e8cdb1f \
+    && git checkout e8872f40c2bd907d89f487ef83aa8d81904677e1 \
     && cargo install --force --path . \
     && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix \
     && cd ../ \
