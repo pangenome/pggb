@@ -73,13 +73,13 @@ pggb -i output/in.fa.dd9e519.community.0.fa \
      -o output/in.fa.dd9e519.community.0.fa.out \
      -p 5k -l 25000 -p 90 -n 9 -K 19 -F 0.001 \
      -k 19 -f 0 -B 10000000 \
-     -H 9 -j 0 -e 0 -G 700,900,1100 -P 1,19,39,3,81,1 -O 0.001 -d 100 -Q Consensus_ \
+     -H 9 -j 0 -e 0 -G 700,1100 -P 1,19,39,3,81,1 -O 0.001 -d 100 -Q Consensus_ \
      -V ref:1000 --threads 16 --poa-threads 16
 pggb -i output/in.fa.dd9e519.community.1.fa \
      -o output/in.fa.dd9e519.community.1.fa.out \
      -p 5k -l 25000 -p 90 -n 9 -K 19 -F 0.001 \
      -k 19 -f 0 -B 10000000 \
-     -H 9 -j 0 -e 0 -G 700,900,1100 -P 1,19,39,3,81,1 -O 0.001 -d 100 -Q Consensus_ \
+     -H 9 -j 0 -e 0 -G 700,1100 -P 1,19,39,3,81,1 -O 0.001 -d 100 -Q Consensus_ \
      -V ref:1000 --threads 16 --poa-threads 16
 ```
 
