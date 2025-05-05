@@ -5,10 +5,10 @@ set -eo pipefail
 
 
 # wfmash's default values
-SEGMENT_LENGTH=5000
+SEGMENT_LENGTH=1000
 MAP_PCT_ID=90
-MASH_KMER=19
-MASH_KMER_THRES=0.001
+MASH_KMER=15
+MASH_KMER_THRES=0.0002
 
 # wfmash's parameters
 input_fasta=false
@@ -130,7 +130,7 @@ while true ; do
         -p|--map-pct-id) map_pct_id=$2 ; shift 2 ;;
         -c|--n-mappings) n_mappings=$2 ; shift 2 ;;
         -g|--hg-filter-ani-diff) hg_filter_ani_diff=$2 ; shift 2 ;;
-        -N|--no-splits) no_splits=true ; shift ;;
+        #-N|--no-splits) no_splits=true ; shift ;;
         -x|--sparse-map) sparse_map=$2 ; shift 2 ;;
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -F|--mash-kmer-thres) mash_kmer_thres=$2 ; shift 2 ;;
@@ -193,7 +193,7 @@ if [ "$show_help" == true ]; then
     echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: "$MAP_PCT_ID"]"
     echo "    -c, --n-mappings N          number of mappings for each segment [default: 1]"
     echo "    -g, --hg-filter-ani-diff N  filter out mappings unlikely to be N% less than the best mapping [default: "$HG_FILTER_ANI_DIFF"%]"
-    echo "    -N, --no-splits             disable splitting of input sequences during mapping [default: enabled]"
+    #echo "    -N, --no-splits             disable splitting of input sequences during mapping [default: enabled]"
     echo "    -x, --sparse-map N          keep this fraction of mappings ('auto' for giant component heuristic) [default: 1.0]"
     echo "    -K, --mash-kmer N           kmer size for mapping [default: "$MASH_KMER"]"
     echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: "$MASH_KMER_THRES"]"
@@ -344,7 +344,7 @@ else
 fi
 
 if [[ $block_length == false ]]; then
-    block_length=$(echo "$segment_length * 5" | bc)
+    block_length=$(echo "$segment_length * 3" | bc)
 fi
 
 if [[ $hg_filter_ani_diff == false ]]; then
@@ -353,9 +353,9 @@ if [[ $hg_filter_ani_diff == false ]]; then
 
     # Using bc for floating-point comparison
     if [[ $(echo "$map_pct_id_decimal >= 90" | bc) -eq 1 ]]; then
-        hg_filter_ani_diff=30
+        hg_filter_ani_diff=0
     elif [[ $(echo "$map_pct_id_decimal >= 80 && $map_pct_id_decimal < 90" | bc) -eq 1 ]]; then
-        hg_filter_ani_diff=10
+        hg_filter_ani_diff=0
     else
         hg_filter_ani_diff=0
     fi
@@ -561,15 +561,15 @@ if [[ "$input_paf" == false ]]; then
         $split_cmd \
         $sparse_map_cmd \
         -k $mash_kmer \
-        -H $mash_kmer_thres \
+        -F $mash_kmer_thres \
         $exclude_cmd \
         -t $threads \
         --tmp-base $temp_dir \
         $merge_cmd \
         "$input_fasta" \
         --lower-triangular \
-        --hg-filter-ani-diff $hg_filter_ani_diff \
-        --approx-map \
+        --hg-filter "1.0,$hg_filter_ani_diff,99.9" \
+        --approx-mapping \
         > "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
     fi
 fi
