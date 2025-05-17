@@ -54,7 +54,7 @@ RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout ba8599f934840b4b1a836e83fee938d9c0bc5e77 \
+    && git checkout d0d42b2736c6c7c627da8d01858861fc7825819d \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=sandybridge/g' deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
