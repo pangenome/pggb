@@ -9,6 +9,7 @@ SEGMENT_LENGTH=1000
 MAP_PCT_ID=90
 MASH_KMER=15
 MASH_KMER_THRES=0.0002
+BATCH_SIZE=4G
 
 # wfmash's parameters
 input_fasta=false
@@ -22,6 +23,7 @@ mash_kmer=$MASH_KMER
 mash_kmer_thres=$MASH_KMER_THRES
 hg_filter_ani_diff=false
 exclude_delim="#"
+batch_size=$BATCH_SIZE
 
 # seqwish's default values
 MIN_MATCH_LENGTH=23
@@ -118,7 +120,7 @@ fi
 
 # read the options
 cmd=$0" "$@
-TEMP=`getopt -o i:o:D:a:p:c:g:s:l:K:F:k:x:f:B:Xn:j:P:O:Me:t:T:vhASY:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,hg-filter-ani-diff:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,skip-normalization,n-haplotypes:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,stats,exclude-delim:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,names-with-params,vcf-spec:,version -n 'pggb' -- "$@"`
+TEMP=`getopt -o i:o:D:a:p:c:g:s:l:K:F:k:x:f:B:Xn:j:P:O:Me:t:T:vhASY:b:G:Q:d:I:R:NbrmZzV: --long input-fasta:,output-dir:,temp-dir:,input-paf:,map-pct-id:,n-mappings:,hg-filter-ani-diff:,segment-length:,block-length-min:,mash-kmer:,mash-kmer-thres:,min-match-length:,sparse-map:,sparse-factor:,transclose-batch:,skip-normalization,n-haplotypes:,path-jump-max:,subpath-min:,edge-jump-max:,threads:,poa-threads:,skip-viz,do-layout,help,no-merge-segments,stats,exclude-delim:,batch-size:,poa-length-target:,poa-params:,poa-padding:,run-abpoa,global-poa,write-maf,consensus-spec:,consensus-prefix:,pad-max-depth:,block-id-min:,block-ratio-min:,no-splits,resume,keep-temp-files,multiqc,compress,names-with-params,vcf-spec:,version -n 'pggb' -- "$@"`
 eval set -- "$TEMP"
 
 # extract options and their arguments into variables.
@@ -135,6 +137,7 @@ while true ; do
         -K|--mash-kmer) mash_kmer=$2 ; shift 2 ;;
         -F|--mash-kmer-thres) mash_kmer_thres=$2 ; shift 2 ;;
         -Y|--exclude-delim) exclude_delim=$2 ; shift 2 ;;
+        -b|--batch-size) batch_size=$(parse_numeric $2) ; shift 2 ;;
         -k|--min-match-length) min_match_length=$2 ; shift 2 ;;
         -f|--sparse-factor) sparse_factor=$2 ; shift 2 ;;
         -B|--transclose-batch) transclose_batch=$(parse_numeric $2) ; shift 2 ;;
@@ -146,7 +149,7 @@ while true ; do
         -P|--poa-params) poa_params=$2 ; shift 2 ;;
         -O|--poa-padding) poa_padding=$2 ; shift 2 ;;
         -d|--pad-max-depth) pad_max_depth=$2 ; shift 2 ;;
-        -b|--run-abpoa) run_abpoa=true ; shift ;;
+        --run-abpoa) run_abpoa=true ; shift ;;
         -z|--global-poa) run_global_poa=true ; shift ;;
         -M|--write-maf) write_maf=true ; shift ;;
         #-C|--consensus-spec) consensus_spec=$2 ; shift 2 ;;
@@ -199,6 +202,7 @@ if [ "$show_help" == true ]; then
     echo "    -F, --mash-kmer-thres N     ignore the top % most-frequent kmers [default: "$MASH_KMER_THRES"]"
     echo "    -Y, --exclude-delim C       skip mappings when the query and target have the same"
     echo "                                prefix before the last occurrence of the given character C [default: #, assuming PanSN-spec]"
+    echo "    -b, --batch SIZE           target batch size for indexing [default: "$BATCH_SIZE"]"
     echo "   [seqwish]"
     echo "    -k, --min-match-len N       filter exact matches below this length [default: "$MIN_MATCH_LENGTH"]"
     echo "    -f, --sparse-factor N       keep this randomly selected fraction of input matches [default: no sparsification]"
@@ -425,18 +429,18 @@ fi
 # between asm10 and asm20 ~ 1,7,11,2,33,1
 poa_params_cmd=""
 if [[ $poa_params == false ]]; then
-    poa_params_cmd="-P 1,4,6,2,26,1" # asm20 by default
+    poa_params_cmd="-p 1,4,6,2,26,1" # asm20 by default
 else
     if [[ $poa_params == "asm5" ]]; then
-        poa_params_cmd="-P 1,19,39,3,81,1"
+        poa_params_cmd="-p 1,19,39,3,81,1"
     elif [[ $poa_params == "asm10" ]]; then
-        poa_params_cmd="-P 1,9,16,2,41,1"
+        poa_params_cmd="-p 1,9,16,2,41,1"
     elif [[ $poa_params == "asm15" ]]; then
-        poa_params_cmd="-P 1,7,11,2,33,1"
+        poa_params_cmd="-p 1,7,11,2,33,1"
     elif [[ $poa_params == "asm20" ]]; then
-        poa_params_cmd="-P 1,4,6,2,26,1"
+        poa_params_cmd="-p 1,4,6,2,26,1"
     else
-        poa_params_cmd="-P $poa_params"
+        poa_params_cmd="-p $poa_params"
     fi
 fi
 
@@ -479,7 +483,7 @@ if [[ $poa_threads == 0 ]]; then
     poa_threads=$threads
 fi
 
-date=`date "+%m-%d-%Y_%H:%M:%S"`
+date=`date "+%m-%d-%Y_%H%M%S"`
 log_file="$prefix_smoothed_output".$date.log
 param_file="$prefix_smoothed_output".$date.params.yml
 
@@ -511,6 +515,7 @@ $mapper:
   hg-filter-ani-diff: $hg_filter_ani_diff
   exclude-delim:      $exclude_delim
   no-merge-segments:  $no_merge_segments
+  batch-size:         $batch_size
 seqwish:
   version:            $(seqwish --version 2>&1)
   min-match-len:      $min_match_length
@@ -570,6 +575,7 @@ if [[ "$input_paf" == false ]]; then
         --lower-triangular \
         --hg-filter "1.0,$hg_filter_ani_diff,99.9" \
         --approx-mapping \
+        -b $batch_size \
         > "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
     fi
 fi
