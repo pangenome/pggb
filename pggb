@@ -174,7 +174,7 @@ while true ; do
     esac
 done
 
-PGGB_RELEASE_VERSION="v0.7.2"
+PGGB_RELEASE_VERSION="v0.7.4"
 SCRIPT_DIR=$( cd -- "$(dirname -- "$(readlink -f "${BASH_SOURCE[0]}" )" )" &> /dev/null && pwd )
 GIT_VERSION=$( cd "$SCRIPT_DIR"; git describe --always --tags --long 2> /dev/null || echo $PGGB_RELEASE_VERSION )
 
