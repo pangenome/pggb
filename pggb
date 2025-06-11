@@ -581,7 +581,7 @@ if [[ "$input_paf" == false ]]; then
             --tmp-base $temp_dir \
             $merge_cmd \
             "$input_fasta" \
-            -T "$prefix" \
+            -T "${prefix}#" \
             --lower-triangular \
             --hg-filter "1.0,$hg_filter_ani_diff,99.9" \
             --approx-mapping \
