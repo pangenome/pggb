@@ -54,7 +54,7 @@ RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
-    && git checkout bf225ad63ca4d4b9d56f4040aeae9cdbd6fbbe4c \
+    && git checkout 62de952d8b11d57a6c1962dedeb7d147adfd77dd \
     && git submodule update --init --recursive \
     && sed -i 's/-march=native/-march=sandybridge/g' deps/WFA2-lib/Makefile \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
@@ -67,7 +67,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout 9a7131d89a212f87e7641f0e7191b098dc92a910 \
+    && git checkout 80636886486a1bfacfc723158c6fa33f1fc8d0de \
     && git submodule update --init --recursive \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
@@ -77,7 +77,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout 2a6f17f3cf14d0c927abdad2eeaaef83056fb5e6 \
+    && git checkout d225dc3156fab3f363519f64fd50bb9398e61b3c \
     && git submodule update --init --recursive \
     && sed -i 's/-msse4.1/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
     && sed -i 's/-march=native/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
@@ -107,7 +107,7 @@ RUN wget https://github.com/vgteam/vg/releases/download/v1.65.0/vg && chmod +x v
 RUN git clone https://github.com/pangenome/vcfbub \
     && cd vcfbub \
     && git pull \
-    && git checkout db7775f63eab6891acb6000dddfa320146cd7c56 \
+    && git checkout 77289654b246a4e3422902d04277e258d9fabe9a \
     && cargo install --force --path . \
     && mv /root/.cargo/bin/vcfbub /usr/local/bin/vcfbub \
     && cd ../ \
@@ -115,7 +115,7 @@ RUN git clone https://github.com/pangenome/vcfbub \
 
 RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && cd vcflib \
-    && git checkout 4343a2056d3e078410a4b0b1daed5f17c4e0f99a \
+    && git checkout 885afe1abb9c7ec3e72696bd7dbf796e75e1daa8 \
     && mkdir -p build \
     && cd build \
     && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug -DWFA_GITMODULE=ON .. && cmake --build . -- -j $(nproc) \
