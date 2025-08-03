@@ -560,39 +560,69 @@ echo -e "\nRunning pggb\n" >> "$log_file"
 if [[ "$input_paf" == false ]]; then
   if [[ ! -s "$prefix_paf".alignments.$mapper.paf || $resume == false ]]; then
 
-    # Get unique prefixes from the FASTA index
-    prefixes=$(cut -f 1 "${input_fasta}.fai" | cut -f 1 -d '#' | sort -u)
+    # Count total number of sequences
+    num_sequences=$(wc -l < "${input_fasta}.fai")
     
-    # Run mapping for each prefix ONLY if its file doesn't exist
-    for prefix in $prefixes; do
-      if [[ ! -s "$prefix_mappings_paf".mappings.$mapper.$prefix.paf || $resume == false ]]; then
-        echo "[pggb] Running mapping for prefix: $prefix" | tee -a "$log_file"
-        ($timer -f "$fmt" wfmash \
-            -s $segment_length \
-            -l $block_length \
-            -p $map_pct_id \
-            -n $n_mappings \
-            $split_cmd \
-            $sparse_map_cmd \
-            -k $mash_kmer \
-            -F $mash_kmer_thres \
-            $exclude_cmd \
-            -t $threads \
-            --tmp-base $temp_dir \
-            $merge_cmd \
-            "$input_fasta" \
-            -T "${prefix}#" \
-            --lower-triangular \
-            --hg-filter "1.0,$hg_filter_ani_diff,99.9" \
-            --approx-mapping \
-            -b $batch_size \
-            > "$prefix_mappings_paf".mappings.$mapper.$prefix.paf) 2> >(tee -a "$log_file")
-      fi
-    done
-    
-    # Merge all mapping files into one
-    echo "[pggb] Merging mapping files" | tee -a "$log_file"
-    cat "$prefix_mappings_paf".mappings.$mapper.*.paf > "$prefix_mappings_paf".mappings.$mapper.paf
+    if [[ $num_sequences -lt 50 ]]; then
+      # For fewer than 50 sequences, run a single all-vs-all wfmash mapping
+      echo "[pggb] Running single all-vs-all mapping for $num_sequences sequences" | tee -a "$log_file"
+      ($timer -f "$fmt" wfmash \
+          -s $segment_length \
+          -l $block_length \
+          -p $map_pct_id \
+          -n $n_mappings \
+          $split_cmd \
+          $sparse_map_cmd \
+          -k $mash_kmer \
+          -F $mash_kmer_thres \
+          $exclude_cmd \
+          -t $threads \
+          --tmp-base $temp_dir \
+          $merge_cmd \
+          "$input_fasta" \
+          --lower-triangular \
+          --hg-filter "1.0,$hg_filter_ani_diff,99.9" \
+          --approx-mapping \
+          -b $batch_size \
+          > "$prefix_mappings_paf".mappings.$mapper.paf) 2> >(tee -a "$log_file")
+    else
+      # For 50 or more sequences, use the existing prefix-based approach
+      echo "[pggb] Running prefix-based mapping for $num_sequences sequences" | tee -a "$log_file"
+      
+      # Get unique prefixes from the FASTA index
+      prefixes=$(cut -f 1 "${input_fasta}.fai" | cut -f 1 -d '#' | sort -u)
+      
+      # Run mapping for each prefix ONLY if its file doesn't exist
+      for prefix in $prefixes; do
+        if [[ ! -s "$prefix_mappings_paf".mappings.$mapper.$prefix.paf || $resume == false ]]; then
+          echo "[pggb] Running mapping for prefix: $prefix" | tee -a "$log_file"
+          ($timer -f "$fmt" wfmash \
+              -s $segment_length \
+              -l $block_length \
+              -p $map_pct_id \
+              -n $n_mappings \
+              $split_cmd \
+              $sparse_map_cmd \
+              -k $mash_kmer \
+              -F $mash_kmer_thres \
+              $exclude_cmd \
+              -t $threads \
+              --tmp-base $temp_dir \
+              $merge_cmd \
+              "$input_fasta" \
+              -T "${prefix}#" \
+              --lower-triangular \
+              --hg-filter "1.0,$hg_filter_ani_diff,99.9" \
+              --approx-mapping \
+              -b $batch_size \
+              > "$prefix_mappings_paf".mappings.$mapper.$prefix.paf) 2> >(tee -a "$log_file")
+        fi
+      done
+      
+      # Merge all mapping files into one
+      echo "[pggb] Merging mapping files" | tee -a "$log_file"
+      cat "$prefix_mappings_paf".mappings.$mapper.*.paf > "$prefix_mappings_paf".mappings.$mapper.paf
+    fi
 
     # Run alignment step using the merged mapping file
     ($timer -f "$fmt" wfmash \
