@@ -567,7 +567,7 @@ if [[ "$input_paf" == false ]]; then
       # For fewer than 50 sequences, run a single all-vs-all wfmash mapping
       echo "[pggb] Running single all-vs-all mapping for $num_sequences sequences" | tee -a "$log_file"
       ($timer -f "$fmt" wfmash \
-          -s $segment_length \
+          -w $segment_length \
           -l $block_length \
           -p $map_pct_id \
           -n $n_mappings \
@@ -597,7 +597,7 @@ if [[ "$input_paf" == false ]]; then
         if [[ ! -s "$prefix_mappings_paf".mappings.$mapper.$prefix.paf || $resume == false ]]; then
           echo "[pggb] Running mapping for prefix: $prefix" | tee -a "$log_file"
           ($timer -f "$fmt" wfmash \
-              -s $segment_length \
+              -w $segment_length \
               -l $block_length \
               -p $map_pct_id \
               -n $n_mappings \
@@ -626,7 +626,7 @@ if [[ "$input_paf" == false ]]; then
 
     # Run alignment step using the merged mapping file
     ($timer -f "$fmt" wfmash \
-        -s $segment_length \
+        -w $segment_length \
         -l $block_length \
         -p $map_pct_id \
         -n $n_mappings \
