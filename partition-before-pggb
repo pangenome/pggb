@@ -559,7 +559,7 @@ echo -e "\nRunning partitioning\n" >> "$log_file"
 if [[ "$input_paf" == false ]]; then
   if [[ ! -s "$prefix_mappings_paf".mappings.$mapper.paf || $resume == false ]]; then
     ($timer -f "$fmt" wfmash \
-        -s $segment_length \
+        -w $segment_length \
         -l $block_length \
         -p $map_pct_id \
         -n $n_mappings \
