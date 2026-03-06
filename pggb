@@ -589,7 +589,7 @@ if [[ "$input_paf" == false ]]; then
       for prefix in $prefixes; do
         if [[ ! -s "$prefix_mappings_paf".mappings.$mapper.$prefix.paf || $resume == false ]]; then
           echo "[pggb] Running mapping for prefix: $prefix" | tee -a "$log_file"
-          ($timer -f "$fmt" wfmash -f \
+          ($timer -f "$fmt" wfmash \
               -s $segment_length \
               -l $block_length \
               -p $map_pct_id \
@@ -617,7 +617,7 @@ if [[ "$input_paf" == false ]]; then
     fi
 
     # Run alignment step using the merged mapping file
-    ($timer -f "$fmt" wfmash -f \
+    ($timer -f "$fmt" wfmash \
         -s $segment_length \
         -l $block_length \
         -p $map_pct_id \
