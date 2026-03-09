@@ -62,6 +62,9 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     # Libraries aren't getting installed
     && cp build/lib/* /usr/local/lib/ \
+    && cp scripts/paf2dotplot /usr/local/bin/paf2dotplot \
+    && chmod +x /usr/local/bin/paf2dotplot \
+    && sed -i 's/kill 1, \$child;/kill 1, \$child if \$child > 1;/' /usr/local/bin/paf2dotplot \
     && cd ../ \
     && rm -rf wfmash
 
