@@ -42,6 +42,7 @@ RUN apt-get update \
                        parallel \
                        r-base \
                        libclang-dev \
+                       gnuplot \
     && apt-get clean \
     && apt-get purge  \
     && rm -rf /var/lib/apt/lists/*
