@@ -141,6 +141,8 @@ RUN git clone https://github.com/ekg/fastix.git \
 RUN PORTABLE=1 git clone --recursive https://github.com/pangenome/impg.git \
     && cd impg \
     && git pull \
+    && git checkout 457136146d1c7248012d0acd0a69bbb3c119eb08 \
+    && git submodule update --init --recursive \
     && PORTABLE=1 cargo install --force --path . \
     && mv /root/.cargo/bin/impg /usr/local/bin/impg \
     && cd ../ \
@@ -149,6 +151,7 @@ RUN PORTABLE=1 git clone --recursive https://github.com/pangenome/impg.git \
 RUN git clone https://github.com/pangenome/gfalook.git \
     && cd gfalook \
     && git pull \
+    && git checkout 5199d77ecc4980b181177c16b94f6e56c0d06e4c \
     && cargo install --force --path . \
     && mv /root/.cargo/bin/gfalook /usr/local/bin/gfalook \
     && cd ../ \
