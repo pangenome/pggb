@@ -138,6 +138,22 @@ RUN git clone https://github.com/ekg/fastix.git \
     && cd ../ \
     && rm -rf fastix
 
+RUN git clone --recursive https://github.com/pangenome/impg.git \
+    && cd impg \
+    && git pull \
+    && cargo install --force --path . \
+    && mv /root/.cargo/bin/impg /usr/local/bin/impg \
+    && cd ../ \
+    && rm -rf impg
+
+RUN git clone https://github.com/pangenome/gfalook.git \
+    && cd gfalook \
+    && git pull \
+    && cargo install --force --path . \
+    && mv /root/.cargo/bin/gfalook /usr/local/bin/gfalook \
+    && cd ../ \
+    && rm -rf gfalook
+
 RUN git clone https://github.com/ekg/pafplot.git \
     && cd pafplot \
     && git pull \
