@@ -138,10 +138,10 @@ RUN git clone https://github.com/ekg/fastix.git \
     && cd ../ \
     && rm -rf fastix
 
-RUN git clone --recursive https://github.com/pangenome/impg.git \
+RUN PORTABLE=1 git clone --recursive https://github.com/pangenome/impg.git \
     && cd impg \
     && git pull \
-    && cargo install --force --path . \
+    && PORTABLE=1 cargo install --force --path . \
     && mv /root/.cargo/bin/impg /usr/local/bin/impg \
     && cd ../ \
     && rm -rf impg
