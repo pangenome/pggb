@@ -57,8 +57,8 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
     && git pull \
     && git checkout v0.14.1 \
     && git submodule update --init --recursive \
-    && sed -i 's/-march=native/-march=sandybridge/g' deps/WFA2-lib/Makefile \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
+    && find . \( -name CMakeLists.txt -o -name Makefile \) -exec sed -i 's/-march=native/-march=x86-64-v2/g' {} + \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=x86-64-v2 -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     # Libraries aren't getting installed
     && cp build/lib/* /usr/local/lib/ \
@@ -73,7 +73,8 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
     && git pull \
     && git checkout 80636886486a1bfacfc723158c6fa33f1fc8d0de \
     && git submodule update --init --recursive \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
+    && find . \( -name CMakeLists.txt -o -name Makefile \) -exec sed -i 's/-march=native/-march=x86-64-v2/g' {} + \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=x86-64-v2 -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/seqwish /usr/local/bin/seqwish \
     && cd ../ \
     && rm -rf seqwish
@@ -83,10 +84,9 @@ RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && git pull \
     && git checkout d225dc3156fab3f363519f64fd50bb9398e61b3c \
     && git submodule update --init --recursive \
-    && sed -i 's/-msse4.1/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
-    && sed -i 's/-march=native/-march=sandybridge -Ofast/g' deps/spoa/CMakeLists.txt \
-    && sed -i 's/-march=native/-march=sandybridge -Ofast/g' deps/abPOA/CMakeLists.txt \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=sandybridge -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
+    && find . \( -name CMakeLists.txt -o -name Makefile \) -exec sed -i 's/-march=native/-march=x86-64-v2/g' {} + \
+    && sed -i 's/-msse4.1/-march=x86-64-v2/g' deps/spoa/CMakeLists.txt \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=x86-64-v2 -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
     && cp bin/smoothxg /usr/local/bin/smoothxg \
     && cp deps/odgi/bin/odgi /usr/local/bin/odgi \
     && cd ../ \

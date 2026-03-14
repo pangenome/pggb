@@ -6,9 +6,31 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Build the Docker image
         run: docker build . --file Dockerfile --target binary --tag pggb
+      - name: Install QEMU user-mode for portability testing
+        run: sudo apt-get update && sudo apt-get install -y qemu-user-static
+      - name: Test portability (no AVX instructions required)
+        run: |
+          # Run each binary under QEMU emulating a Westmere CPU (no AVX support).
+          # If any binary contains AVX instructions, QEMU will raise SIGILL (exit code 132).
+          # This reproduces the "Illegal instruction" crash seen on Apple Silicon Macs
+          # running x86_64 Docker images under QEMU emulation.
+          failed=0
+          for bin in wfmash seqwish smoothxg; do
+            echo "==> Testing $bin for AVX portability..."
+            docker run -v /usr/bin/qemu-x86_64-static:/usr/bin/qemu-x86_64-static pggb \
+              bash -c "qemu-x86_64-static -cpu Westmere /usr/local/bin/$bin --version 2>&1; ret=\$?; if [ \$ret -eq 132 ]; then echo 'FATAL: $bin crashed with Illegal instruction (AVX?)'; exit 1; fi; exit 0" || failed=1
+          done
+          echo "==> Testing odgi for AVX portability..."
+          docker run -v /usr/bin/qemu-x86_64-static:/usr/bin/qemu-x86_64-static pggb \
+            bash -c "qemu-x86_64-static -cpu Westmere /usr/local/bin/odgi version 2>&1; ret=\$?; if [ \$ret -eq 132 ]; then echo 'FATAL: odgi crashed with Illegal instruction (AVX?)'; exit 1; fi; exit 0" || failed=1
+          if [ "$failed" -eq 1 ]; then
+            echo "Portability test FAILED: one or more binaries require AVX instructions"
+            exit 1
+          fi
+          echo "All binaries passed portability test (no AVX required)"
       - name: Run a test on the DRB1-3123 dataset (SPOA)
         run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/HLA/DRB1-3123.fa.gz -n 12 -t 2 -Z -M -m -o drib1_spoa && ls drib1_spoa/* && head drib1_spoa/*.log -n 63"
       - name: Run a test on the DRB1-3123 dataset (abPOA global)
