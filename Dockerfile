@@ -71,7 +71,7 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
 RUN git clone --recursive https://github.com/ekg/seqwish \
     && cd seqwish \
     && git pull \
-    && git checkout 80636886486a1bfacfc723158c6fa33f1fc8d0de \
+    && git checkout 90dc76e1204fcfc6d9642373cb05dca8aa197164 \
     && git submodule update --init --recursive \
     && find . \( -name CMakeLists.txt -o -name Makefile \) -exec sed -i 's/-march=native/-march=x86-64-v2/g' {} + \
     && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=x86-64-v2 -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
@@ -82,7 +82,7 @@ RUN git clone --recursive https://github.com/ekg/seqwish \
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
     && git pull \
-    && git checkout d225dc3156fab3f363519f64fd50bb9398e61b3c \
+    && git checkout 0ea0470a6034b29776689b05b75916c609d06d1e \
     && git submodule update --init --recursive \
     && find . \( -name CMakeLists.txt -o -name Makefile \) -exec sed -i 's/-march=native/-march=x86-64-v2/g' {} + \
     && sed -i 's/-msse4.1/-march=x86-64-v2/g' deps/spoa/CMakeLists.txt \
@@ -100,13 +100,13 @@ RUN cargo --help
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \
     && git pull \
-    && git checkout e8872f40c2bd907d89f487ef83aa8d81904677e1 \
+    && git checkout 460e0dd798a9da7d12aef4f9181419d71489da95 \
     && cargo install --force --path . \
     && mv /root/.cargo/bin/gfaffix /usr/local/bin/gfaffix \
     && cd ../ \
     && rm -rf GFAffix
 
-RUN wget https://github.com/vgteam/vg/releases/download/v1.65.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
+RUN wget https://github.com/vgteam/vg/releases/download/v1.71.0/vg && chmod +x vg && mv vg /usr/local/bin/vg
 
 RUN git clone https://github.com/pangenome/vcfbub \
     && cd vcfbub \
@@ -119,7 +119,7 @@ RUN git clone https://github.com/pangenome/vcfbub \
 
 RUN git clone --recursive https://github.com/vcflib/vcflib.git \
     && cd vcflib \
-    && git checkout 8b5d4c8143ed486669f9f0f124cae0882b747fb8 \
+    && git checkout b118a9bfd99b07da9d40d0bd8b3c2bdc4523b568 \
     && mkdir -p build \
     && cd build \
     && cmake -DZIG=OFF -DCMAKE_BUILD_TYPE=Debug -DWFA_GITMODULE=ON .. && cmake --build . -- -j $(nproc) \
@@ -141,7 +141,7 @@ RUN git clone https://github.com/ekg/fastix.git \
 RUN PORTABLE=1 git clone --recursive https://github.com/pangenome/impg.git \
     && cd impg \
     && git pull \
-    && git checkout 27c447daf0b9cbf5fd0543665b7cda1836a81984 \
+    && git checkout f773342a75da244f05bc93663857b77c3bc8a9f7 \
     && git submodule update --init --recursive \
     && PORTABLE=1 cargo install --force --path . \
     && mv /root/.cargo/bin/impg /usr/local/bin/impg \
@@ -160,7 +160,7 @@ RUN git clone https://github.com/pangenome/gfalook.git \
 RUN git clone https://github.com/ekg/pafplot.git \
     && cd pafplot \
     && git pull \
-    && git checkout 7dda24c0aeba8556b600d53d748ae3103ec85501 \
+    && git checkout 2785b0ef30d37300afc77fd4b04d1d949c143551 \
     && cargo install --force --path . \
     && mv /root/.cargo/bin/pafplot /usr/local/bin/ \
     && cd ../ \
@@ -197,9 +197,9 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python packages in virtual environment
-RUN pip install multiqc==1.22.2 \
-    && pip install igraph==0.11.5 \
-    && pip install pycairo==1.26.1
+RUN pip install multiqc==1.33 \
+    && pip install igraph==1.0.1 \
+    && pip install pycairo==1.29.0
 
 # copy required scripts
 COPY scripts/* /usr/local/bin/
