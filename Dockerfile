@@ -198,7 +198,7 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Install Python packages in virtual environment
 RUN pip install multiqc==1.33 \
-    && pip install igraph==1.0.1 \
+    && pip install igraph==1.0.0 \
     && pip install pycairo==1.29.0
 
 # copy required scripts
