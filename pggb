@@ -768,10 +768,14 @@ if [[ $vcf_spec != false ]]; then
         if [[ -z $pop_length ]]; then
           pop_length=0
         fi
+        # vg deconstruct -P is a plain prefix match, so append the PanSN '#' delimiter to
+        # the reference to match whole samples/haplotypes (e.g. 'chm1' must not also match 'chm13')
+        ref_prefix="$ref"
+        [[ "$ref_prefix" != *'#' ]] && ref_prefix="$ref_prefix#"
         vcf="$prefix_smoothed_output".final.$(echo $ref | tr '/|' '_').vcf
         if [[ ! -s $vcf || $resume == false ]]; then
           echo "[vg::deconstruct] making VCF with reference=$ref and delim=# xxxxxxxxxxxxx $s ------------ $pop_length"
-          ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P "$ref" \
+          ( TEMPDIR=$(pwd) $timer -f "$fmt" vg deconstruct -P "$ref_prefix" \
                    -H "#" -e -a -t $threads "$prefix_smoothed_output".final.gfa >"$vcf" ) 2> >(tee -a "$log_file")
           bcftools stats "$vcf" > "$vcf".stats
         fi
