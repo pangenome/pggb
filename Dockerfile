@@ -112,7 +112,7 @@ RUN git clone https://github.com/pangenome/vcfbub \
     && cd vcfbub \
     && git pull \
     && git checkout 77289654b246a4e3422902d04277e258d9fabe9a \
-    && cargo install --force --path . \
+    && cargo install --force --locked --path . \
     && mv /root/.cargo/bin/vcfbub /usr/local/bin/vcfbub \
     && cd ../ \
     && rm -rf vcfbub
@@ -133,7 +133,7 @@ RUN git clone https://github.com/ekg/fastix.git \
     && cd fastix \
     && git pull \
     && git checkout 331c1159ea16625ee79d1a82522e800c99206834 \
-    && cargo install --force --path . && \
+    && cargo install --force --locked --path . && \
     mv /root/.cargo/bin/fastix /usr/local/bin/fastix \
     && cd ../ \
     && rm -rf fastix
@@ -143,7 +143,7 @@ RUN PORTABLE=1 git clone --recursive https://github.com/pangenome/impg.git \
     && git pull \
     && git checkout f773342a75da244f05bc93663857b77c3bc8a9f7 \
     && git submodule update --init --recursive \
-    && PORTABLE=1 cargo install --force --path . \
+    && PORTABLE=1 cargo install --force --locked --path . \
     && mv /root/.cargo/bin/impg /usr/local/bin/impg \
     && cd ../ \
     && rm -rf impg
@@ -152,7 +152,7 @@ RUN git clone https://github.com/pangenome/gfalook.git \
     && cd gfalook \
     && git pull \
     && git checkout 5199d77ecc4980b181177c16b94f6e56c0d06e4c \
-    && cargo install --force --path . \
+    && cargo install --force --locked --path . \
     && mv /root/.cargo/bin/gfalook /usr/local/bin/gfalook \
     && cd ../ \
     && rm -rf gfalook
@@ -161,7 +161,7 @@ RUN git clone https://github.com/ekg/pafplot.git \
     && cd pafplot \
     && git pull \
     && git checkout 2785b0ef30d37300afc77fd4b04d1d949c143551 \
-    && cargo install --force --path . \
+    && cargo install --force --locked --path . \
     && mv /root/.cargo/bin/pafplot /usr/local/bin/ \
     && cd ../ \
     && rm -rf pafplot
