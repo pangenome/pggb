@@ -54,7 +54,7 @@ you can run the container using the human leukocyte antigen (HLA) data provided 
 
 .. code-block:: bash
 
-    docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -n 10 -t 16 -V 'gi|568815561' -o /data/out"
+    docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -t 16 -V 'grch38' -o /data/out"
 
 
 The ``-v`` argument of ``docker run`` always expects a full path.
@@ -91,7 +91,7 @@ Staying in the ``pggb`` directory, we can run ``pggb`` with the locally build im
 
 .. code-block:: bash
 
-    docker run -it -v ${PWD}/data/:/data ${USER}/pggb /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -n 10 -t 16 -V 'gi|568815561' -o /data/out"
+    docker run -it -v ${PWD}/data/:/data ${USER}/pggb /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -t 16 -V 'grch38' -o /data/out"
 
 A script that handles the whole building process automatically can be found at `https://github.com/nf-core/pangenome#building-a-native-container <https://github.com/nf-core/pangenome#building-a-native-container>`_`.
 
@@ -122,7 +122,7 @@ Finally, run `pggb` from the Singularity image.
 For Singularity to be able to read and write files to a directory on the host operating system, we need to 'bind' that directory using the `-B` option and pass the `pggb` command as an argument.
 
 .. code-block:: bash
-    singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -n 10 -t 16 -V 'gi|568815561' -o /data/out"
+    singularity run -B ${PWD}/data:/data ../pggb_latest.sif "pggb -i /data/HLA/DRB1-3123.fa.gz -p 70 -s 3000 -t 16 -V 'grch38' -o /data/out"
 
 A script that handles the whole building process automatically can be found at `https://github.com/nf-core/pangenome#building-a-native-container <https://github.com/nf-core/pangenome#building-a-native-container>`_`.
 
