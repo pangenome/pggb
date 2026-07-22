@@ -207,5 +207,8 @@ COPY scripts /usr/local/bin/scripts/
 
 # Hacky-way to easily get versioning info
 COPY .git /usr/local/bin/
+# .git is root-owned, so `git describe` in /usr/local/bin fails with "dubious
+# ownership" when the container runs as another user; trust the directory
+RUN git config --system --add safe.directory /usr/local/bin
 
 SHELL ["/bin/bash", "-c"]
