@@ -143,11 +143,11 @@ Here, we explain them using a test from the [`data/HLA`](https://github.com/pang
 ```bash
 git clone --recursive https://github.com/pangenome/pggb
 cd pggb
-./pggb -i data/HLA/DRB1-3123.fa.gz -n 12 -t 16 -V 'gi|568815561' -o out -M
+./pggb -i data/HLA/DRB1-3123.fa.gz -t 16 -V 'grch38' -o out -M
 ```
 
-This yields a variation graph in GFA format, a multiple sequence alignment in MAF format (`-M`), and several diagnostic images (all in the directory `out/`). We specify `-n` because the sequences do not follow [PanSN-spec](https://github.com/pangenome/PanSN-spec), so the number of haplotypes can not be automatically computed.
-We also call variants with `-V` with respect to the reference `gi|568815561`.
+This yields a variation graph in GFA format, a multiple sequence alignment in MAF format (`-M`), and several diagnostic images (all in the directory `out/`). The sequences follow [PanSN-spec](https://github.com/pangenome/PanSN-spec), so the number of haplotypes is detected automatically.
+We also call variants with `-V` with respect to the reference `grch38`.
 
 ### 1D graph visualization
 
@@ -252,7 +252,7 @@ cd pggb
 you can run the container using the [human leukocyte antigen (HLA) data](data/HLA) provided in this repo:
 
 ```bash
-docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -n 12 -t 16 -V 'gi|568815561' -o /data/out"
+docker run -it -v ${PWD}/data/:/data ghcr.io/pangenome/pggb:latest /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -t 16 -V 'grch38' -o /data/out"
 ```
 
 The `-v` argument of `docker run` always expects a full path.
@@ -281,7 +281,7 @@ docker build --target binary -t ${USER}/pggb:latest .
 Staying in the `pggb` directory, we can run `pggb` with the locally built image:
 
 ```bash
-docker run -it -v ${PWD}/data/:/data ${USER}/pggb /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -n 12 -t 16 -V 'gi|568815561' -o /data/out"
+docker run -it -v ${PWD}/data/:/data ${USER}/pggb /bin/bash -c "pggb -i /data/HLA/DRB1-3123.fa.gz -t 16 -V 'grch38' -o /data/out"
 ```
 A script that handles the whole building process automatically can be found at https://github.com/nf-core/pangenome#building-a-native-container.
 
@@ -308,7 +308,7 @@ Finally, run `pggb` from the Singularity image.
 For Singularity, to be able to read and write files to a directory on the host operating system, we need to 'bind' that directory using the `-B` option and pass the `pggb` command as an argument.
 
 ```bash
-singularity run -B ${PWD}/data:/data ../pggb_latest.sif pggb -i /data/HLA/DRB1-3123.fa.gz -n 12 -t 16 -V 'gi|568815561' -o /data/out
+singularity run -B ${PWD}/data:/data ../pggb_latest.sif pggb -i /data/HLA/DRB1-3123.fa.gz -t 16 -V 'grch38' -o /data/out
 ```
 
 A script that handles the whole building process automatically can be found at https://github.com/nf-core/pangenome#building-a-native-container.
