@@ -220,5 +220,10 @@ mkdir -p "$DIR_OUTPUT"
 rm -rf "$DIR_OUTPUT"/*.sdf
 rm -rf "$DIR_OUTPUT"/nucmer
 rm -rf "$DIR_OUTPUT"/vcfeval
-mv "$PREFIX"* statistics.haplo*.tsv nucmer vcfeval "$DIR_OUTPUT"
+# never move the input GFA: it can match "$PREFIX"* when it is in the working directory (issue #297)
+for f in "$PREFIX"*; do
+    [[ "$(readlink -f "$f")" == "$(readlink -f "$PATH_GFA")" ]] && continue
+    mv "$f" "$DIR_OUTPUT"
+done
+mv statistics.haplo*.tsv nucmer vcfeval "$DIR_OUTPUT"
 
