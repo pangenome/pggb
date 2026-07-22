@@ -306,6 +306,16 @@ elif [ "$n_mappings" -lt 1 ]; then
     exit
 fi
 
+# seqwish interprets commas as PAF-file separators, so paths reaching it must not contain commas
+if [[ "$output_dir" == *,* ]]; then
+    >&2 echo "[pggb] ERROR: -o/--output-dir cannot contain commas (','): seqwish interprets them as PAF-file separators."
+    exit 1
+fi
+if [[ "$input_temp_dir" != false && "$input_temp_dir" == *,* ]]; then
+    >&2 echo "[pggb] ERROR: -D/--temp-dir cannot contain commas (','): seqwish interprets them as PAF-file separators."
+    exit 1
+fi
+
 # Check Pangenome Sequence Naming (PanSN)
 pansn_not_respected=false
 while IFS= read -r line; do
