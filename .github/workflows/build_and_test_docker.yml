@@ -18,7 +18,7 @@ jobs:
           # This reproduces the "Illegal instruction" crash seen on Apple Silicon Macs
           # running x86_64 Docker images under QEMU emulation.
           failed=0
-          for bin in wfmash seqwish smoothxg; do
+          for bin in wfmash seqwish smoothxg agc; do
             echo "==> Testing $bin for AVX portability..."
             docker run -v /usr/bin/qemu-x86_64-static:/usr/bin/qemu-x86_64-static pggb \
               bash -c "qemu-x86_64-static -cpu Westmere /usr/local/bin/$bin --version 2>&1; ret=\$?; if [ \$ret -eq 132 ]; then echo 'FATAL: $bin crashed with Illegal instruction (AVX?)'; exit 1; fi; exit 0" || failed=1
@@ -39,5 +39,22 @@ jobs:
         run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/HLA/DRB1-3123.fa.gz -a data/paf/DRB1-3123.fa.15a1009.wfmash.paf -G 2000 -n 10 -t 2 -Z -M -m -o drib1_paf && ls drib1_paf/* && head drib1_paf/*.log -n 63"
       - name: Run a test on the LPA dataset (SPOA global)
         run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "pggb -i data/LPA/LPA.fa.gz -p 95 -s 2000 -G 800,900 -k 79 -t 2 -Z -O 0.001 -m --global-poa -o lpa -V 'chm13,chm1:1000' && ls lpa/* && head lpa/*.log -n 63"
+      - name: Run a test on the DRB1-3123 dataset stored in an AGC archive
+        run: |
+          docker run -v ${PWD}/data/:/data pggb /bin/bash -c '
+            set -eux
+            cd /tmp
+            # build an AGC archive from the same sequences the FASTA test uses
+            zcat /data/HLA/DRB1-3123.fa.gz > drb1.fa
+            samtools faidx drb1.fa
+            agc create -o drb1.agc drb1.fa
+            # induce the graph from both, reusing one alignment so the only difference
+            # is where the sequences come from (-A keeps the seqwish graph)
+            paf=/data/paf/DRB1-3123.fa.15a1009.wfmash.paf
+            pggb -i drb1.fa  -a "$paf" -n 12 -t 2 -A -o out_fasta
+            pggb -i drb1.agc -a "$paf" -n 12 -t 2 -A -o out_agc
+            diff out_fasta/*.seqwish.gfa out_agc/*.seqwish.gfa
+            echo "AGC input produced the same graph as the FASTA"
+          '
       - name: Run a test for the gfa2evaluation script on a mini HPRC chrMT dataset
         run: docker run -v ${PWD}/data/:/data pggb /bin/bash -c "gfa2evaluation.sh data/chrM.pan.4.gfa chm13 data/test_eval 2"
