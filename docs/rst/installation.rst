@@ -12,7 +12,7 @@ Manual-mode
    <br />
 
 You'll need `wfmash <https://github.com/waveygang/wfmash>`_, `seqwish <https://github.com/ekg/seqwish>`_, `smoothxg <https://github.com/pangenome/smoothxg>`_,
-`odgi <https://github.com/pangenome/odgi>`_, and `gfaffix <https://github.com/marschall-lab/GFAffix>`_ in your shell's ``PATH``. They can be build from source or installed via Bioconda. Then, add the ``pggb`` bash script to your ``PATH`` to complete the installation. 
+`odgi <https://github.com/pangenome/odgi>`_, and `gfaffix <https://github.com/marschall-lab/GFAffix>`_ in your shell's ``PATH``. They can be build from source or installed via Bioconda. To use an AGC archive (``.agc``) as input, you also need `agc <https://github.com/refresh-bio/agc>`_ in your ``PATH`` and a ``wfmash`` built with AGC support. Then, add the ``pggb`` bash script to your ``PATH`` to complete the installation.
 `How to add a binary to my path? <https://zwbetz.com/how-to-add-a-binary-to-your-path-on-macos-linux-windows/>`_ |br|
 Optionally, install `bcftools <https://github.com/samtools/bcftools>`_, `vcfbub <https://github.com/pangenome/vcfbub>`_, `vcfwave <https://github.com/vcflib/vcflib>`, and `vg <https://github.com/vgteam/vg>`_ for calling and normalizing variants, `MultiQC <https://multiqc.info/>`_ for generating summarized statistics in a MultiQC report, or `pigz <https://zlib.net/pigz/>`_ to compress the output files of the pipeline.
 

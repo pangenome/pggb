@@ -218,6 +218,7 @@ also rectifies issues with the initial wfa-based alignment.
 
 You'll need `wfmash`, `seqwish`, `smoothxg`, `odgi`, and `gfaffix` in your shell's `PATH`.
 These can be individually built and installed.
+To use an AGC archive (`.agc`) as input you also need [`agc`](https://github.com/refresh-bio/agc) in your `PATH`, and a `wfmash` built with AGC support.
 Then, put the `pggb` bash script in your path to complete installation.
 Optionally, install `bcftools`, `vcfbub`, `vcfwave`, and `vg` for calling and normalizing variants, `MultiQC` for generating summarized statistics in a MultiQC report, or `pigz` to compress the output files of the pipeline.
 
