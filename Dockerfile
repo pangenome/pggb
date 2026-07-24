@@ -52,13 +52,28 @@ RUN wget https://github.com/samtools/bcftools/releases/download/1.19/bcftools-1.
     && tar xjf bcftools-1.19.tar.bz2 \
     && cd bcftools-1.19/ && ./configure --prefix=/usr/local/bin/ && make && make install && export PATH=/usr/local/bin/bin:$PATH && cd .. && cp /usr/local/bin/bin/* /usr/local/bin/
 
+# AGC (Assembled Genomes Compressor): the agc binary lets pggb list and extract the sequences
+# of an .agc input, and libagc is linked into wfmash so it can read archives directly.
+# PLATFORM=sse2 keeps the build portable (AGC defaults to -march=native).
+# Only the few files wfmash links against are kept, the source tree is dropped.
+RUN git clone --recursive --branch v3.2.1 https://github.com/refresh-bio/agc /opt/agc-src \
+    && cd /opt/agc-src \
+    && make PLATFORM=sse2 -j $(nproc) \
+    && cp bin/agc /usr/local/bin/agc \
+    && mkdir -p /opt/agc/bin /opt/agc/src/lib-cxx /opt/agc/3rd_party/zstd/lib \
+    && cp bin/libagc.a /opt/agc/bin/ \
+    && cp src/lib-cxx/agc-api.h /opt/agc/src/lib-cxx/ \
+    && cp 3rd_party/zstd/lib/libzstd.a /opt/agc/3rd_party/zstd/lib/ \
+    && cd / \
+    && rm -rf /opt/agc-src
+
 RUN git clone --recursive https://github.com/waveygang/wfmash \
     && cd wfmash \
     && git pull \
     && git checkout v0.14.1 \
     && git submodule update --init --recursive \
     && find . \( -name CMakeLists.txt -o -name Makefile \) -exec sed -i 's/-march=native/-march=x86-64-v2/g' {} + \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=x86-64-v2 -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
+    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=x86-64-v2 -Ofast' -DAGC_ROOT=/opt/agc -Bbuild && cmake --build build -- -j $(nproc) \
     && cp build/bin/wfmash /usr/local/bin/wfmash \
     # Libraries aren't getting installed
     && cp build/lib/* /usr/local/lib/ \
@@ -67,17 +82,6 @@ RUN git clone --recursive https://github.com/waveygang/wfmash \
     && sed -i 's/kill 1, \$child;/kill 1, \$child if \$child > 1;/' /usr/local/bin/paf2dotplot \
     && cd ../ \
     && rm -rf wfmash
-
-RUN git clone --recursive https://github.com/ekg/seqwish \
-    && cd seqwish \
-    && git pull \
-    && git checkout 90dc76e1204fcfc6d9642373cb05dca8aa197164 \
-    && git submodule update --init --recursive \
-    && find . \( -name CMakeLists.txt -o -name Makefile \) -exec sed -i 's/-march=native/-march=x86-64-v2/g' {} + \
-    && cmake -H. -DCMAKE_BUILD_TYPE=Generic -DEXTRA_FLAGS='-march=x86-64-v2 -Ofast' -Bbuild && cmake --build build -- -j $(nproc) \
-    && cp bin/seqwish /usr/local/bin/seqwish \
-    && cd ../ \
-    && rm -rf seqwish
 
 RUN git clone --recursive https://github.com/pangenome/smoothxg \
     && cd smoothxg \
@@ -96,6 +100,17 @@ RUN git clone --recursive https://github.com/pangenome/smoothxg \
 RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN cargo --help
+
+# seqwish is a Rust crate, so it is built after the Rust toolchain is available.
+# RUSTFLAGS overrides the target-cpu=native in the crate's .cargo/config.toml, which would
+# otherwise bake the build machine's instruction set (AVX) into the image.
+RUN git clone https://github.com/pangenome/seqwish \
+    && cd seqwish \
+    && git checkout aab5beeb8d734134dfb7cc0c44fc5a38cb580a4b \
+    && RUSTFLAGS="-C target-cpu=x86-64-v2" cargo install --force --locked --path . \
+    && mv /root/.cargo/bin/seqwish /usr/local/bin/seqwish \
+    && cd ../ \
+    && rm -rf seqwish
 
 RUN git clone https://github.com/marschall-lab/GFAffix.git \
     && cd GFAffix \

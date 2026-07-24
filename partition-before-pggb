@@ -187,7 +187,7 @@ if [ "$show_help" == true ]; then
     echo "usage: $0 -i <input-fasta> -o <output-dir> [options]"
     echo "options:"
     echo "   [wfmash]"
-    echo "    -i, --input-fasta FILE      input FASTA/FASTQ file"
+    echo "    -i, --input-fasta FILE      input FASTA/FASTQ file, or an AGC archive (.agc)"
     echo "    -s, --segment-length N      segment length for mapping [default: "$SEGMENT_LENGTH"]"
     echo "    -l, --block-length N        minimum block length filter for mapping [default: 5*segment-length]"
     echo "    -p, --map-pct-id PCT        percent identity for mapping/alignment [default: "$MAP_PCT_ID"]"
@@ -286,6 +286,13 @@ if [[ $multiqc == true ]]; then
 check_tool_availability "MultiQC" "multiqc"
 fi
 
+# AGC input support: an .agc archive is enumerated/extracted with the agc CLI instead of a samtools .fai
+input_is_agc=false
+if [[ "$input_fasta" == *.agc ]]; then
+    input_is_agc=true
+    check_tool_availability "agc" "agc"
+fi
+
 # If there are missing tools, report them and exit
 if [ ${#missing_tools[@]} -ne 0 ]; then
   echo "[pggb] ERROR: the following tools are not installed or not in the PATH:"
@@ -295,10 +302,31 @@ if [ ${#missing_tools[@]} -ne 0 ]; then
   exit 1
 fi
 
+# Emit one sequence name per line: from the samtools .fai for FASTA/FASTQ, or from
+# the AGC archive (listctg lists contigs indented under each sample name) for .agc.
+pggb_seq_names() {
+    if [[ "$input_is_agc" == true ]]; then
+        agc listctg "$input_fasta" $(agc listset "$input_fasta") | grep '^ ' | awk '{print $1}'
+    else
+        cut -f 1 "${input_fasta}.fai"
+    fi
+}
+
+# Command (as an array, so $timer can wrap it) that extracts the named sequences of a
+# community to FASTA on stdout: samtools faidx for FASTA/FASTQ, agc getctg for .agc.
+if [[ "$input_is_agc" == true ]]; then
+    extract_cmd=(agc getctg "$input_fasta")
+else
+    extract_cmd=(samtools faidx "$input_fasta")
+fi
+
 if [ "$input_fasta" = "false" ] || [ "$output_dir" = "false" ]; then
     >&2 echo "[pggb] ERROR: mandatory argument: -i/--input-fasta and -o/--output-dir"
     exit
-elif [ ! -f "${input_fasta}.fai" ]; then
+elif [[ "$input_is_agc" == true && ! -f "$input_fasta" ]]; then
+    echo "[pggb] ERROR: input AGC archive $input_fasta does not exist."
+    exit 1
+elif [[ "$input_is_agc" == false && ! -f "${input_fasta}.fai" ]]; then
     echo "[pggb] ERROR: index for $input_fasta does not exist. Please create it using 'samtools faidx $input_fasta'."
     exit 1
 elif [ "$n_mappings" -lt 1 ]; then
@@ -316,6 +344,19 @@ if [[ "$input_temp_dir" != false && "$input_temp_dir" == *,* ]]; then
     exit 1
 fi
 
+# AGC identifies a sequence by (sample, contig), so an archive may hold the same contig name
+# in several samples. pggb needs every sequence to have a unique name (PanSN gives one by
+# construction), and `agc getctg` writes the bare contig name as the FASTA header, so such an
+# archive cannot be extracted unambiguously. Reject it rather than build a corrupt graph.
+if [[ "$input_is_agc" == true ]]; then
+  duplicated_name=$(pggb_seq_names | sort | uniq -d | head -n 1)
+  if [[ -n "$duplicated_name" ]]; then
+    >&2 echo "[pggb] ERROR: $input_fasta contains the contig name '$duplicated_name' in more than one sample."
+    >&2 echo "[pggb] Sequence names must be unique; use Pangenome Sequence Naming (sample#haplotype#contig)."
+    exit 1
+  fi
+fi
+
 # Check Pangenome Sequence Naming (PanSN)
 pansn_not_respected=false
 while IFS= read -r line; do
@@ -323,7 +364,7 @@ while IFS= read -r line; do
     pansn_not_respected=$line
     break
   fi
-done < <(cut -f 1 "${input_fasta}.fai")
+done < <(pggb_seq_names)
 if [ "$pansn_not_respected" != "false" ]; then
   >&2 echo "[pggb] warning: there are sequence names (like '$pansn_not_respected') that do not match the Pangenome Sequence Naming (PanSN)."
   
@@ -381,7 +422,7 @@ fi
 
 # Normalization ($n_haps is checked in this part of the script because it is also used for the 'auto' mapping sparsification)
 if [[ $n_haps == false ]]; then
-    n_haps=$(cut -f 1 "${input_fasta}.fai" | cut -f 1,2 -d '#' | sort | uniq | wc -l)
+    n_haps=$(pggb_seq_names | cut -f 1,2 -d '#' | sort | uniq | wc -l)
 fi
 
 sparse_map_cmd=""
@@ -606,13 +647,13 @@ ls "$prefix_paf".community.*.txt | while read community; do
   prefix_fasta="$output_dir"/$(basename "$community" .txt)
   if [[ $compress == true ]]; then
     if [[ ! -s "$prefix_fasta".fa.gz || $resume == false ]]; then
-      ($timer -f "$fmt" samtools faidx "$input_fasta" $(cat "$community") | \
+      ($timer -f "$fmt" "${extract_cmd[@]}" $(cat "$community") | \
         bgzip -@ "$threads" -c > "$prefix_fasta".fa.gz) 2> >(tee -a "$log_file")
       ($timer -f "$fmt" samtools faidx "$prefix_fasta".fa.gz) 2> >(tee -a "$log_file")
     fi
   else
     if [[ ! -s "$prefix_fasta".fa || $resume == false ]]; then
-      ($timer -f "$fmt" samtools faidx "$input_fasta" $(cat "$community") \
+      ($timer -f "$fmt" "${extract_cmd[@]}" $(cat "$community") \
         > "$prefix_fasta".fa) 2> >(tee -a "$log_file")
       ($timer -f "$fmt" samtools faidx "$prefix_fasta".fa) 2> >(tee -a "$log_file")
     fi
