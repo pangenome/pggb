@@ -101,11 +101,13 @@ RUN curl https://sh.rustup.rs -sSf | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN cargo --help
 
-# seqwish is a Rust crate, so it is built after the Rust toolchain is available
+# seqwish is a Rust crate, so it is built after the Rust toolchain is available.
+# RUSTFLAGS overrides the target-cpu=native in the crate's .cargo/config.toml, which would
+# otherwise bake the build machine's instruction set (AVX) into the image.
 RUN git clone https://github.com/pangenome/seqwish \
     && cd seqwish \
     && git checkout aab5beeb8d734134dfb7cc0c44fc5a38cb580a4b \
-    && cargo install --force --locked --path . \
+    && RUSTFLAGS="-C target-cpu=x86-64-v2" cargo install --force --locked --path . \
     && mv /root/.cargo/bin/seqwish /usr/local/bin/seqwish \
     && cd ../ \
     && rm -rf seqwish
